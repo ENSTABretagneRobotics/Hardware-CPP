@@ -62,12 +62,16 @@ Debug macros specific to OSTime.
 #endif // _DEBUG_ERRORS_OSTIME
 
 #ifdef _WIN32
+#ifndef ENABLE_SYS_TIME_H_WIN32
 #ifdef ENABLE_GETTIMEOFDAY_WIN32
 // To get struct timeval.
 #include <winsock2.h>
 // To get struct _timeb.
 //#include <sys/timeb.h>
 #endif // ENABLE_GETTIMEOFDAY_WIN32
+#else
+#include <sys/time.h>
+#endif // ENABLE_SYS_TIME_H_WIN32
 #else 
 // CLOCK_MONOTONIC is a clock that cannot be set and represents monotonic time since 
 // some unspecified starting point.
@@ -104,7 +108,7 @@ struct CHRONO
 typedef struct CHRONO CHRONO;
 #endif // _WIN32
 #else
-#ifdef ENABLE_GETTIMEOFDAY_WIN32
+#if defined(ENABLE_GETTIMEOFDAY_WIN32) || defined(ENABLE_SYS_TIME_H_WIN32)
 /*
 Structure for a basic chronometer.
 Might not work correctly if used during more than approximately 68 years. 
@@ -133,10 +137,11 @@ struct CHRONO
 	BOOL Suspended; // Used to know if the chronometer is currently suspended.
 };
 typedef struct CHRONO CHRONO;
-#endif // ENABLE_GETTIMEOFDAY_WIN32
+#endif // defined(ENABLE_GETTIMEOFDAY_WIN32) || defined(ENABLE_SYS_TIME_H_WIN32)
 #endif // USE_OLD_CHRONO
 
 #ifdef _WIN32
+#ifndef ENABLE_SYS_TIME_H_WIN32
 #ifdef ENABLE_GETTIMEOFDAY_WIN32
 //#define DELTA_EPOCH_IN_MICROSECS 11644473600000000ui64
 //#define DELTA_EPOCH_IN_MICROSECS 11644473600000000ULL
@@ -237,6 +242,7 @@ inline int gettimeofday(struct timeval* tv, struct timezone* tz)
 
 	return EXIT_SUCCESS;
 }
+
 //inline int gettimeofday(struct timeval* tp, void* tz)
 //{
 //	struct _timeb timebuffer;
@@ -248,7 +254,26 @@ inline int gettimeofday(struct timeval* tv, struct timezone* tz)
 //	tp->tv_usec = timebuffer.millitm*1000;
 //	return 0;
 //}
+
+//// From olsrd...
+//inline void gettimeofday(struct timeval *TVal, void *TZone __attribute__ ((unused)))
+//{
+//	SYSTEMTIME SysTime;
+//	FILETIME FileTime;
+//	unsigned __int64 Ticks;
+//
+//	GetSystemTime(&SysTime);
+//	SystemTimeToFileTime(&SysTime, &FileTime);
+//
+//	Ticks = ((__int64) FileTime.dwHighDateTime << 32) | (__int64) FileTime.dwLowDateTime;
+//
+//	Ticks -= 116444736000000000LL;
+//
+//	TVal->tv_sec = (unsigned int)(Ticks / 10000000);
+//	TVal->tv_usec = (unsigned int)(Ticks % 10000000) / 10;
+//}
 #endif // ENABLE_GETTIMEOFDAY_WIN32
+#endif // ENABLE_SYS_TIME_H_WIN32
 #endif // _WIN32
 
 #ifndef _WIN32
@@ -998,7 +1023,7 @@ inline double StopChronoQuick(CHRONO* pChrono)
 }
 #endif // _WIN32
 #else
-#ifdef ENABLE_GETTIMEOFDAY_WIN32
+#if defined(ENABLE_GETTIMEOFDAY_WIN32) || defined(ENABLE_SYS_TIME_H_WIN32)
 /*
 Start a chronometer.
 
@@ -1590,7 +1615,7 @@ inline double StopChronoQuick(CHRONO* pChrono)
 		return pChrono->Duration;
 	}
 }
-#endif // ENABLE_GETTIMEOFDAY_WIN32
+#endif // defined(ENABLE_GETTIMEOFDAY_WIN32) || defined(ENABLE_SYS_TIME_H_WIN32)
 #endif // USE_OLD_CHRONO
 
 #endif // OSTIME_H

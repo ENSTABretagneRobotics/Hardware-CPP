@@ -5,6 +5,8 @@ COM6
 9600
 % bSaveRawData
 0
+% DeviceNumber (default is 12)
+12
 % channel 0
 % MinPW (in us)
 1000

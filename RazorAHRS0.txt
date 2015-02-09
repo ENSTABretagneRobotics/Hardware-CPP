@@ -2,9 +2,9 @@
 %127.0.0.1:4010
 COM5
 % BaudRate
-115200
+57600
 % bSaveRawData
-1
+0
 % rollorientation
 0.0
 % rollp1
@@ -18,8 +18,8 @@ COM5
 % pitchp2
 0.0
 % yaworientation
-0
+0.0
 % yawp1
-0
+0.0
 % yawp2
-0
+0.0

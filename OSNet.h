@@ -99,7 +99,9 @@ Debug macros specific to OSNet.
 #include <arpa/inet.h>
 #endif // _WIN32
 
+#ifndef DEFAULT_SOCK_TIMEOUT
 #define DEFAULT_SOCK_TIMEOUT 10000
+#endif // DEFAULT_SOCK_TIMEOUT
 
 #ifdef _WIN32
 /*

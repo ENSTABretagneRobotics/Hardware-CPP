@@ -130,13 +130,13 @@ _ Windows CE : WINCE
 // To fix...
 
 #pragma GCC diagnostic ignored "-Wwrite-strings"
-//#if (__GNUC__) > 4 || (__GNUC__ == 4 && __GNUC_MINOR__ >= 6)
+//#if (((__GNUC__ == 4) && (__GNUC_MINOR__ >= 6)) || (__GNUC__ > 4))
 //#pragma GCC diagnostic push
-//#endif // #if __GNUC__ > 4 || (__GNUC__ == 4 && __GNUC_MINOR__ >= 6)
+//#endif // (((__GNUC__ == 4) && (__GNUC_MINOR__ >= 6)) || (__GNUC__ > 4))
 //
-//#if (__GNUC__) > 4 || (__GNUC__ == 4 && __GNUC_MINOR__ >= 6)
+//#if (((__GNUC__ == 4) && (__GNUC_MINOR__ >= 6)) || (__GNUC__ > 4))
 //#pragma GCC diagnostic pop
-//#endif // #if __GNUC__ > 4 || (__GNUC__ == 4 && __GNUC_MINOR__ >= 6)
+//#endif // (((__GNUC__ == 4) && (__GNUC_MINOR__ >= 6)) || (__GNUC__ > 4))
 
 #endif // __GNUC__
 
@@ -213,6 +213,7 @@ _ Windows CE : WINCE
 #endif // EXTERN_C
 
 #ifndef __cplusplus
+#ifndef inline
 #ifdef _MSC_VER
 #define inline __inline
 #endif // _MSC_VER
@@ -223,6 +224,7 @@ _ Windows CE : WINCE
 // extern __inline__ in ws2tcpip.h for GNU?
 #define inline static __inline__
 #endif // __GNUC__
+#endif // inline
 #endif // __cplusplus
 
 #if !defined(NOMINMAX) || defined(FORCE_MINMAX_DEFINITION)
@@ -278,13 +280,13 @@ typedef double DOUBLE;
 #endif // WINCE
 
 #ifndef _WIN32
-#ifndef ZeroMemory
+//#ifndef ZeroMemory
 #define ZeroMemory(Destination,Length) memset((Destination),0,(Length))
-#endif // ZeroMemory
+//#endif // ZeroMemory
 typedef void* HANDLE;
-#ifndef INVALID_HANDLE_VALUE
+//#ifndef INVALID_HANDLE_VALUE
 #define INVALID_HANDLE_VALUE ((HANDLE)-1)
-#endif // INVALID_HANDLE_VALUE
+//#endif // INVALID_HANDLE_VALUE
 typedef int                 BOOL;
 #ifndef FALSE
 #define FALSE               0

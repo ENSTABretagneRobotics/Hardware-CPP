@@ -27,6 +27,62 @@ Version status : Tested some parts
 
 #ifndef DISABLE_USER_INPUT_FUNCTIONS
 #ifndef DISABLE_USER_INPUT_TIMEOUT_FUNCTIONS
+//// From olsrd...
+//void clear_console(void)
+//{
+//#if !defined WINCE
+//	HANDLE Hand;
+//	CONSOLE_SCREEN_BUFFER_INFO Info;
+//	unsigned long Written;
+//	static COORD Home = { 0, 0 };
+//
+//	Hand = GetStdHandle(STD_OUTPUT_HANDLE);
+//
+//	if (Hand == INVALID_HANDLE_VALUE)
+//		return;
+//
+//	if (!GetConsoleScreenBufferInfo(Hand, &Info))
+//		return;
+//
+//	if (!FillConsoleOutputCharacter(Hand, ' ', Info.dwSize.X * Info.dwSize.Y, Home, &Written))
+//		return;
+//
+//	if (!FillConsoleOutputAttribute(Hand, Info.wAttributes, Info.dwSize.X * Info.dwSize.Y, Home, &Written))
+//		return;
+//
+//	SetConsoleCursorPosition(Hand, Home);
+//#endif
+//}
+
+//// From olsrd...
+//int isatty(int fd)
+//{
+//#if !defined WINCE
+//	HANDLE Hand;
+//	CONSOLE_SCREEN_BUFFER_INFO Info;
+//	unsigned long Events;
+//
+//	if (fd == 0) {
+//		Hand = GetStdHandle(STD_INPUT_HANDLE);
+//		return GetNumberOfConsoleInputEvents(Hand, &Events);
+//	}
+//
+//	else if (fd == 1) {
+//		Hand = GetStdHandle(STD_OUTPUT_HANDLE);
+//		return GetConsoleScreenBufferInfo(Hand, &Info);
+//	}
+//
+//	else if (fd == 2) {
+//		Hand = GetStdHandle(STD_ERROR_HANDLE);
+//		return GetConsoleScreenBufferInfo(Hand, &Info);
+//	}
+//
+//	return -1;
+//#else
+//	return 0;
+//#endif
+//}
+
 /*
 Prompt for the user to press any key until a specified timeout.
 

@@ -710,7 +710,7 @@ inline void RefCoordSystem2GPS(double lat0, double long0, double alt0,
 }
 
 // angle_env : Angle of the x axis of the environment coordinate system 
-// w.r.t an East - North - Up coordinate system, should be set to 0 if no 
+// w.r.t. an East - North - Up coordinate system, should be set to 0 if no 
 // specific environment (i.e. an East - North - Up coordinate system) 
 // is used as reference (in rad).
 inline void GPS2EnvCoordSystem(double lat_env, double long_env, double alt_env, double angle_env,
@@ -883,6 +883,33 @@ inline void Gray2RGB_Seanet(UCHAR val, UCHAR* pR, UCHAR* pG, UCHAR* pB)
 	*pR = (UCHAR)(255.0*Hue_2_RGB(v1,v2,h+1.0/3.0));
 	*pG = (UCHAR)(255.0*Hue_2_RGB(v1,v2,h));
 	*pB = (UCHAR)(255.0*Hue_2_RGB(v1,v2,h-1.0/3.0));
+}
+
+/*
+Example : k in [0..4], m = 5
+255 0 0 - 0
+128 128 0 - 1
+0 255 0 - 2
+0 128 128 - 3
+0  0 255 - 4
+
+255-255*k/m, 255*(1-abs(2*(k/m-1/2))), 255*k/m
+
+Be careful to rounding!
+
+(int)(255-255*(int)k/((int)m-1)), 
+(int)(255-abs((255*2*(int)k-255*((int)m-1))/((int)m-1))), 
+(int)(255*(int)k/((int)m-1))
+*/
+inline void Gray2RGB_Quick(UCHAR val, UCHAR* pR, UCHAR* pG, UCHAR* pB)
+{
+	int r = 255-(int)val;
+	int g = 255-abs(2*(int)val-255);
+	int b = val;
+
+	*pR = (UCHAR)r;
+	*pG = (UCHAR)g;
+	*pB = (UCHAR)b;
 }
 
 /*
