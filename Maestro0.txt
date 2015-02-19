@@ -4,7 +4,7 @@ COM6
 % BaudRate
 9600
 % bSaveRawData
-0
+1
 % DeviceNumber (default is 12)
 12
 % channel 0
@@ -17,7 +17,7 @@ COM6
 % ThresholdPW (in us)
 10
 % CoefPW (-1 or 1)
--1
+1
 % bProportionalPW (0 or 1)
 1
 % channel 1
@@ -30,7 +30,7 @@ COM6
 % ThresholdPW (in us)
 10
 % CoefPW (-1 or 1)
--1
+1
 % bProportionalPW (0 or 1)
 1
 % channel 2
@@ -56,7 +56,7 @@ COM6
 % ThresholdPW (in us)
 10
 % CoefPW (-1 or 1)
--1
+1
 % bProportionalPW (0 or 1)
 1
 % channel 4
