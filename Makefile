@@ -17,6 +17,7 @@ CFLAGS += -D DISABLE_P33XTHREAD
 CFLAGS += -D DISABLE_SSC32THREAD
 CFLAGS += -D DISABLE_MAESTROTHREAD
 CFLAGS += -D DISABLE_MINISSCTHREAD
+CFLAGS += -D DISABLE_MDMTHREAD
 
 # For Windows/MinGW
 LDFLAGS += -lws2_32
@@ -47,7 +48,7 @@ OSTime.o: OSTime.c OSTime.h OSCore.o
 
 ############################# PROGS #############################
 
-Main.o: Main.cpp OSCore.h OSTime.h OSMisc.h OSNet.h OSComputerRS232Port.h RS232Port.h MT.h RazorAHRS.h NMEADevice.h SwarmonDevice.h P33x.h SSC32.h Maestro.h MiniSSC.h
+Main.o: Main.cpp OSCore.h OSTime.h OSMisc.h OSNet.h OSComputerRS232Port.h RS232Port.h MT.h RazorAHRS.h NMEADevice.h SwarmonDevice.h P33x.h SSC32.h Maestro.h MiniSSC.h MDM.h 
 	$(CC) $(CFLAGS) -c $<
 
 Test_devices: Main.o OSTime.o OSNet.o OSMisc.o OSCore.o OSComputerRS232Port.o
