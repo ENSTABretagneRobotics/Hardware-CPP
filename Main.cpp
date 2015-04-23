@@ -79,7 +79,7 @@ int main(int argc, char* argv[])
 		//printf("%f;%f\n", u1, u2);
 
 		b = 0;
-		if (EchoByteMDM(&mdm, (uint8*)&b) == EXIT_SUCCESS) printf("%c", b);
+		if ((EchoByteMDM(&mdm, (uint8*)&b) == EXIT_SUCCESS)&&(b != 0)) printf("%c", b);
 	}
 
 	DisconnectMDM(&mdm);
