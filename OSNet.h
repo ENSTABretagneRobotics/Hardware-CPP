@@ -26,6 +26,9 @@ Version status : Tested some parts
 #define OSNET_H
 
 #include "OSTime.h"
+#ifndef DISABLE_THREADS_OSNET
+#include "OSThread.h"
+#endif // DISABLE_THREADS_OSNET
 
 /*
 Debug macros specific to OSNet.
@@ -679,7 +682,7 @@ Connect to an IPv4 UDP server.
 
 SOCKET* pSock : (INOUT) Valid pointer to a socket that will be used to communicate with the server.
 char* address : (IN) IPv4 address of the server.
-char* port : (IN) TCP port of the server.
+char* port : (IN) UDP port of the server.
 
 Return : EXIT_SUCCESS or EXIT_FAILURE if there is an error.
 */
@@ -731,28 +734,6 @@ inline int initudpcli(SOCKET* pSock, char* address, char* port)
 		return EXIT_FAILURE;
 	}
 
-	//	memset(&sa, 0, sizeof(sa));
-	//
-	//	// The sockaddr_in structure specifies the address family,
-	//	// IP address, and port of the client.
-	//	sa.sin_family = AF_INET;
-	//	sa.sin_addr.s_addr = inet_addr(address);
-	//	sa.sin_port = htons((unsigned short)atoi(port));
-	//
-	//	// Associate the client to the desired address and port.
-	//	if (bind(*pSock, (struct sockaddr*)&sa, sizeof(sa)) != EXIT_SUCCESS)
-	//	{
-	//		PRINT_DEBUG_ERROR_OSNET(("initudpcli error (%s) : %s(address=%s, port=%s)\n", 
-	//			strtime_m(), 
-	//			"bind failed. ", 
-	//			address, port));
-	//		closesocket(*pSock);
-	//#ifdef _WIN32
-	//		WSACleanup();
-	//#endif // _WIN32
-	//		return EXIT_FAILURE;
-	//	}
-
 	memset(&sa, 0, sizeof(sa));
 
 	// The sockaddr_in structure specifies the address family,
@@ -760,6 +741,20 @@ inline int initudpcli(SOCKET* pSock, char* address, char* port)
 	sa.sin_family = AF_INET;
 	sa.sin_addr.s_addr = inet_addr(address);
 	sa.sin_port = htons((unsigned short)atoi(port));
+
+//	// Associate the client to the desired address and port.
+//	if (bind(*pSock, (struct sockaddr*)&sa, sizeof(sa)) != EXIT_SUCCESS)
+//	{
+//		PRINT_DEBUG_ERROR_OSNET(("initudpcli error (%s) : %s(address=%s, port=%s)\n", 
+//			strtime_m(), 
+//			"bind failed. ", 
+//			address, port));
+//		closesocket(*pSock);
+//#ifdef _WIN32
+//		WSACleanup();
+//#endif // _WIN32
+//		return EXIT_FAILURE;
+//	}
 
 	// Connect to server.
 	if (connect(*pSock, (struct sockaddr*)&sa, sizeof(sa)) != EXIT_SUCCESS)
@@ -1375,12 +1370,13 @@ inline int LaunchUDPSrv(char* port, int (*handlecli)(SOCKET, void*), void* pPara
 			{
 				PRINT_DEBUG_WARNING_OSNET(("LaunchUDPSrv warning (%s) : %s\n", 
 					strtime_m(), 
-					"Error while communicating with the client. "));
+					"Error while communicating with a client. "));
 			}
 			if (disconnectclifromudpsrv(sockcli) != EXIT_SUCCESS)
 			{
-				releaseudpsrv(socksrv);
-				return EXIT_FAILURE;
+				PRINT_DEBUG_WARNING_OSNET(("LaunchUDPSrv warning (%s) : %s\n", 
+					strtime_m(), 
+					"Error disconnecting a client. "));
 			}
 			break;
 		case EXIT_TIMEOUT:
@@ -1420,12 +1416,13 @@ inline int LaunchSingleCliTCPSrv(char* port, int (*handlecli)(SOCKET, void*), vo
 			{
 				PRINT_DEBUG_WARNING_OSNET(("LaunchSingleCliTCPSrv warning (%s) : %s\n", 
 					strtime_m(), 
-					"Error while communicating with the client. "));
+					"Error while communicating with a client. "));
 			}
 			if (disconnectclifromtcpsrv(sockcli) != EXIT_SUCCESS)
 			{
-				releasetcpsrv(socksrv);
-				return EXIT_FAILURE;
+				PRINT_DEBUG_WARNING_OSNET(("LaunchSingleCliTCPSrv warning (%s) : %s\n", 
+					strtime_m(), 
+					"Error disconnecting a client. "));
 			}
 			break;
 		case EXIT_TIMEOUT:
@@ -1443,6 +1440,91 @@ inline int LaunchSingleCliTCPSrv(char* port, int (*handlecli)(SOCKET, void*), vo
 
 	return EXIT_SUCCESS;
 }
+
+#ifndef DISABLE_THREADS_OSNET
+struct HANDLECLITHREADPARAM
+{
+	int (*handlecli)(SOCKET, void*);
+	SOCKET sockcli;
+	void* pParam;
+};
+typedef struct HANDLECLITHREADPARAM HANDLECLITHREADPARAM;
+
+EXTERN_C THREAD_PROC_RETURN_VALUE handlecliThreadProc(void* pParam);
+
+inline int LaunchMultiCliTCPSrv(char* port, int (*handlecli)(SOCKET, void*), void* pParam)
+{
+	int iResult = EXIT_FAILURE;
+	SOCKET socksrv = INVALID_SOCKET;
+	SOCKET sockcli = INVALID_SOCKET;
+	THREAD_IDENTIFIER handlecliThreadId;
+	HANDLECLITHREADPARAM* pHandlecliThreadParam = NULL;
+
+	if (inittcpsrv(&socksrv, "0.0.0.0", port, SOMAXCONN, DEFAULT_SOCK_TIMEOUT) != EXIT_SUCCESS)
+	{
+		return EXIT_FAILURE;
+	}
+
+	for (;;)
+	{
+		iResult = waitforclifortcpsrv(socksrv, &sockcli, DEFAULT_SOCK_TIMEOUT);
+		switch (iResult)
+		{
+		case EXIT_SUCCESS:		
+			pHandlecliThreadParam = (HANDLECLITHREADPARAM*)calloc(1, sizeof(HANDLECLITHREADPARAM));
+			if (!pHandlecliThreadParam)	
+			{
+				PRINT_DEBUG_WARNING_OSNET(("LaunchMultiCliTCPSrv warning (%s) : %s\n", 
+					strtime_m(), 
+					"Unable to handle new client. "));
+				if (disconnectclifromtcpsrv(sockcli) != EXIT_SUCCESS)
+				{
+					PRINT_DEBUG_WARNING_OSNET(("LaunchMultiCliTCPSrv warning (%s) : %s\n", 
+						strtime_m(), 
+						"Error disconnecting a client. "));
+				}
+				break;
+			}
+			pHandlecliThreadParam->handlecli = handlecli;
+			pHandlecliThreadParam->sockcli = sockcli;
+			pHandlecliThreadParam->pParam = pParam;
+			if (CreateDefaultThread(handlecliThreadProc, pHandlecliThreadParam, &handlecliThreadId) != EXIT_SUCCESS)
+			{
+				PRINT_DEBUG_WARNING_OSNET(("LaunchMultiCliTCPSrv warning (%s) : %s\n", 
+					strtime_m(), 
+					"Unable to handle new client. "));
+				free(pHandlecliThreadParam);
+				if (disconnectclifromtcpsrv(sockcli) != EXIT_SUCCESS)
+				{
+					PRINT_DEBUG_WARNING_OSNET(("LaunchMultiCliTCPSrv warning (%s) : %s\n", 
+						strtime_m(), 
+						"Error disconnecting a client. "));
+				}
+				break;
+			}
+			if (DetachThread(handlecliThreadId) != EXIT_SUCCESS)
+			{
+				PRINT_DEBUG_WARNING_OSNET(("LaunchMultiCliTCPSrv warning (%s) : %s\n", 
+					strtime_m(), 
+					"Error processing new client. "));
+			}
+			break;
+		case EXIT_TIMEOUT:
+			break;
+		default:
+			releasetcpsrv(socksrv);
+			return EXIT_FAILURE;
+		}
+	}
+
+	if (releasetcpsrv(socksrv) != EXIT_SUCCESS)
+	{
+		return EXIT_FAILURE;
+	}
+
+	return EXIT_SUCCESS;
+}
+#endif // DISABLE_THREADS_OSNET
 #ifdef _MSC_VER
 // Restore the Visual Studio warnings previously disabled.
 #pragma warning(default : 4702) 
@@ -1587,7 +1669,7 @@ inline int sendall(SOCKET sock, char* sendbuf, int sendbuflen)
 #ifdef _DEBUG_MESSAGES_OSNET
 				for (i = 0; i < BytesSent; i++)
 				{
-					PRINT_DEBUG_MESSAGE_OSNET(("%.2x ", (int)sendbuf[i]));
+					PRINT_DEBUG_MESSAGE_OSNET(("%.2x ", (int)(unsigned char)sendbuf[i]));
 				}
 				PRINT_DEBUG_MESSAGE_OSNET(("\n"));
 #endif // _DEBUG_MESSAGES_OSNET
@@ -1608,7 +1690,7 @@ inline int sendall(SOCKET sock, char* sendbuf, int sendbuflen)
 #ifdef _DEBUG_MESSAGES_OSNET
 			for (i = 0; i < BytesSent; i++)
 			{
-				PRINT_DEBUG_MESSAGE_OSNET(("%.2x ", (int)sendbuf[i]));
+				PRINT_DEBUG_MESSAGE_OSNET(("%.2x ", (int)(unsigned char)sendbuf[i]));
 			}
 			PRINT_DEBUG_MESSAGE_OSNET(("\n"));
 #endif // _DEBUG_MESSAGES_OSNET
@@ -1622,7 +1704,7 @@ inline int sendall(SOCKET sock, char* sendbuf, int sendbuflen)
 #ifdef _DEBUG_MESSAGES_OSNET
 	for (i = 0; i < BytesSent; i++)
 	{
-		PRINT_DEBUG_MESSAGE_OSNET(("%.2x ", (int)sendbuf[i]));
+		PRINT_DEBUG_MESSAGE_OSNET(("%.2x ", (int)(unsigned char)sendbuf[i]));
 	}
 	PRINT_DEBUG_MESSAGE_OSNET(("\n"));
 #endif // _DEBUG_MESSAGES_OSNET
@@ -1663,7 +1745,7 @@ inline int recvall(SOCKET sock, char* recvbuf, int recvbuflen)
 #ifdef _DEBUG_MESSAGES_OSNET
 				for (i = 0; i < BytesReceived; i++)
 				{
-					PRINT_DEBUG_MESSAGE_OSNET(("%.2x ", (int)recvbuf[i]));
+					PRINT_DEBUG_MESSAGE_OSNET(("%.2x ", (int)(unsigned char)recvbuf[i]));
 				}
 				PRINT_DEBUG_MESSAGE_OSNET(("\n"));
 #endif // _DEBUG_MESSAGES_OSNET
@@ -1684,7 +1766,7 @@ inline int recvall(SOCKET sock, char* recvbuf, int recvbuflen)
 #ifdef _DEBUG_MESSAGES_OSNET
 			for (i = 0; i < BytesReceived; i++)
 			{
-				PRINT_DEBUG_MESSAGE_OSNET(("%.2x ", (int)recvbuf[i]));
+				PRINT_DEBUG_MESSAGE_OSNET(("%.2x ", (int)(unsigned char)recvbuf[i]));
 			}
 			PRINT_DEBUG_MESSAGE_OSNET(("\n"));
 #endif // _DEBUG_MESSAGES_OSNET
@@ -1698,7 +1780,7 @@ inline int recvall(SOCKET sock, char* recvbuf, int recvbuflen)
 #ifdef _DEBUG_MESSAGES_OSNET
 	for (i = 0; i < BytesReceived; i++)
 	{
-		PRINT_DEBUG_MESSAGE_OSNET(("%.2x ", (int)recvbuf[i]));
+		PRINT_DEBUG_MESSAGE_OSNET(("%.2x ", (int)(unsigned char)recvbuf[i]));
 	}
 	PRINT_DEBUG_MESSAGE_OSNET(("\n"));
 #endif // _DEBUG_MESSAGES_OSNET
@@ -1729,7 +1811,7 @@ inline int sendtoall(SOCKET sock, char* sendbuf, int sendbuflen, struct sockaddr
 #ifdef _DEBUG_MESSAGES_OSNET
 				for (i = 0; i < BytesSent; i++)
 				{
-					PRINT_DEBUG_MESSAGE_OSNET(("%.2x ", (int)sendbuf[i]));
+					PRINT_DEBUG_MESSAGE_OSNET(("%.2x ", (int)(unsigned char)sendbuf[i]));
 				}
 				PRINT_DEBUG_MESSAGE_OSNET(("\n"));
 #endif // _DEBUG_MESSAGES_OSNET
@@ -1750,7 +1832,7 @@ inline int sendtoall(SOCKET sock, char* sendbuf, int sendbuflen, struct sockaddr
 #ifdef _DEBUG_MESSAGES_OSNET
 			for (i = 0; i < BytesSent; i++)
 			{
-				PRINT_DEBUG_MESSAGE_OSNET(("%.2x ", (int)sendbuf[i]));
+				PRINT_DEBUG_MESSAGE_OSNET(("%.2x ", (int)(unsigned char)sendbuf[i]));
 			}
 			PRINT_DEBUG_MESSAGE_OSNET(("\n"));
 #endif // _DEBUG_MESSAGES_OSNET
@@ -1764,7 +1846,7 @@ inline int sendtoall(SOCKET sock, char* sendbuf, int sendbuflen, struct sockaddr
 #ifdef _DEBUG_MESSAGES_OSNET
 	for (i = 0; i < BytesSent; i++)
 	{
-		PRINT_DEBUG_MESSAGE_OSNET(("%.2x ", (int)sendbuf[i]));
+		PRINT_DEBUG_MESSAGE_OSNET(("%.2x ", (int)(unsigned char)sendbuf[i]));
 	}
 	PRINT_DEBUG_MESSAGE_OSNET(("\n"));
 #endif // _DEBUG_MESSAGES_OSNET
@@ -1795,7 +1877,7 @@ inline int recvfromall(SOCKET sock, char* recvbuf, int recvbuflen, struct sockad
 #ifdef _DEBUG_MESSAGES_OSNET
 				for (i = 0; i < BytesReceived; i++)
 				{
-					PRINT_DEBUG_MESSAGE_OSNET(("%.2x ", (int)recvbuf[i]));
+					PRINT_DEBUG_MESSAGE_OSNET(("%.2x ", (int)(unsigned char)recvbuf[i]));
 				}
 				PRINT_DEBUG_MESSAGE_OSNET(("\n"));
 #endif // _DEBUG_MESSAGES_OSNET
@@ -1816,7 +1898,7 @@ inline int recvfromall(SOCKET sock, char* recvbuf, int recvbuflen, struct sockad
 #ifdef _DEBUG_MESSAGES_OSNET
 			for (i = 0; i < BytesReceived; i++)
 			{
-				PRINT_DEBUG_MESSAGE_OSNET(("%.2x ", (int)recvbuf[i]));
+				PRINT_DEBUG_MESSAGE_OSNET(("%.2x ", (int)(unsigned char)recvbuf[i]));
 			}
 			PRINT_DEBUG_MESSAGE_OSNET(("\n"));
 #endif // _DEBUG_MESSAGES_OSNET
@@ -1830,7 +1912,7 @@ inline int recvfromall(SOCKET sock, char* recvbuf, int recvbuflen, struct sockad
 #ifdef _DEBUG_MESSAGES_OSNET
 	for (i = 0; i < BytesReceived; i++)
 	{
-		PRINT_DEBUG_MESSAGE_OSNET(("%.2x ", (int)recvbuf[i]));
+		PRINT_DEBUG_MESSAGE_OSNET(("%.2x ", (int)(unsigned char)recvbuf[i]));
 	}
 	PRINT_DEBUG_MESSAGE_OSNET(("\n"));
 #endif // _DEBUG_MESSAGES_OSNET
@@ -2039,7 +2121,7 @@ inline int recvatleastuntil(SOCKET sock, char* recvbuf, char endchar, int maxrec
 			PRINT_DEBUG_ERROR_OSNET(("recvatleastuntil error (%s) : %s(sock=%d, recvbuf=%#x, endchar=%.2x, maxrecvbuflen=%d)\n", 
 				strtime_m(), 
 				"recvbuf full. ", 
-				(int)sock, recvbuf, (int)endchar, maxrecvbuflen));
+				(int)sock, recvbuf, (int)(unsigned char)endchar, maxrecvbuflen));
 			PRINT_DEBUG_MESSAGE_OSNET(("Total bytes received : %d\n", BytesReceived));
 			return EXIT_FAILURE;
 		}
@@ -2052,7 +2134,7 @@ inline int recvatleastuntil(SOCKET sock, char* recvbuf, char endchar, int maxrec
 				PRINT_DEBUG_WARNING_OSNET(("recvatleastuntil warning (%s) : %s(sock=%d, recvbuf=%#x, endchar=%.2x, maxrecvbuflen=%d)\n", 
 					strtime_m(), 
 					szOSUtilsErrMsgs[EXIT_TIMEOUT], 
-					(int)sock, recvbuf, (int)endchar, maxrecvbuflen));
+					(int)sock, recvbuf, (int)(unsigned char)endchar, maxrecvbuflen));
 				PRINT_DEBUG_MESSAGE_OSNET(("Total bytes received : %d\n", BytesReceived));
 				return EXIT_TIMEOUT;
 			}
@@ -2083,7 +2165,7 @@ inline int recvatleastuntil(SOCKET sock, char* recvbuf, char endchar, int maxrec
 			PRINT_DEBUG_ERROR_OSNET(("recvatleastuntil error (%s) : %s(sock=%d, recvbuf=%#x, endchar=%.2x, maxrecvbuflen=%d)\n", 
 				strtime_m(), 
 				"recv failed. ", 
-				(int)sock, recvbuf, (int)endchar, maxrecvbuflen));
+				(int)sock, recvbuf, (int)(unsigned char)endchar, maxrecvbuflen));
 			PRINT_DEBUG_MESSAGE_OSNET(("Total bytes received : %d\n", BytesReceived));
 			return EXIT_FAILURE;
 		}
@@ -2125,7 +2207,7 @@ inline int recvuntil(SOCKET sock, char* recvbuf, char endchar, int maxrecvbuflen
 			PRINT_DEBUG_ERROR_OSNET(("recvuntil error (%s) : %s(sock=%d, recvbuf=%#x, endchar=%.2x, maxrecvbuflen=%d)\n", 
 				strtime_m(), 
 				"recvbuf full. ", 
-				(int)sock, recvbuf, (int)endchar, maxrecvbuflen));
+				(int)sock, recvbuf, (int)(unsigned char)endchar, maxrecvbuflen));
 			PRINT_DEBUG_MESSAGE_OSNET(("Total bytes received : %d\n", BytesReceived));
 			return EXIT_FAILURE;
 		}
@@ -2139,7 +2221,7 @@ inline int recvuntil(SOCKET sock, char* recvbuf, char endchar, int maxrecvbuflen
 				PRINT_DEBUG_WARNING_OSNET(("recvuntil warning (%s) : %s(sock=%d, recvbuf=%#x, endchar=%.2x, maxrecvbuflen=%d)\n", 
 					strtime_m(), 
 					szOSUtilsErrMsgs[EXIT_TIMEOUT], 
-					(int)sock, recvbuf, (int)endchar, maxrecvbuflen));
+					(int)sock, recvbuf, (int)(unsigned char)endchar, maxrecvbuflen));
 				PRINT_DEBUG_MESSAGE_OSNET(("Total bytes received : %d\n", BytesReceived));
 				return EXIT_TIMEOUT;
 			}
@@ -2153,7 +2235,7 @@ inline int recvuntil(SOCKET sock, char* recvbuf, char endchar, int maxrecvbuflen
 			PRINT_DEBUG_ERROR_OSNET(("recvuntil error (%s) : %s(sock=%d, recvbuf=%#x, endchar=%.2x, maxrecvbuflen=%d)\n", 
 				strtime_m(), 
 				"recv failed. ", 
-				(int)sock, recvbuf, (int)endchar, maxrecvbuflen));
+				(int)sock, recvbuf, (int)(unsigned char)endchar, maxrecvbuflen));
 			PRINT_DEBUG_MESSAGE_OSNET(("Total bytes received : %d\n", BytesReceived));
 			return EXIT_FAILURE;
 		}
@@ -2162,6 +2244,64 @@ inline int recvuntil(SOCKET sock, char* recvbuf, char endchar, int maxrecvbuflen
 	}
 
 	PRINT_DEBUG_MESSAGE_OSNET(("Total bytes received : %d\n", BytesReceived));
+
+	//*pBytesReceived = BytesReceived;
+
+	return EXIT_SUCCESS;
+}
+
+inline int recvuntilstr(SOCKET sock, char* recvbuf, char* endstr, int maxrecvbuflen, int* pBytesReceived)
+{
+	int BytesReceived = 0;
+	int Bytes = 0;
+
+	// Receive byte per byte.
+	while ((BytesReceived <= 0)||(strstr(recvbuf, endstr) == NULL))
+	{
+		if (BytesReceived >= maxrecvbuflen)
+		{
+			PRINT_DEBUG_ERROR_OSNET(("recvuntilstr error (%s) : %s(sock=%d, recvbuf=%#x, endstr=%s, maxrecvbuflen=%d)\n", 
+				strtime_m(), 
+				"recvbuf full. ", 
+				(int)sock, recvbuf, endstr, maxrecvbuflen));
+			PRINT_DEBUG_MESSAGE_OSNET(("Total bytes received : %d\n", BytesReceived));
+			return EXIT_FAILURE;
+		}
+
+		// Receive 1 byte.
+		Bytes = recv(sock, recvbuf + BytesReceived, 1, 0);
+		if (Bytes >= 0)
+		{
+			if (Bytes == 0)
+			{
+				PRINT_DEBUG_WARNING_OSNET(("recvuntilstr warning (%s) : %s(sock=%d, recvbuf=%#x, endstr=%s, maxrecvbuflen=%d)\n", 
+					strtime_m(), 
+					szOSUtilsErrMsgs[EXIT_TIMEOUT], 
+					(int)sock, recvbuf, endstr, maxrecvbuflen));
+				PRINT_DEBUG_MESSAGE_OSNET(("Total bytes received : %d\n", BytesReceived));
+				return EXIT_TIMEOUT;
+			}
+			else
+			{
+				PRINT_DEBUG_MESSAGE_OSNET(("Bytes received : %d\n", Bytes));
+			}
+		}
+		else
+		{
+			PRINT_DEBUG_ERROR_OSNET(("recvuntilstr error (%s) : %s(sock=%d, recvbuf=%#x, endstr=%s, maxrecvbuflen=%d)\n", 
+				strtime_m(), 
+				"recv failed. ", 
+				(int)sock, recvbuf, endstr, maxrecvbuflen));
+			PRINT_DEBUG_MESSAGE_OSNET(("Total bytes received : %d\n", BytesReceived));
+			return EXIT_FAILURE;
+		}
+
+		BytesReceived += Bytes;
+	}
+
+	PRINT_DEBUG_MESSAGE_OSNET(("Total bytes received : %d\n", BytesReceived));
+
+	*pBytesReceived = BytesReceived;
 
 	return EXIT_SUCCESS;
 }

@@ -114,6 +114,11 @@ inline double fmod_2PI(double theta)
 	return fmod(fmod(theta, 2*M_PI)+3*M_PI, 2*M_PI)-M_PI;
 }
 
+inline double fmod_360(double theta)
+{
+	return fmod(fmod(theta, 2*180.0)+3*180.0, 2*180.0)-180.0;
+}
+
 #ifndef SQR_DEFINED
 #define SQR_DEFINED
 /*

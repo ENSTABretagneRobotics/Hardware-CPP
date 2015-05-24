@@ -8,6 +8,7 @@ CFLAGS += -Wall
 #CFLAGS += -Wextra -Winline
 
 #CFLAGS += -D _DEBUG -D _DEBUG_DISPLAY -D _DEBUG_MESSAGES 
+CFLAGS += -D DISABLE_THREADS_OSNET
 CFLAGS += -D SIMULATED_INTERNET_SWARMONDEVICE
 CFLAGS += -D DISABLE_MTTHREAD
 CFLAGS += -D DISABLE_RAZORAHRSTHREAD
@@ -51,7 +52,7 @@ OSTime.o: OSTime.c OSTime.h OSCore.o
 Main.o: Main.cpp OSCore.h OSTime.h OSMisc.h OSNet.h OSComputerRS232Port.h RS232Port.h MT.h RazorAHRS.h NMEADevice.h SwarmonDevice.h P33x.h SSC32.h Maestro.h MiniSSC.h MDM.h 
 	$(CC) $(CFLAGS) -c $<
 
-Test_devices: Main.o OSTime.o OSNet.o OSMisc.o OSCore.o OSComputerRS232Port.o
+Test_devices: Main.o OSNet.o OSComputerRS232Port.o OSMisc.o OSTime.o OSCore.o
 	$(CC) $(CFLAGS) -o $@ $^ $(LDFLAGS)
 
 clean:
