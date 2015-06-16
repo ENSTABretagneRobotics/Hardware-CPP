@@ -22,6 +22,7 @@ int main(int argc, char* argv[])
 	SWARMONDATA swarmondata;
 	P33X p33x;
 	double value = 0;
+	int ivalue = 0;
 	SSC32 ssc32;
 	MAESTRO maestro;
 	MINISSC minissc;
@@ -46,15 +47,15 @@ int main(int argc, char* argv[])
 	//ConnectSwarmonDevice(&swarmondevice, "SwarmonDevice0.txt");
 	//ConnectP33x(&p33x, "P33x0.txt");
 	//ConnectSSC32(&ssc32, "SSC320.txt");
-	//ConnectMaestro(&maestro, "Maestro0.txt");
+	ConnectMaestro(&maestro, "Maestro0.txt");
 	//ConnectMiniSSC(&minissc, "MiniSSC0.txt");
-	ConnectMDM(&mdm, "MDM0.txt");
+	//ConnectMDM(&mdm, "MDM0.txt");
 
 	for (;;)
 	{
 		// Wait a little bit...
-		//mSleep(2000);
-		mSleep(20);
+		mSleep(500);
+		//mSleep(20);
 
 		//GetLatestDataMT(&mt, &mtdata);
 		//printf("%f\n", mtdata.Yaw);
@@ -71,20 +72,23 @@ int main(int argc, char* argv[])
 		//GetPressureP33x(&p33x, &value);
 		//printf("%f\n", value);
 
-		//u1 = u2;
-		//u2 = -u1;
+		u1 = u2;
+		u2 = -u1;
 		//SetThrustersSSC32(&ssc32, u1, u2);
-		//SetThrustersMaestro(&maestro, u1, u2);
+		SetThrustersMaestro(&maestro, u1, u2);
 		//SetThrustersMiniSSC(&minissc, u1, u2);
 		//printf("%f;%f\n", u1, u2);
+		ivalue = 0;
+		GetValueMaestro(&maestro, 11, &ivalue);
+		printf("%f\n", ivalue*5.0/1024);
 
-		b = 0;
-		if ((EchoByteMDM(&mdm, (uint8*)&b) == EXIT_SUCCESS)&&(b != 0)) printf("%c", b);
+		//b = 0;
+		//if ((EchoByteMDM(&mdm, (uint8*)&b) == EXIT_SUCCESS)&&(b != 0)) printf("%c", b);
 	}
 
-	DisconnectMDM(&mdm);
+	//DisconnectMDM(&mdm);
 	//DisconnectMiniSSC(&minissc);
-	//DisconnectMaestro(&maestro);
+	DisconnectMaestro(&maestro);
 	//DisconnectSSC32(&ssc32);
 	//DisconnectP33x(&p33x);
 	//DisconnectSwarmonDevice(&swarmondevice);
