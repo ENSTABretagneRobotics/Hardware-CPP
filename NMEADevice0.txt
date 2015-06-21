@@ -9,6 +9,10 @@ COM3
 0
 % bEnableGPGGA
 1
+% bEnableGPRMC
+0
+% bEnableGPVTG
+0
 % bEnableHCHDG
 0
 % bEnableWIMDA
