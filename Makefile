@@ -19,6 +19,7 @@ CFLAGS += -D DISABLE_SSC32THREAD
 CFLAGS += -D DISABLE_MAESTROTHREAD
 CFLAGS += -D DISABLE_MINISSCTHREAD
 CFLAGS += -D DISABLE_MDMTHREAD
+CFLAGS += -D DISABLE_HOKUYOTHREAD
 
 # For Windows/MinGW
 LDFLAGS += -lws2_32
@@ -49,7 +50,7 @@ OSTime.o: OSTime.c OSTime.h OSCore.o
 
 ############################# PROGS #############################
 
-Main.o: Main.cpp OSCore.h OSTime.h OSMisc.h OSNet.h OSComputerRS232Port.h RS232Port.h MT.h RazorAHRS.h NMEADevice.h SwarmonDevice.h P33x.h SSC32.h Maestro.h MiniSSC.h MDM.h 
+Main.o: Main.cpp OSCore.h OSTime.h OSMisc.h OSNet.h OSComputerRS232Port.h RS232Port.h MT.h RazorAHRS.h NMEADevice.h SwarmonDevice.h P33x.h SSC32.h Maestro.h MiniSSC.h MDM.h Hokuyo.h 
 	$(CC) $(CFLAGS) -c $<
 
 Test_devices: Main.o OSNet.o OSComputerRS232Port.o OSMisc.o OSTime.o OSCore.o

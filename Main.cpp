@@ -7,6 +7,7 @@
 #include "Maestro.h"
 #include "MiniSSC.h"
 #include "MDM.h"
+#include "Hokuyo.h"
 
 // Comment/uncomment lines depending on the device you wish to test...
 
@@ -29,6 +30,9 @@ int main(int argc, char* argv[])
 	double u1 = 0.25, u2 = -0.25;
 	MDM mdm;
 	char b = 0;
+	HOKUYO hokuyo;
+	double angles[MAX_SLITDIVISION_HOKUYO];
+	double distances[MAX_SLITDIVISION_HOKUYO];
 
 	// Initialize to 0 all the fields of the structure.
 	memset(&mt, 0, sizeof(MT));
@@ -40,6 +44,7 @@ int main(int argc, char* argv[])
 	memset(&maestro, 0, sizeof(MAESTRO));
 	memset(&minissc, 0, sizeof(MINISSC));
 	memset(&mdm, 0, sizeof(MDM));
+	memset(&hokuyo, 0, sizeof(HOKUYO));
 
 	//ConnectMT(&mt, "MT0.txt");
 	//ConnectRazorAHRS(&razorahrs, "RazorAHRS0.txt");
@@ -47,15 +52,16 @@ int main(int argc, char* argv[])
 	//ConnectSwarmonDevice(&swarmondevice, "SwarmonDevice0.txt");
 	//ConnectP33x(&p33x, "P33x0.txt");
 	//ConnectSSC32(&ssc32, "SSC320.txt");
-	ConnectMaestro(&maestro, "Maestro0.txt");
+	//ConnectMaestro(&maestro, "Maestro0.txt");
 	//ConnectMiniSSC(&minissc, "MiniSSC0.txt");
 	//ConnectMDM(&mdm, "MDM0.txt");
+	ConnectHokuyo(&hokuyo, "Hokuyo0.txt");
 
 	for (;;)
 	{
 		// Wait a little bit...
-		mSleep(500);
-		//mSleep(20);
+		//mSleep(500);
+		mSleep(20);
 
 		//GetLatestDataMT(&mt, &mtdata);
 		//printf("%f\n", mtdata.Yaw);
@@ -75,20 +81,27 @@ int main(int argc, char* argv[])
 		u1 = u2;
 		u2 = -u1;
 		//SetThrustersSSC32(&ssc32, u1, u2);
-		SetThrustersMaestro(&maestro, u1, u2);
+		//SetThrustersMaestro(&maestro, u1, u2);
 		//SetThrustersMiniSSC(&minissc, u1, u2);
 		//printf("%f;%f\n", u1, u2);
-		ivalue = 0;
-		GetValueMaestro(&maestro, 11, &ivalue);
-		printf("%f\n", ivalue*5.0/1024);
+		//ivalue = 0;
+		//GetValueMaestro(&maestro, 11, &ivalue);
+		//printf("%f\n", ivalue*5.0/1024);
 
 		//b = 0;
 		//if ((EchoByteMDM(&mdm, (uint8*)&b) == EXIT_SUCCESS)&&(b != 0)) printf("%c", b);
+
+		memset(angles, 0, sizeof(angles));
+		memset(distances, 0, sizeof(distances));
+		GetLatestDataHokuyo(&hokuyo, distances, angles);
+		printf("Distance on the front = %f m\n", distances[angle2kHokuyo(&hokuyo, 0.0)]);
+		//printf("Distance on the left = %f m\n", distances[angle2kHokuyo(&hokuyo, M_PI/2.0)]);
 	}
 
+	DisconnectHokuyo(&hokuyo);
 	//DisconnectMDM(&mdm);
 	//DisconnectMiniSSC(&minissc);
-	DisconnectMaestro(&maestro);
+	//DisconnectMaestro(&maestro);
 	//DisconnectSSC32(&ssc32);
 	//DisconnectP33x(&p33x);
 	//DisconnectSwarmonDevice(&swarmondevice);
