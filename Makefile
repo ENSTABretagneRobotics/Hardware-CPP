@@ -37,9 +37,6 @@ OSComputerRS232Port.o: OSComputerRS232Port.c OSComputerRS232Port.h OSTime.o
 OSCore.o: OSCore.c OSCore.h
 	$(CC) $(CFLAGS) -c $<
 
-OSCriticalSection.o: OSCriticalSection.c OSCriticalSection.h OSThread.o
-	$(CC) $(CFLAGS) -c $<
-
 OSMisc.o: OSMisc.c OSMisc.h OSTime.o
 	$(CC) $(CFLAGS) -c $<
 
