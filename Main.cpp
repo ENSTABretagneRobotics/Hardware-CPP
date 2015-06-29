@@ -101,10 +101,10 @@ int main(int argc, char* argv[])
 		mSleep(20);
 
 		//GetLatestDataMT(&mt, &mtdata);
-		//printf("%f\n", mtdata.Yaw);
+		//printf("%f %f %f\n", mtdata.Yaw*180.0/M_PI, mtdata.Pitch*180.0/M_PI, mtdata.Roll*180.0/M_PI);
 
 		//GetLatestDataRazorAHRS(&razorahrs, &razorahrsdata);
-		//printf("%f\n", razorahrsdata.Yaw);
+		//printf("%f %f %f\n", razorahrsdata.Yaw*180.0/M_PI, razorahrsdata.Pitch*180.0/M_PI, razorahrsdata.Roll*180.0/M_PI);
 
 		//GetLatestDataNMEADevice(&nmeadevice, &nmeadata);
 		//printf("%f;%f\n", nmeadata.Latitude, nmeadata.Longitude);
