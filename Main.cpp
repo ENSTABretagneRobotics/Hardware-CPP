@@ -138,6 +138,7 @@ int main(int argc, char* argv[])
 		receivedbytes = 0;
 		memset(buf, 0, sizeof(buf));
 		RecvDataMDM(&mdm, buf, sizeof(buf)-1, &receivedbytes);
+		printf("%.255s", buf);
 
 		//memset(angles, 0, sizeof(angles));
 		//memset(distances, 0, sizeof(distances));
