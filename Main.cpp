@@ -62,6 +62,8 @@ int main(int argc, char* argv[])
 	double u1 = 0.25, u2 = -0.25;
 	MDM mdm;
 	char b = 0;
+	int receivedbytes = 0;
+	unsigned char buf[256];
 	HOKUYO hokuyo;
 	double angles[MAX_SLITDIVISION_HOKUYO];
 	double distances[MAX_SLITDIVISION_HOKUYO];
@@ -90,15 +92,17 @@ int main(int argc, char* argv[])
 	//ConnectSSC32(&ssc32, "SSC320.txt");
 	//ConnectMaestro(&maestro, "Maestro0.txt");
 	//ConnectMiniSSC(&minissc, "MiniSSC0.txt");
-	//ConnectMDM(&mdm, "MDM0.txt");
-	ConnectHokuyo(&hokuyo, "Hokuyo0.txt");
+	ConnectMDM(&mdm, "MDM0.txt");
+	//ConnectHokuyo(&hokuyo, "Hokuyo0.txt");
 	//ConnectSeanet(&seanet, "Seanet0.txt");
+
+	mdm.pfSaveFile = fopen("rawmdm.txt", "wb");
 
 	for (;;)
 	{
 		// Wait a little bit...
 		//mSleep(500);
-		mSleep(20);
+		mSleep(20000);
 
 		//GetLatestDataMT(&mt, &mtdata);
 		//printf("%f %f %f\n", mtdata.Yaw*180.0/M_PI, mtdata.Pitch*180.0/M_PI, mtdata.Roll*180.0/M_PI);
@@ -127,11 +131,18 @@ int main(int argc, char* argv[])
 
 		//b = 0;
 		//if ((EchoByteMDM(&mdm, (uint8*)&b) == EXIT_SUCCESS)&&(b != 0)) printf("%c", b);
+		SendAllDataMDM(&mdm, (uint8*)"rng\n", 4);
+		mSleep(100);
+		PurgeDataMDM(&mdm);
+		mSleep(3000);
+		receivedbytes = 0;
+		memset(buf, 0, sizeof(buf));
+		RecvDataMDM(&mdm, buf, sizeof(buf)-1, &receivedbytes);
 
-		memset(angles, 0, sizeof(angles));
-		memset(distances, 0, sizeof(distances));
-		GetLatestDataHokuyo(&hokuyo, distances, angles);
-		printf("Distance on the front = %f m\n", distances[angle2kHokuyo(&hokuyo, 0.0)]);
+		//memset(angles, 0, sizeof(angles));
+		//memset(distances, 0, sizeof(distances));
+		//GetLatestDataHokuyo(&hokuyo, distances, angles);
+		//printf("Distance on the front = %f m\n", distances[angle2kHokuyo(&hokuyo, 0.0)]);
 		//printf("Distance on the left = %f m\n", distances[angle2kHokuyo(&hokuyo, M_PI/2.0)]);
 
 		//angle = 0; // Will receive the angle of the ping in deg.
@@ -145,9 +156,11 @@ int main(int argc, char* argv[])
 		//printf("%f deg; %f m\n", angle, d);
 	}
 
+	fclose(mdm.pfSaveFile);
+
 	//DisconnectSeanet(&seanet);
-	DisconnectHokuyo(&hokuyo);
-	//DisconnectMDM(&mdm);
+	//DisconnectHokuyo(&hokuyo);
+	DisconnectMDM(&mdm);
 	//DisconnectMiniSSC(&minissc);
 	//DisconnectMaestro(&maestro);
 	//DisconnectSSC32(&ssc32);
