@@ -8,8 +8,8 @@
 
 # Build results
 
-[Dd]ebug/
-[Rr]elease/
+[Dd]ebug*/
+[Rr]elease*/
 x64/
 build/
 [Bb]in/
@@ -154,3 +154,10 @@ $RECYCLE.BIN/
 
 # Mac desktop service store files
 .DS_Store
+
+# =========================
+# Other
+# =========================
+
+TODO/
+!*ReadMe.txt
