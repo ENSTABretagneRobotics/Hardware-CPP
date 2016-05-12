@@ -27,7 +27,7 @@ DEFINES += DISABLE_MDMTHREAD
 DEFINES += DISABLE_HOKUYOTHREAD
 DEFINES += DISABLE_SEANETTHREAD
 win32:DEFINES += WIN32 _CONSOLE
-unix:QMAKE_CXXFLAGS += -fpermissive
+unix:QMAKE_CXXFLAGS += -fpermissive -Wno-unknown-pragmas
 
 win32:LIBS += -lWS2_32
 unix:LIBS += -lrt -lm

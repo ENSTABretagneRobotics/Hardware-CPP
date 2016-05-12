@@ -4,7 +4,7 @@ PROGS = Test_devices
 CC = g++
 CFLAGS += -g -fpermissive
 #CFLAGS += -O3 -fpermissive
-CFLAGS += -Wall
+CFLAGS += -Wall -Wno-unknown-pragmas
 #CFLAGS += -Wextra -Winline
 
 #CFLAGS += -D _DEBUG -D _DEBUG_DISPLAY -D _DEBUG_MESSAGES 
