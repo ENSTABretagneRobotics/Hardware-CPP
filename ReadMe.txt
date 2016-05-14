@@ -5,3 +5,16 @@ Hardware-CPP
 - If you have only gcc, change the Makefile to adapt to your OS if needed and run make.
 
 Change the device path in the configuration files if necessary and comment/uncomment lines in Main.cpp depending on the device you wish to test.
+
+Hardware support : 
+- Hokuyo : Hokuyo URG-04LX-UG01 laser telemeter.
+- Maestro : Pololu Mini Maestro 6, 18, 24 servo controllers.
+- MDM : Tritech Micron Data Modem (or other kinds of simple RS232 modems).
+- MT : Xsens MTi, MTi-G AHRS.
+- NMEADevice : GPS, Furuno WS200 weather station, AIS Receiver dAISy.
+- P33x : Keller pressure sensor PAA-33x.
+- RazorAHRS : SparkFun 9DOF Razor IMU.
+- Seanet : Tritech Micron Sonar, Tritech Miniking Sonar.
+- SSC-32 : Lynxmotion SSC-32, SSC-32u servo controllers.
+
+See also https://github.com/ENSTABretagneRobotics/Android, https://github.com/ENSTABretagneRobotics/Hardware-MATLAB, https://github.com/ENSTABretagneRobotics/Hardware-Java.
