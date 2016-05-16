@@ -6,7 +6,7 @@ COM6
 % Timeout (in ms)
 1000
 % bSaveRawData
-1
+0
 % DeviceNumber (default is 1)
 1
 % channel 0
