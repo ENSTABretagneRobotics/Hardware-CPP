@@ -10,7 +10,10 @@
 #include "Hokuyo.h"
 #include "Seanet.h"
 
-// Comment/uncomment lines depending on the device you wish to test...
+// Comment/uncomment lines depending on the device you wish to test.
+// Change the device path and other parameters in the configuration files if necessary.
+// If you are using an IDE, check that the configuration files are in the correct folder for that IDE 
+// (e.g. sometimes in the generated ../Test_devices-build-desktop folder for Qt).
 
 /*
 Return the distance to the first obstacle from a sonar scanline.
@@ -71,6 +74,9 @@ int main(int argc, char* argv[])
 	double angle = 0, d = 0;
 	unsigned char scanline[MAX_NB_BYTES_SEANET];
 
+	// Disable buffering for printf()...
+	setbuf(stdout, NULL);
+
 	// Initialize to 0 all the fields of the structure.
 	memset(&mt, 0, sizeof(MT));
 	memset(&razorahrs, 0, sizeof(RAZORAHRS));
@@ -85,30 +91,30 @@ int main(int argc, char* argv[])
 	memset(&seanet, 0, sizeof(SEANET));
 
 	//ConnectMT(&mt, "MT0.txt");
-	//ConnectRazorAHRS(&razorahrs, "RazorAHRS0.txt");
+	ConnectRazorAHRS(&razorahrs, "RazorAHRS0.txt");
 	//ConnectNMEADevice(&nmeadevice, "NMEADevice0.txt");
 	//ConnectSwarmonDevice(&swarmondevice, "SwarmonDevice0.txt");
 	//ConnectP33x(&p33x, "P33x0.txt");
 	//ConnectSSC32(&ssc32, "SSC320.txt");
 	//ConnectMaestro(&maestro, "Maestro0.txt");
 	//ConnectMiniSSC(&minissc, "MiniSSC0.txt");
-	ConnectMDM(&mdm, "MDM0.txt");
+	//ConnectMDM(&mdm, "MDM0.txt");
 	//ConnectHokuyo(&hokuyo, "Hokuyo0.txt");
 	//ConnectSeanet(&seanet, "Seanet0.txt");
 
-	mdm.pfSaveFile = fopen("rawmdm.txt", "wb");
+	//mdm.pfSaveFile = fopen("rawmdm.txt", "wb");
 
 	for (;;)
 	{
 		// Wait a little bit...
-		//mSleep(500);
-		mSleep(20000);
+		mSleep(500);
+		//mSleep(20000);
 
 		//GetLatestDataMT(&mt, &mtdata);
 		//printf("%f %f %f\n", mtdata.Yaw*180.0/M_PI, mtdata.Pitch*180.0/M_PI, mtdata.Roll*180.0/M_PI);
 
-		//GetLatestDataRazorAHRS(&razorahrs, &razorahrsdata);
-		//printf("%f %f %f\n", razorahrsdata.Yaw*180.0/M_PI, razorahrsdata.Pitch*180.0/M_PI, razorahrsdata.Roll*180.0/M_PI);
+		GetLatestDataRazorAHRS(&razorahrs, &razorahrsdata);
+		printf("%f %f %f\n", razorahrsdata.Yaw*180.0/M_PI, razorahrsdata.Pitch*180.0/M_PI, razorahrsdata.Roll*180.0/M_PI);
 
 		//GetLatestDataNMEADevice(&nmeadevice, &nmeadata);
 		//printf("%f;%f\n", nmeadata.Latitude, nmeadata.Longitude);
@@ -131,14 +137,14 @@ int main(int argc, char* argv[])
 
 		//b = 0;
 		//if ((EchoByteMDM(&mdm, (uint8*)&b) == EXIT_SUCCESS)&&(b != 0)) printf("%c", b);
-		SendAllDataMDM(&mdm, (uint8*)"rng\n", 4);
-		mSleep(100);
-		PurgeDataMDM(&mdm);
-		mSleep(3000);
-		receivedbytes = 0;
-		memset(buf, 0, sizeof(buf));
-		RecvDataMDM(&mdm, buf, sizeof(buf)-1, &receivedbytes);
-		printf("%.255s", buf);
+		//SendAllDataMDM(&mdm, (uint8*)"rng\n", 4);
+		//mSleep(100);
+		//PurgeDataMDM(&mdm);
+		//mSleep(3000);
+		//receivedbytes = 0;
+		//memset(buf, 0, sizeof(buf));
+		//RecvDataMDM(&mdm, buf, sizeof(buf)-1, &receivedbytes);
+		//printf("%.255s", buf);
 
 		//memset(angles, 0, sizeof(angles));
 		//memset(distances, 0, sizeof(distances));
@@ -157,18 +163,18 @@ int main(int argc, char* argv[])
 		//printf("%f deg; %f m\n", angle, d);
 	}
 
-	fclose(mdm.pfSaveFile);
+	//fclose(mdm.pfSaveFile);
 
 	//DisconnectSeanet(&seanet);
 	//DisconnectHokuyo(&hokuyo);
-	DisconnectMDM(&mdm);
+	//DisconnectMDM(&mdm);
 	//DisconnectMiniSSC(&minissc);
 	//DisconnectMaestro(&maestro);
 	//DisconnectSSC32(&ssc32);
 	//DisconnectP33x(&p33x);
 	//DisconnectSwarmonDevice(&swarmondevice);
 	//DisconnectNMEADevice(&nmeadevice);
-	//DisconnectRazorAHRS(&razorahrs);
+	DisconnectRazorAHRS(&razorahrs);
 	//DisconnectMT(&mt);
 
 	return EXIT_SUCCESS;

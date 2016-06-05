@@ -9,8 +9,7 @@ TEMPLATE = app
 TARGET = Test_devices
 
 DEFINES -= UNICODE
-DEFINES += FORCE_MINMAX_DEFINITION
-DEFINES += SIGN_DEFINED
+
 DEFINES += DISABLE_THREADS_OSNET
 DEFINES += SIMULATED_INTERNET_SWARMONDEVICE
 DEFINES += DISABLE_AIS_SUPPORT
@@ -26,6 +25,13 @@ DEFINES += DISABLE_MINISSCTHREAD
 DEFINES += DISABLE_MDMTHREAD
 DEFINES += DISABLE_HOKUYOTHREAD
 DEFINES += DISABLE_SEANETTHREAD
+CONFIG(debug, debug|release) {
+ DEFINES += _DEBUG
+# DEFINES += _DEBUG_DISPLAY _DEBUG_MESSAGES
+}
+else {
+ DEFINES += NDEBUG
+}
 win32:DEFINES += WIN32 _CONSOLE
 unix:QMAKE_CXXFLAGS += -fpermissive -Wno-unknown-pragmas
 
@@ -34,27 +40,27 @@ unix:LIBS += -lrt -lm
 
 SOURCES += \
     Main.cpp \
-    OSTime.c \
-    OSNet.c \
-    OSMisc.c \
+    OSComputerRS232Port.c \
     OSCore.c \
-    OSComputerRS232Port.c
+    OSMisc.c \
+    OSNet.c \
+    OSTime.c
 
 HEADERS += \
-    MT.h \
-    Razor.h \
-    NMEADevice.h \
-    SwarmonDevice.h \
-    P33x.h \
-    SSC32.h \
-    Maestro.h \
-    MiniSSC.h \
-    MDM.h \
     Hokuyo.h \
-    Seanet.h \
-    RS232Port.h \
-    OSTime.h \
-    OSNet.h \
-    OSMisc.h \
+    Maestro.h \
+    MDM.h \
+    MiniSSC.h \
+    MT.h \
+    NMEADevice.h \
+    OSComputerRS232Port.h \
     OSCore.h \
-    OSComputerRS232Port.h
+    OSMisc.h \
+    OSNet.h \
+    OSTime.h \
+    P33x.h \
+    RazorAHRS.h \
+    RS232Port.h \
+    Seanet.h \
+    SSC32.h \
+    SwarmonDevice.h
