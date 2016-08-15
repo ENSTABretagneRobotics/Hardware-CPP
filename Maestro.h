@@ -24,6 +24,8 @@
 // Only the 5 first channels are used for the moment...
 #define NB_CHANNELS_PWM_MAESTRO 5
 
+#define NB_CHANNELS_MAESTRO 32
+
 // 12 in decimal...
 #define DEFAULT_DEVICE_NUMBER_MAESTRO 0x0C
 
@@ -79,12 +81,29 @@ struct MAESTRO
 	int leftthrusterchan;
 	int rightfluxchan;
 	int leftfluxchan;
-	int analoginputchan;
+	int winddiranaloginputchan;
+	double winddiranaloginputvalueoffset;
+	double winddiranaloginputvaluethreshold;
+	double winddiranaloginputvaluecoef;
+	int windspeedanaloginputchan;
+	double windspeedanaloginputvalueoffset;
+	double windspeedanaloginputvaluethreshold;
+	double windspeedanaloginputvaluecoef;
+	int bat1analoginputchan;
+	double bat1analoginputvalueoffset;
+	double bat1analoginputvaluethreshold;
+	double bat1analoginputvaluecoef;
+	int bat2analoginputchan;
+	double bat2analoginputvalueoffset;
+	double bat2analoginputvaluethreshold;
+	double bat2analoginputvaluecoef;
+	int switchanaloginputchan;
+	double switchanaloginputvalueoffset;
+	double switchanaloginputvaluethreshold;
+	double switchanaloginputvaluecoef;
 	double MinAngle;
 	double MidAngle;
 	double MaxAngle;
-	double analoginputvalueoffset;
-	double analoginputvaluecoef;
 	BOOL bEnableSetMultipleTargets;
 };
 typedef struct MAESTRO MAESTRO;
@@ -195,6 +214,7 @@ inline int SetPWMMaestro(MAESTRO* pMaestro, int channel, int pw)
 	return EXIT_SUCCESS;
 }
 
+// If digital output, bit = (pw >= 1500)? 1 : 0;.
 // pw in us.
 inline int SetAllPWMsMaestro(MAESTRO* pMaestro, int* selectedchannels, int* pws)
 {
@@ -402,6 +422,29 @@ inline int SetFluxMaestro(MAESTRO* pMaestro, double urf, double ulf)
 	return SetAllPWMsMaestro(pMaestro, selectedchannels, pws);
 }
 
+inline int SetRudderThrusterMaestro(MAESTRO* pMaestro, double angle, double urt)
+{
+	int selectedchannels[NB_CHANNELS_PWM_MAESTRO];
+	int pws[NB_CHANNELS_PWM_MAESTRO];
+
+	memset(selectedchannels, 0, sizeof(selectedchannels));
+	memset(pws, 0, sizeof(pws));
+
+	// Convert angle (in rad) into Maestro pulse width (in us).
+	pws[pMaestro->rudderchan] = DEFAULT_MID_PW_MAESTRO+(int)(angle*(DEFAULT_MAX_PW_MAESTRO-DEFAULT_MIN_PW_MAESTRO)
+		/(pMaestro->MaxAngle-pMaestro->MinAngle));
+	// Convert u (in [-1;1]) into Maestro pulse width (in us).
+	pws[pMaestro->rightthrusterchan] = DEFAULT_MID_PW_MAESTRO+(int)(urt*(DEFAULT_MAX_PW_MAESTRO-DEFAULT_MIN_PW_MAESTRO)/2.0);
+
+	pws[pMaestro->rudderchan] = max(min(pws[pMaestro->rudderchan], DEFAULT_MAX_PW_MAESTRO), DEFAULT_MIN_PW_MAESTRO);
+	pws[pMaestro->rightthrusterchan] = max(min(pws[pMaestro->rightthrusterchan], DEFAULT_MAX_PW_MAESTRO), DEFAULT_MIN_PW_MAESTRO);
+
+	selectedchannels[pMaestro->rudderchan] = 1;
+	selectedchannels[pMaestro->rightthrusterchan] = 1;
+
+	return SetAllPWMsMaestro(pMaestro, selectedchannels, pws);
+}
+
 inline int SetRudderThrustersFluxMaestro(MAESTRO* pMaestro, double angle, double urt, double ult, double urf, double ulf)
 {
 	int selectedchannels[NB_CHANNELS_PWM_MAESTRO];
@@ -525,12 +568,29 @@ inline int ConnectMaestro(MAESTRO* pMaestro, char* szCfgFilePath)
 		pMaestro->leftthrusterchan = 0;
 		pMaestro->rightfluxchan = 4;
 		pMaestro->leftfluxchan = 3;
-		pMaestro->analoginputchan = 11;
+		pMaestro->winddiranaloginputchan = 11;
+		pMaestro->winddiranaloginputvalueoffset = 0;
+		pMaestro->winddiranaloginputvaluethreshold = 0;
+		pMaestro->winddiranaloginputvaluecoef = 1;
+		pMaestro->windspeedanaloginputchan = -1;
+		pMaestro->windspeedanaloginputvalueoffset = 0;
+		pMaestro->windspeedanaloginputvaluethreshold = 0;
+		pMaestro->windspeedanaloginputvaluecoef = 1;
+		pMaestro->bat1analoginputchan = 7;
+		pMaestro->bat1analoginputvalueoffset = 0;
+		pMaestro->bat1analoginputvaluethreshold = 0;
+		pMaestro->bat1analoginputvaluecoef = 1;
+		pMaestro->bat2analoginputchan = -1;
+		pMaestro->bat2analoginputvalueoffset = 0;
+		pMaestro->bat2analoginputvaluethreshold = 0;
+		pMaestro->bat2analoginputvaluecoef = 1;
+		pMaestro->switchanaloginputchan = 9;
+		pMaestro->switchanaloginputvalueoffset = 0;
+		pMaestro->switchanaloginputvaluethreshold = 0;
+		pMaestro->switchanaloginputvaluecoef = 1;
 		pMaestro->MinAngle = -0.5;
 		pMaestro->MidAngle = 0;
 		pMaestro->MaxAngle = 0.5;
-		pMaestro->analoginputvalueoffset = 0;
-		pMaestro->analoginputvaluecoef = 1;
 		pMaestro->bEnableSetMultipleTargets = 1;
 
 		// Load data from a file.
@@ -576,8 +636,51 @@ inline int ConnectMaestro(MAESTRO* pMaestro, char* szCfgFilePath)
 			if (sscanf(line, "%d", &pMaestro->rightfluxchan) != 1) printf("Invalid configuration file.\n");
 			if (fgets3(file, line, sizeof(line)) == NULL) printf("Invalid configuration file.\n");
 			if (sscanf(line, "%d", &pMaestro->leftfluxchan) != 1) printf("Invalid configuration file.\n");
+			
 			if (fgets3(file, line, sizeof(line)) == NULL) printf("Invalid configuration file.\n");
-			if (sscanf(line, "%d", &pMaestro->analoginputchan) != 1) printf("Invalid configuration file.\n");
+			if (sscanf(line, "%d", &pMaestro->winddiranaloginputchan) != 1) printf("Invalid configuration file.\n");
+			if (fgets3(file, line, sizeof(line)) == NULL) printf("Invalid configuration file.\n");
+			if (sscanf(line, "%lf", &pMaestro->winddiranaloginputvalueoffset) != 1) printf("Invalid configuration file.\n");
+			if (fgets3(file, line, sizeof(line)) == NULL) printf("Invalid configuration file.\n");
+			if (sscanf(line, "%lf", &pMaestro->winddiranaloginputvaluethreshold) != 1) printf("Invalid configuration file.\n");
+			if (fgets3(file, line, sizeof(line)) == NULL) printf("Invalid configuration file.\n");
+			if (sscanf(line, "%lf", &pMaestro->winddiranaloginputvaluecoef) != 1) printf("Invalid configuration file.\n");
+			
+			if (fgets3(file, line, sizeof(line)) == NULL) printf("Invalid configuration file.\n");
+			if (sscanf(line, "%d", &pMaestro->windspeedanaloginputchan) != 1) printf("Invalid configuration file.\n");
+			if (fgets3(file, line, sizeof(line)) == NULL) printf("Invalid configuration file.\n");
+			if (sscanf(line, "%lf", &pMaestro->windspeedanaloginputvalueoffset) != 1) printf("Invalid configuration file.\n");
+			if (fgets3(file, line, sizeof(line)) == NULL) printf("Invalid configuration file.\n");
+			if (sscanf(line, "%lf", &pMaestro->windspeedanaloginputvaluethreshold) != 1) printf("Invalid configuration file.\n");
+			if (fgets3(file, line, sizeof(line)) == NULL) printf("Invalid configuration file.\n");
+			if (sscanf(line, "%lf", &pMaestro->windspeedanaloginputvaluecoef) != 1) printf("Invalid configuration file.\n");
+			
+			if (fgets3(file, line, sizeof(line)) == NULL) printf("Invalid configuration file.\n");
+			if (sscanf(line, "%d", &pMaestro->bat1analoginputchan) != 1) printf("Invalid configuration file.\n");
+			if (fgets3(file, line, sizeof(line)) == NULL) printf("Invalid configuration file.\n");
+			if (sscanf(line, "%lf", &pMaestro->bat1analoginputvalueoffset) != 1) printf("Invalid configuration file.\n");
+			if (fgets3(file, line, sizeof(line)) == NULL) printf("Invalid configuration file.\n");
+			if (sscanf(line, "%lf", &pMaestro->bat1analoginputvaluethreshold) != 1) printf("Invalid configuration file.\n");
+			if (fgets3(file, line, sizeof(line)) == NULL) printf("Invalid configuration file.\n");
+			if (sscanf(line, "%lf", &pMaestro->bat1analoginputvaluecoef) != 1) printf("Invalid configuration file.\n");
+			
+			if (fgets3(file, line, sizeof(line)) == NULL) printf("Invalid configuration file.\n");
+			if (sscanf(line, "%d", &pMaestro->bat2analoginputchan) != 1) printf("Invalid configuration file.\n");
+			if (fgets3(file, line, sizeof(line)) == NULL) printf("Invalid configuration file.\n");
+			if (sscanf(line, "%lf", &pMaestro->bat2analoginputvalueoffset) != 1) printf("Invalid configuration file.\n");
+			if (fgets3(file, line, sizeof(line)) == NULL) printf("Invalid configuration file.\n");
+			if (sscanf(line, "%lf", &pMaestro->bat2analoginputvaluethreshold) != 1) printf("Invalid configuration file.\n");
+			if (fgets3(file, line, sizeof(line)) == NULL) printf("Invalid configuration file.\n");
+			if (sscanf(line, "%lf", &pMaestro->bat2analoginputvaluecoef) != 1) printf("Invalid configuration file.\n");
+			
+			if (fgets3(file, line, sizeof(line)) == NULL) printf("Invalid configuration file.\n");
+			if (sscanf(line, "%d", &pMaestro->switchanaloginputchan) != 1) printf("Invalid configuration file.\n");
+			if (fgets3(file, line, sizeof(line)) == NULL) printf("Invalid configuration file.\n");
+			if (sscanf(line, "%lf", &pMaestro->switchanaloginputvalueoffset) != 1) printf("Invalid configuration file.\n");
+			if (fgets3(file, line, sizeof(line)) == NULL) printf("Invalid configuration file.\n");
+			if (sscanf(line, "%lf", &pMaestro->switchanaloginputvaluethreshold) != 1) printf("Invalid configuration file.\n");
+			if (fgets3(file, line, sizeof(line)) == NULL) printf("Invalid configuration file.\n");
+			if (sscanf(line, "%lf", &pMaestro->switchanaloginputvaluecoef) != 1) printf("Invalid configuration file.\n");
 
 			if (fgets3(file, line, sizeof(line)) == NULL) printf("Invalid configuration file.\n");
 			if (sscanf(line, "%lf", &pMaestro->MinAngle) != 1) printf("Invalid configuration file.\n");
@@ -585,11 +688,6 @@ inline int ConnectMaestro(MAESTRO* pMaestro, char* szCfgFilePath)
 			if (sscanf(line, "%lf", &pMaestro->MidAngle) != 1) printf("Invalid configuration file.\n");
 			if (fgets3(file, line, sizeof(line)) == NULL) printf("Invalid configuration file.\n");
 			if (sscanf(line, "%lf", &pMaestro->MaxAngle) != 1) printf("Invalid configuration file.\n");
-
-			if (fgets3(file, line, sizeof(line)) == NULL) printf("Invalid configuration file.\n");
-			if (sscanf(line, "%lf", &pMaestro->analoginputvalueoffset) != 1) printf("Invalid configuration file.\n");
-			if (fgets3(file, line, sizeof(line)) == NULL) printf("Invalid configuration file.\n");
-			if (sscanf(line, "%lf", &pMaestro->analoginputvaluecoef) != 1) printf("Invalid configuration file.\n");
 
 			if (fgets3(file, line, sizeof(line)) == NULL) printf("Invalid configuration file.\n");
 			if (sscanf(line, "%d", &pMaestro->bEnableSetMultipleTargets) != 1) printf("Invalid configuration file.\n");
@@ -659,10 +757,30 @@ inline int ConnectMaestro(MAESTRO* pMaestro, char* szCfgFilePath)
 		printf("Invalid parameter : leftfluxchan.\n");
 		pMaestro->leftfluxchan = 3;
 	}
-	if ((pMaestro->analoginputchan < -1)||(pMaestro->analoginputchan >= 32))
+	if ((pMaestro->winddiranaloginputchan < -1)||(pMaestro->winddiranaloginputchan >= NB_CHANNELS_MAESTRO))
 	{
-		printf("Invalid parameter : analoginputchan.\n");
-		pMaestro->analoginputchan = 11;
+		printf("Invalid parameter : winddiranaloginputchan.\n");
+		pMaestro->winddiranaloginputchan = 11;
+	}
+	if ((pMaestro->windspeedanaloginputchan < -1)||(pMaestro->windspeedanaloginputchan >= NB_CHANNELS_MAESTRO))
+	{
+		printf("Invalid parameter : windspeedanaloginputchan.\n");
+		pMaestro->windspeedanaloginputchan = -1;
+	}
+	if ((pMaestro->bat1analoginputchan < -1)||(pMaestro->bat1analoginputchan >= NB_CHANNELS_MAESTRO))
+	{
+		printf("Invalid parameter : bat1analoginputchan.\n");
+		pMaestro->bat1analoginputchan = 7;
+	}
+	if ((pMaestro->bat2analoginputchan < -1)||(pMaestro->bat2analoginputchan >= NB_CHANNELS_MAESTRO))
+	{
+		printf("Invalid parameter : bat2analoginputchan.\n");
+		pMaestro->bat2analoginputchan = -1;
+	}
+	if ((pMaestro->switchanaloginputchan < -1)||(pMaestro->switchanaloginputchan >= NB_CHANNELS_MAESTRO))
+	{
+		printf("Invalid parameter : switchanaloginputchan.\n");
+		pMaestro->switchanaloginputchan = 9;
 	}
 
 	if ((pMaestro->MaxAngle-pMaestro->MidAngle <= 0.001)||(pMaestro->MidAngle-pMaestro->MinAngle <= 0.001))

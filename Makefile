@@ -1,13 +1,22 @@
+# Makefile for Linux, tested with Ubuntu 15.10. 
+# You might need to install C/C++ development tools by typing :
+#    sudo apt-get install build-essential
+# in a terminal.
+# For more information on the configuration used, see www.ensta-bretagne.fr/lebars/Share/Ubuntu.txt .
+# Use dos2unix *.txt to ensure line endings are correct for Linux in the configuration files.
 
 PROGS = Test_devices
 
-CC = g++
-CFLAGS += -g -fpermissive
-#CFLAGS += -O3 -fpermissive
+CC = gcc
+CXX = g++
+
+CFLAGS += -g
+#CFLAGS += -O3
 CFLAGS += -Wall -Wno-unknown-pragmas
 #CFLAGS += -Wextra -Winline
 
-#CFLAGS += -D _DEBUG -D _DEBUG_DISPLAY -D _DEBUG_MESSAGES 
+#CFLAGS += -D _DEBUG -D _DEBUG_DISPLAY 
+#CFLAGS += -D _DEBUG_MESSAGES 
 CFLAGS += -D DISABLE_THREADS_OSNET
 CFLAGS += -D SIMULATED_INTERNET_SWARMONDEVICE
 CFLAGS += -D DISABLE_AIS_SUPPORT
@@ -23,6 +32,8 @@ CFLAGS += -D DISABLE_MINISSCTHREAD
 CFLAGS += -D DISABLE_MDMTHREAD
 CFLAGS += -D DISABLE_HOKUYOTHREAD
 CFLAGS += -D DISABLE_SEANETTHREAD
+
+CXXFLAGS += $(CFLAGS) -fpermissive
 
 # For Windows/MinGW
 #LDFLAGS += -lws2_32
@@ -51,10 +62,10 @@ OSTime.o: OSTime.c OSTime.h OSCore.o
 ############################# PROGS #############################
 
 Main.o: Main.cpp OSCore.h OSTime.h OSMisc.h OSNet.h OSComputerRS232Port.h RS232Port.h MT.h RazorAHRS.h NMEADevice.h SwarmonDevice.h P33x.h SSC32.h Maestro.h MiniSSC.h MDM.h Hokuyo.h Seanet.h 
-	$(CC) $(CFLAGS) -c $<
+	$(CXX) $(CXXFLAGS) -c $<
 
 Test_devices: Main.o OSNet.o OSComputerRS232Port.o OSMisc.o OSTime.o OSCore.o
-	$(CC) $(CFLAGS) -o $@ $^ $(LDFLAGS)
+	$(CXX) $(CXXFLAGS) -o $@ $^ $(LDFLAGS)
 
 clean:
 	rm -f $(PROGS) $(PROGS:%=%.elf) $(PROGS:%=%.exe) *.o *.obj core *.gch
