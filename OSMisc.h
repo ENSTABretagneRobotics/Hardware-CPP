@@ -10,8 +10,6 @@ fgets2() by Luc Jaulin
 
 Created : 2009-01-28
 
-Version status : Tested some parts
-
 ***************************************************************************************************************:)*/
 
 // Prevent Visual Studio Intellisense from defining _WIN32 and _MSC_VER when we use 
@@ -426,6 +424,73 @@ inline char* fgets3(FILE* file, char* line, int nbChar)
 	}
 
 	return r;
+}
+
+/*
+Return : The current line number or -1 if an error occurs.
+*/
+inline int ftellline(FILE* file)
+{ 
+	int cur = 0, i = 0;
+	char* r = NULL;
+	char line[1024];
+
+	cur = ftell(file);
+	rewind(file);
+
+	do
+	{
+		do
+		{
+			r = fgets(line, sizeof(line), file);
+			if (r == NULL) 
+			{
+				// Go back to initial position.
+				fseek(file, cur, SEEK_SET);
+				return -1;
+			}
+		} while ((strlen(r) == sizeof(line)-1)&&(r[sizeof(line)-2] != '\n'));
+		i++;
+	} while (ftell(file) <= cur);
+
+	// Go back to initial position.
+	if (fseek(file, cur, SEEK_SET) != EXIT_SUCCESS) return -1;
+
+	return i;
+}
+
+/*
+Return : EXIT_SUCCESS or EXIT_FAILURE if linenumber does not exist and in this case 
+the file tries to stay at its original position unless a file error occurs.
+*/
+inline int fsetline(FILE* file, int linenumber)
+{ 
+	int cur = 0, i = 0;
+	char* r = NULL;
+	char line[1024];
+
+	if (linenumber <= 0) return EXIT_FAILURE;
+
+	cur = ftell(file);
+	rewind(file);
+
+	while (i < linenumber-1)
+	{
+		do
+		{
+			r = fgets(line, sizeof(line), file);
+			if (r == NULL) 
+			{
+				// If fgets() fails, try to go back to initial position.
+				clearerr(file);
+				fseek(file, cur, SEEK_SET);
+				return EXIT_FAILURE;
+			}
+		} while ((strlen(r) == sizeof(line)-1)&&(r[sizeof(line)-2] != '\n'));
+		i++;
+	} 
+
+	return EXIT_SUCCESS;
 }
 
 inline int fload(char* szFilePath, unsigned char* buf, size_t elementsize, size_t count, size_t* pBytesLoaded)

@@ -1,12 +1,12 @@
 /***************************************************************************************************************:')
 
-OSComputerRS232Port.c
+RS232Port.c
 
-Computer RS232 port handling (open, close, read, write,...).
+RS232 port handling via local COM port or TCP/IP converter.
 
 Fabrice Le Bars
 
-Created : 2009-03-28
+Created : 2013-08-16
 
 ***************************************************************************************************************:)*/
 
@@ -19,4 +19,4 @@ Created : 2009-03-28
 #	undef _MSC_VER
 #endif // defined(__GNUC__) || defined(__BORLANDC__)
 
-#include "OSComputerRS232Port.h"
+#include "RS232Port.h"

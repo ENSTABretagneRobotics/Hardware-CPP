@@ -9,8 +9,6 @@ Fabrice Le Bars
 
 Created : 2007
 
-Version status : Tested some parts
-
 ***************************************************************************************************************:)*/
 
 // Prevent Visual Studio Intellisense from defining _WIN32 and _MSC_VER when we use 
@@ -323,13 +321,13 @@ typedef unsigned int uint32; // Might be unsigned long...
 // Conflict with OpenCV...
 #ifdef ENABLE_INT64_TYPEDEF
 // Note that the long long type is not accepted by Borland C++ Builder 5.
-#ifdef __GNUC__
-typedef int64_t int64;
-typedef uint64_t uint64;
-#else
+#if defined(_MSC_VER) || defined(__BORLANDC__)
 typedef __int64 int64;
 typedef unsigned __int64 uint64;
-#endif // __GNUC__
+#else
+typedef int64_t int64;
+typedef uint64_t uint64;
+#endif // defined(_MSC_VER) || defined(__BORLANDC__)
 #endif // ENABLE_INT64_TYPEDEF
 
 // Might vary also and should be moved elsewhere...
@@ -491,8 +489,6 @@ EXTERN_C char* FormatLastErrorMsg(char* buf, int buflen);
 #pragma GCC diagnostic ignored "-Wunused-but-set-variable"
 #if (((__GNUC__ == 4) && (__GNUC_MINOR__ >= 6)) || (__GNUC__ > 4))
 #pragma GCC diagnostic push
-#else
-//#pragma GCC diagnostic ignored "-Wpragmas"
 #endif // (((__GNUC__ == 4) && (__GNUC_MINOR__ >= 6)) || (__GNUC__ > 4))
 #endif // __GNUC__
 
@@ -517,7 +513,6 @@ EXTERN_C char* FormatLastErrorMsg(char* buf, int buflen);
 #if (((__GNUC__ == 4) && (__GNUC_MINOR__ >= 6)) || (__GNUC__ > 4))
 #pragma GCC diagnostic pop
 #else
-//#pragma GCC diagnostic warning "-Wpragmas"
 #pragma GCC diagnostic warning "-Wunused-but-set-variable"
 #endif // (((__GNUC__ == 4) && (__GNUC_MINOR__ >= 6)) || (__GNUC__ > 4))
 #endif // __GNUC__

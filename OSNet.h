@@ -9,8 +9,6 @@ Fabrice Le Bars
 
 Created : 2007
 
-Version status : Tested some parts
-
 ***************************************************************************************************************:)*/
 
 // Prevent Visual Studio Intellisense from defining _WIN32 and _MSC_VER when we use 
@@ -194,7 +192,7 @@ inline int InitNet(void)
 #ifdef _WIN32
 	WSADATA wsaData;
 
-	// Initiate use of the Winsock 2 DLL (Ws2_32.dll) by a process.
+	// Initiate use of the Winsock 2 DLL (WS2_32.dll) by a process.
 	int iResult = WSAStartup(MAKEWORD(2,2), &wsaData);
 	switch (iResult)
 	{
@@ -252,7 +250,7 @@ Return : EXIT_SUCCESS or EXIT_FAILURE if there is an error.
 inline int ReleaseNet(void)
 {
 #ifdef _WIN32
-	// Terminate use of the Winsock 2 DLL (Ws2_32.dll).
+	// Terminate use of the Winsock 2 DLL (WS2_32.dll).
 	int iResult = WSACleanup();
 	switch (iResult)
 	{
@@ -569,7 +567,7 @@ inline int inittcpcli(SOCKET* pSock, char* address, char* port)
 #endif // _WIN32
 
 #ifdef _WIN32
-	// Initiate use of the Winsock 2 DLL (Ws2_32.dll) by a process.
+	// Initiate use of the Winsock 2 DLL (WS2_32.dll) by a process.
 	if (WSAStartup(MAKEWORD(2,2), &wsaData) != EXIT_SUCCESS)
 	{
 		PRINT_DEBUG_ERROR_OSNET(("inittcpcli error (%s) : %s(address=%s, port=%s)\n", 
@@ -663,7 +661,7 @@ inline int releasetcpcli(SOCKET sock)
 	}
 
 #ifdef _WIN32
-	// Terminate use of the Winsock 2 DLL (Ws2_32.dll).
+	// Terminate use of the Winsock 2 DLL (WS2_32.dll).
 	if (WSACleanup() != EXIT_SUCCESS)
 	{
 		PRINT_DEBUG_ERROR_OSNET(("releasetcpcli error (%s) : %s(sock=%d)\n", 
@@ -695,7 +693,7 @@ inline int initudpcli(SOCKET* pSock, char* address, char* port)
 #endif // _WIN32
 
 #ifdef _WIN32
-	// Initiate use of the Winsock 2 DLL (Ws2_32.dll) by a process.
+	// Initiate use of the Winsock 2 DLL (WS2_32.dll) by a process.
 	if (WSAStartup(MAKEWORD(2,2), &wsaData) != EXIT_SUCCESS)
 	{
 		PRINT_DEBUG_ERROR_OSNET(("initudpcli error (%s) : %s(address=%s, port=%s)\n", 
@@ -803,7 +801,7 @@ inline int releaseudpcli(SOCKET sock)
 	}
 
 #ifdef _WIN32
-	// Terminate use of the Winsock 2 DLL (Ws2_32.dll).
+	// Terminate use of the Winsock 2 DLL (WS2_32.dll).
 	if (WSACleanup() != EXIT_SUCCESS)
 	{
 		PRINT_DEBUG_ERROR_OSNET(("releaseudpcli error (%s) : %s(sock=%d)\n", 
@@ -839,7 +837,7 @@ inline int inittcpsrv(SOCKET* pSock, char* address, char* port, int maxnbcli, in
 #endif // _WIN32
 
 #ifdef _WIN32
-	// Initiate use of the Winsock 2 DLL (Ws2_32.dll) by a process.
+	// Initiate use of the Winsock 2 DLL (WS2_32.dll) by a process.
 	if (WSAStartup(MAKEWORD(2,2), &wsaData) != EXIT_SUCCESS)
 	{
 		PRINT_DEBUG_ERROR_OSNET(("inittcpsrv error (%s) : %s(address=%s, port=%s, maxnbcli=%d, timeout=%d)\n", 
@@ -947,7 +945,7 @@ inline int releasetcpsrv(SOCKET sock)
 	}
 
 #ifdef _WIN32
-	// Terminate use of the Winsock 2 DLL (Ws2_32.dll).
+	// Terminate use of the Winsock 2 DLL (WS2_32.dll).
 	if (WSACleanup() != EXIT_SUCCESS)
 	{
 		PRINT_DEBUG_ERROR_OSNET(("releasetcpsrv error (%s) : %s(sock=%d)\n", 
@@ -981,7 +979,7 @@ inline int initudpsrv(SOCKET* pSock, char* address, char* port, int timeout)
 #endif // _WIN32
 
 #ifdef _WIN32
-	// Initiate use of the Winsock 2 DLL (Ws2_32.dll) by a process.
+	// Initiate use of the Winsock 2 DLL (WS2_32.dll) by a process.
 	if (WSAStartup(MAKEWORD(2,2), &wsaData) != EXIT_SUCCESS)
 	{
 		PRINT_DEBUG_ERROR_OSNET(("initudpsrv error (%s) : %s(address=%s, port=%s, timeout=%d)\n", 
@@ -1075,7 +1073,7 @@ inline int releaseudpsrv(SOCKET sock)
 	}
 
 #ifdef _WIN32
-	// Terminate use of the Winsock 2 DLL (Ws2_32.dll).
+	// Terminate use of the Winsock 2 DLL (WS2_32.dll).
 	if (WSACleanup() != EXIT_SUCCESS)
 	{
 		PRINT_DEBUG_ERROR_OSNET(("releaseudpsrv error (%s) : %s(sock=%d)\n", 
@@ -1148,7 +1146,7 @@ inline int waitforclifortcpsrv(SOCKET socksrv, SOCKET* pSockCli, int timeout)
 
 	if (iResult == 0)
 	{ 
-		PRINT_DEBUG_WARNING_OSNET(("waitforclifortcpsrv warning (%s) : %s(socksrv=%d, timeout=%d)\n", 
+		PRINT_DEBUG_MESSAGE_OSNET(("waitforclifortcpsrv message (%s) : %s(socksrv=%d, timeout=%d)\n", 
 			strtime_m(), 
 			"select timed out. ", 
 			(int)socksrv, timeout));
@@ -1237,7 +1235,7 @@ inline int waitforcliforudpsrv(SOCKET socksrv, SOCKET* pSockCli, int timeout)
 
 	if (iResult == 0)
 	{ 
-		PRINT_DEBUG_WARNING_OSNET(("waitforcliforudpsrv warning (%s) : %s(socksrv=%d, timeout=%d)\n", 
+		PRINT_DEBUG_MESSAGE_OSNET(("waitforcliforudpsrv message (%s) : %s(socksrv=%d, timeout=%d)\n", 
 			strtime_m(), 
 			"select timed out. ", 
 			(int)socksrv, timeout));
