@@ -24,6 +24,7 @@ DEFINES += DISABLE_MAESTROTHREAD
 DEFINES += DISABLE_MINISSCTHREAD
 DEFINES += DISABLE_MDMTHREAD
 DEFINES += DISABLE_HOKUYOTHREAD
+DEFINES += DISABLE_RPLIDARTHREAD
 DEFINES += DISABLE_SEANETTHREAD
 CONFIG(debug, debug|release) {
  DEFINES += _DEBUG
@@ -53,6 +54,7 @@ HEADERS += \
     MiniSSC.h \
     MT.h \
     NMEADevice.h \
+    NMEAProtocol.h \
     OSComputerRS232Port.h \
     OSCore.h \
     OSMisc.h \
@@ -60,6 +62,7 @@ HEADERS += \
     OSTime.h \
     P33x.h \
     RazorAHRS.h \
+    RPLIDAR.h \
     RS232Port.h \
     Seanet.h \
     SSC32.h \

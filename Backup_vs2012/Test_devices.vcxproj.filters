@@ -86,6 +86,12 @@
     <ClInclude Include="SwarmonDevice.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="NMEAProtocol.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="RPLIDAR.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Text Include="Hokuyo0.txt" />
@@ -100,6 +106,7 @@
     <Text Include="Seanet0.txt" />
     <Text Include="SSC320.txt" />
     <Text Include="SwarmonDevice0.txt" />
+    <Text Include="RPLIDAR0.txt" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Makefile" />

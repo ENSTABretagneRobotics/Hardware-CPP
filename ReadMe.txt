@@ -11,9 +11,10 @@ Hardware support :
 - Maestro : Pololu Mini Maestro 6, 18, 24 servo controllers.
 - MDM : Tritech Micron Data Modem (or other kinds of simple RS232 modems).
 - MT : Xsens MTi, MTi-G AHRS.
-- NMEADevice : GPS, Furuno WS200 weather station, AIS Receiver dAISy.
+- NMEADevice : GPS, Furuno WS200 weather station.
 - P33x : Keller pressure sensor PAA-33x.
 - RazorAHRS : SparkFun 9DOF Razor IMU.
+- RPLIDAR : RPLIDAR A2 laser telemeter.
 - Seanet : Tritech Micron Sonar, Tritech Miniking Sonar.
 - SSC-32 : Lynxmotion SSC-32, SSC-32u servo controllers.
 

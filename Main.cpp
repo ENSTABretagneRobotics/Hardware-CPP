@@ -8,6 +8,7 @@
 #include "MiniSSC.h"
 #include "MDM.h"
 #include "Hokuyo.h"
+#include "RPLIDAR.h"
 #include "Seanet.h"
 
 // Comment/uncomment lines depending on the device you wish to test.
@@ -70,6 +71,9 @@ int main(int argc, char* argv[])
 	HOKUYO hokuyo;
 	double angles[MAX_SLITDIVISION_HOKUYO];
 	double distances[MAX_SLITDIVISION_HOKUYO];
+	RPLIDAR rplidar;
+	BOOL bNewScan = FALSE;
+	int quality = 0;
 	SEANET seanet;
 	double angle = 0, d = 0;
 	unsigned char scanline[MAX_NB_BYTES_SEANET];
@@ -88,6 +92,7 @@ int main(int argc, char* argv[])
 	memset(&minissc, 0, sizeof(MINISSC));
 	memset(&mdm, 0, sizeof(MDM));
 	memset(&hokuyo, 0, sizeof(HOKUYO));
+	memset(&rplidar, 0, sizeof(RPLIDAR));
 	memset(&seanet, 0, sizeof(SEANET));
 
 	//ConnectMT(&mt, "MT0.txt");
@@ -100,6 +105,7 @@ int main(int argc, char* argv[])
 	//ConnectMiniSSC(&minissc, "MiniSSC0.txt");
 	//ConnectMDM(&mdm, "MDM0.txt");
 	//ConnectHokuyo(&hokuyo, "Hokuyo0.txt");
+	//ConnectRPLIDAR(&rplidar, "RPLIDAR0.txt");
 	//ConnectSeanet(&seanet, "Seanet0.txt");
 
 	//mdm.pfSaveFile = fopen("rawmdm.txt", "wb");
@@ -152,6 +158,13 @@ int main(int argc, char* argv[])
 		//printf("Distance on the front = %f m\n", distances[angle2kHokuyo(&hokuyo, 0.0)]);
 		//printf("Distance on the left = %f m\n", distances[angle2kHokuyo(&hokuyo, M_PI/2.0)]);
 
+		//d = 0;
+		//angle = 0;
+		//bNewScan = FALSE;
+		//quality = 0;
+		//GetScanDataResponseRPLIDAR(&rplidar, &d, &angle, &bNewScan, &quality);
+		//printf("%f deg; %f m\n", angle, d);
+
 		//angle = 0; // Will receive the angle of the ping in deg.
 		//memset(scanline, 0, sizeof(scanline)); // Will receive the data of the ping (NBins values in [0..255]).
 		//// Get a ping. Note that the sonar does not ping by default, therefore you should 
@@ -166,6 +179,7 @@ int main(int argc, char* argv[])
 	//fclose(mdm.pfSaveFile);
 
 	//DisconnectSeanet(&seanet);
+	//DisconnectRPLIDAR(&rplidar);
 	//DisconnectHokuyo(&hokuyo);
 	//DisconnectMDM(&mdm);
 	//DisconnectMiniSSC(&minissc);
