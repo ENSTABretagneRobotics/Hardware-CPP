@@ -38,58 +38,61 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Hardware\Hokuyo.h">
+    <ClInclude Include="Hokuyo.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Hardware\Maestro.h">
+    <ClInclude Include="Maestro.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Hardware\MiniSSC.h">
+    <ClInclude Include="MiniSSC.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Hardware\NMEAProtocol.h">
+    <ClInclude Include="NMEAProtocol.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Hardware\RPLIDAR.h">
+    <ClInclude Include="RPLIDAR.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\OSUtils\OSComputerRS232Port.h">
+    <ClInclude Include="OSComputerRS232Port.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\OSUtils\OSCore.h">
+    <ClInclude Include="OSCore.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\OSUtils\OSNet.h">
+    <ClInclude Include="OSNet.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\OSUtils\OSTime.h">
+    <ClInclude Include="OSTime.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Hardware\MDM.h">
+    <ClInclude Include="MDM.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Hardware\MT.h">
+    <ClInclude Include="MT.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Hardware\NMEADevice.h">
+    <ClInclude Include="NMEADevice.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Hardware\P33x.h">
+    <ClInclude Include="P33x.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Hardware\RazorAHRS.h">
+    <ClInclude Include="RazorAHRS.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Hardware\RS232Port.h">
+    <ClInclude Include="RS232Port.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Hardware\Seanet.h">
+    <ClInclude Include="Seanet.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Hardware\SSC32.h">
+    <ClInclude Include="SSC32.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Hardware\SwarmonDevice.h">
+    <ClInclude Include="SwarmonDevice.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="OSMisc.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
