@@ -40,9 +40,13 @@
 
 #define MAX_NB_BYTES_TALKER_ID_NMEA 2
 #define MIN_NB_BYTES_TALKER_ID_NMEA 1
-#define NB_BYTES_MNEMONIC_NMEA 3
-#define MAX_NB_BYTES_ADDRESS_NMEA (MAX_NB_BYTES_TALKER_ID_NMEA+NB_BYTES_MNEMONIC_NMEA)
-#define MIN_NB_BYTES_ADDRESS_NMEA (MIN_NB_BYTES_TALKER_ID_NMEA+NB_BYTES_MNEMONIC_NMEA)
+#define DEFAULT_NB_BYTES_TALKER_ID_NMEA 2
+#define MAX_NB_BYTES_MNEMONIC_NMEA 5
+#define MIN_NB_BYTES_MNEMONIC_NMEA 0
+#define DEFAULT_NB_BYTES_MNEMONIC_NMEA 3
+#define MAX_NB_BYTES_ADDRESS_NMEA (MAX_NB_BYTES_TALKER_ID_NMEA+MAX_NB_BYTES_MNEMONIC_NMEA)
+#define MIN_NB_BYTES_ADDRESS_NMEA (MIN_NB_BYTES_TALKER_ID_NMEA+MIN_NB_BYTES_MNEMONIC_NMEA)
+#define DEFAULT_NB_BYTES_ADDRESS_NMEA (DEFAULT_NB_BYTES_TALKER_ID_NMEA+DEFAULT_NB_BYTES_MNEMONIC_NMEA)
 
 #define MAX_NB_BYTES_CHECKSUM_NMEA 3
 
@@ -56,6 +60,7 @@
 
 struct NMEADATA
 {
+	// Weather station.
 	double utc, date;
 	double pressure, temperature;
 	char cpressure, ctemperature;
@@ -68,28 +73,43 @@ struct NMEADATA
 	char szlatdeg[3];
 	char szlongdeg[4];
 	char north, east;
-	int GPS_quality_indicator;
+	int GPS_quality_indicator; // Possible values for quality: 0 = No fix, 1 = Autonomous GNSS fix, 2 = Differential GNSS fix, 4 = RTK fixed, 5 = RTK float, 6 = Estimated/Dead reckoning fix.
 	int nbsat;
 	double hdop;
 	double height_geoid;
-	char status;
-	double sog, cog, mag_cog;
-	double heading, deviation, variation;
+	char status; // Possible values for status: V = Data invalid, A = Data valid.
+	char posMode; // Possible values for posMode: N = No fix, E = Estimated/Dead reckoning fix, A = Autonomous GNSS fix, D = Differential GNSS fix, F = RTK float, R = RTK fixed.
+	double sog, kph, cog, mag_cog; // Respectively in knots, km/h, deg in NED coordinate system.
+	double heading, deviation, variation; // Respectively in deg in NED coordinate system.
 	char dev_east, var_east;
+	// AIS.
 	int nbsentences;
 	int sentence_number;
 	int seqmsgid;
 	char AIS_channel;
 	int nbfillbits;
+	// DVL.
+	double roll, pitch; // In deg in NED coordinate system.
+	double salinity; 
+	double depth; // In m.
+	double speedofsound; // In m/s.
+	double vx_dvl, vy_dvl, vz_dvl, verr_dvl, vt_ship, vl_ship, vn_ship, v_east, v_north, v_up; // In mm/s.
+	char vstatus_dvl, vstatus_ship, vstatus_earth; // 'A' = good, 'V' = bad.
+	double d_east, d_north, d_up, rangetobottom; // In m.
+	double timesincelastgood; // In s.
+	// Converted values.
 	double Latitude; // In decimal degrees.
 	double Longitude; // In decimal degrees.
 	double Altitude; // In m.
+	double Altitude_AGL; // In m.
 	double SOG; // In m/s.
-	double COG; // In rad.
+	double COG; // In rad in NED coordinate system.
 	int year, month, day, hour, minute; 
 	double second;
-	double Heading; // In rad.
-	double WindDir; // In rad.
+	double Roll; // In rad in NED coordinate system.
+	double Pitch; // In rad in NED coordinate system.
+	double Heading; // In rad in NED coordinate system.
+	double WindDir; // In rad in NED coordinate system.
 	double WindSpeed; // In m/s.
 	double ApparentWindDir; // In rad.
 	double ApparentWindSpeed; // In m/s.
@@ -133,7 +153,7 @@ inline void EncodeSentenceNMEA(char* sentence, int* psentencelen, char* talkerid
 	strcpy(&sentence[1], talkerid);
 	strcpy(&sentence[1+strlen(talkerid)], mnemonic);
 	memcpy(&sentence[1+strlen(talkerid)+strlen(mnemonic)], payload, payloadlen);
-	*psentencelen = 1+strlen(talkerid)+strlen(mnemonic)+payloadlen+MAX_NB_BYTES_CHECKSUM_NMEA+MAX_NB_BYTES_END_NMEA;
+	*psentencelen = 1+(int)strlen(talkerid)+(int)strlen(mnemonic)+payloadlen+MAX_NB_BYTES_CHECKSUM_NMEA+MAX_NB_BYTES_END_NMEA;
 	sentence[*psentencelen-MAX_NB_BYTES_END_NMEA-MAX_NB_BYTES_CHECKSUM_NMEA] = '*'; // Needed for ComputeChecksumNMEA().
 	ComputeChecksumNMEA(sentence, *psentencelen, checksum);
 	strcpy(&sentence[*psentencelen-MAX_NB_BYTES_END_NMEA-MAX_NB_BYTES_CHECKSUM_NMEA+1], checksum+1);
@@ -142,7 +162,8 @@ inline void EncodeSentenceNMEA(char* sentence, int* psentencelen, char* talkerid
 }
 
 /*
-char* talkerid, char* mnemonic : (INOUT) Will contain null-terminated strings.
+char* talkerid, char* mnemonic : (INOUT) Will contain null-terminated strings (need to be at least 
+MAX_NB_BYTES_TALKER_ID_NMEA+1 and MAX_NB_BYTES_MNEMONIC_NMEA+1 bytes).
 
 Return : EXIT_SUCCESS if the beginning of buf contains a valid sentence (there might be other data at the end), 
 EXIT_OUT_OF_MEMORY if the sentence is incomplete (check *pnbBytesToRequest to know how many additional bytes 
@@ -152,7 +173,7 @@ many bytes can be safely discarded).
 inline int AnalyzeSentenceNMEA(char* buf, int buflen, char* talkerid, char* mnemonic, int* psentencelen, 
 								   int* pnbBytesToRequest, int* pnbBytesToDiscard)
 {
-	int offset = 0, i = 0, nb_bytes_talkerid = MIN_NB_BYTES_TALKER_ID_NMEA, nb_bytes_end = MIN_NB_BYTES_END_NMEA;
+	int offset = 0, i = 0, nb_bytes_talkerid = MIN_NB_BYTES_TALKER_ID_NMEA, nb_bytes_mnemonic = MIN_NB_BYTES_MNEMONIC_NMEA, nb_bytes_end = MIN_NB_BYTES_END_NMEA;
 	char checksum[MAX_NB_BYTES_CHECKSUM_NMEA+1]; // +1 for the null terminator character for strings.
 
 	*psentencelen = 0;
@@ -163,14 +184,14 @@ inline int AnalyzeSentenceNMEA(char* buf, int buflen, char* talkerid, char* mnem
 		*pnbBytesToRequest = MIN_NB_BYTES_SENTENCE_NMEA-buflen;
 		return EXIT_OUT_OF_MEMORY;
 	}
-	if (((buf[0] != '$')&&(buf[0] != '!')))
+	if (((buf[0] != '$')&&(buf[0] != '!')&&(buf[0] != ':')))
 	{
 		*pnbBytesToDiscard = 1; // We are only sure that the start character can be discarded...
 		return EXIT_FAILURE;
 	}
 
 	memset(talkerid, 0, MAX_NB_BYTES_TALKER_ID_NMEA+1); // +1 for the null terminator character for strings.
-	memset(mnemonic, 0, NB_BYTES_MNEMONIC_NMEA+1); // +1 for the null terminator character for strings.
+	memset(mnemonic, 0, MAX_NB_BYTES_MNEMONIC_NMEA+1); // +1 for the null terminator character for strings.
 	// Start at i = 1 because of the start character...
 	for (i = 1; i < min(buflen, 1+MAX_NB_BYTES_ADDRESS_NMEA+1); i++)
 	{
@@ -181,26 +202,37 @@ inline int AnalyzeSentenceNMEA(char* buf, int buflen, char* talkerid, char* mnem
 		*pnbBytesToRequest = nb_bytes_end;
 		return EXIT_OUT_OF_MEMORY;
 	}
-	else if (i == MIN_NB_BYTES_TALKER_ID_NMEA+NB_BYTES_MNEMONIC_NMEA+1)
+	else if (i >= DEFAULT_NB_BYTES_TALKER_ID_NMEA+DEFAULT_NB_BYTES_MNEMONIC_NMEA+1)
 	{
-		talkerid[0] = buf[1];
+		nb_bytes_talkerid = DEFAULT_NB_BYTES_TALKER_ID_NMEA;
 	}
-	else if (i == MAX_NB_BYTES_TALKER_ID_NMEA+NB_BYTES_MNEMONIC_NMEA+1)
+	else if (i == MIN_NB_BYTES_TALKER_ID_NMEA+DEFAULT_NB_BYTES_MNEMONIC_NMEA+1)
 	{
-		nb_bytes_talkerid = MAX_NB_BYTES_TALKER_ID_NMEA;
-		talkerid[0] = buf[1];
-		talkerid[1] = buf[2];
+		nb_bytes_talkerid = MIN_NB_BYTES_TALKER_ID_NMEA;
+	}
+	else if (i == DEFAULT_NB_BYTES_TALKER_ID_NMEA+MIN_NB_BYTES_MNEMONIC_NMEA+1)
+	{
+		nb_bytes_talkerid = DEFAULT_NB_BYTES_TALKER_ID_NMEA;
 	}
 	else
 	{
 		*pnbBytesToDiscard = 1; // We are only sure that the start character can be discarded...
 		return EXIT_FAILURE;
 	}
-	mnemonic[0] = buf[1+nb_bytes_talkerid+0];
-	mnemonic[1] = buf[1+nb_bytes_talkerid+1];
-	mnemonic[2] = buf[1+nb_bytes_talkerid+2];
+
+	nb_bytes_mnemonic = i-nb_bytes_talkerid-1;
 	
-	offset = 1+nb_bytes_talkerid+NB_BYTES_MNEMONIC_NMEA;
+	offset = 1;
+	for (i = 0; i < nb_bytes_talkerid; i++)
+	{
+		talkerid[i] = buf[offset];
+		offset++;
+	}
+	for (i = 0; i < nb_bytes_mnemonic; i++)
+	{
+		mnemonic[i] = buf[offset];
+		offset++;
+	}
 
 	// Line endings problems...
 
@@ -370,7 +402,7 @@ inline int AnalyzeSentenceWithAddressNMEA(char* buf, int buflen, char* talkerid,
 		*pnbBytesToRequest = MIN_NB_BYTES_SENTENCE_NMEA-buflen;
 		return EXIT_OUT_OF_MEMORY;
 	}
-	if (((buf[0] != '$')&&(buf[0] != '!'))||(buf[1] != talkerid[0]))
+	if (((buf[0] != '$')&&(buf[0] != '!')&&(buf[0] != ':'))||(buf[1] != talkerid[0]))
 	{
 		*pnbBytesToDiscard = 1; // We are only sure that the start character can be discarded...
 		return EXIT_FAILURE;
@@ -378,15 +410,25 @@ inline int AnalyzeSentenceWithAddressNMEA(char* buf, int buflen, char* talkerid,
 	offset = 2;
 	if (strlen(talkerid) >= MAX_NB_BYTES_TALKER_ID_NMEA)
 	{
-		if (buf[2] != talkerid[1])
+		if (offset >= buflen)
+		{
+			*pnbBytesToRequest = nb_bytes_end;
+			return EXIT_OUT_OF_MEMORY;
+		}
+		if (buf[offset] != talkerid[1])
 		{
 			*pnbBytesToDiscard = 2; // We are only sure that the 2 first bytes can be discarded...
 			return EXIT_FAILURE;
 		}
 		offset++;
 	}
-	for (i = 0; i < NB_BYTES_MNEMONIC_NMEA; i++)
+	for (i = 0; i < (int)strlen(mnemonic); i++)
 	{
+		if (offset >= buflen)
+		{
+			*pnbBytesToRequest = nb_bytes_end;
+			return EXIT_OUT_OF_MEMORY;
+		}
 		if (buf[offset] != mnemonic[i])
 		{
 			*pnbBytesToDiscard = offset; // We are only sure that the offset first bytes can be discarded...
@@ -539,12 +581,16 @@ inline int FindLatestSentenceWithAddressNMEA(char* buf, int buflen, char* talker
 	}
 }
 
-// sentence must contain a valid sentence, as a null-terminated string.
+/*
+char* sentence : (IN) Must contain a valid sentence, as a null-terminated string.
+char* talkerid, char* mnemonic : (IN) Null-terminated strings.
+*/
 inline int ProcessSentenceNMEA(char* sentence, int sentencelen, char* talkerid, char* mnemonic, NMEADATA* pNMEAData)
 {
 	// Temporary buffers for sscanf().
 	char c0 = 0, c1 = 0, c2 = 0;
 	double f0 = 0, f1 = 0, f2 = 0;
+	int i0 = 0, i1 = 0;
 	char aisbuf[128];
 	int aisbuflen = 0, i = 0, offset = 0;
 
@@ -555,7 +601,7 @@ inline int ProcessSentenceNMEA(char* sentence, int sentencelen, char* talkerid, 
 	// GPS essential fix data.
 	if (strstr(mnemonic, "GGA"))
 	{
-		offset = 1+strlen(talkerid);
+		offset = 1+(int)strlen(talkerid);
 		memset(pNMEAData->szlatdeg, 0, sizeof(pNMEAData->szlatdeg));
 		memset(pNMEAData->szlongdeg, 0, sizeof(pNMEAData->szlongdeg));
 
@@ -605,15 +651,25 @@ inline int ProcessSentenceNMEA(char* sentence, int sentencelen, char* talkerid, 
 	// GPS recommended minimum data.
 	if (strstr(mnemonic, "RMC"))
 	{
-		offset = 1+strlen(talkerid);
+		offset = 1+(int)strlen(talkerid);
 		memset(pNMEAData->szlatdeg, 0, sizeof(pNMEAData->szlatdeg));
 		memset(pNMEAData->szlongdeg, 0, sizeof(pNMEAData->szlongdeg));
 
 		if (
+			(sscanf(sentence+offset, "RMC,%lf,%c,%c%c%lf,%c,%c%c%c%lf,%c,%lf,%lf,%lf,%lf,%c,%c", &pNMEAData->utc, &pNMEAData->status, 
+			&pNMEAData->szlatdeg[0], &pNMEAData->szlatdeg[1], &pNMEAData->latmin, &pNMEAData->north, 
+			&pNMEAData->szlongdeg[0], &pNMEAData->szlongdeg[1], &pNMEAData->szlongdeg[2], &pNMEAData->longmin, &pNMEAData->east,
+			&pNMEAData->sog, &pNMEAData->cog, &pNMEAData->date, &pNMEAData->variation, &pNMEAData->var_east, &pNMEAData->posMode) != 17)
+			&&
 			(sscanf(sentence+offset, "RMC,%lf,%c,%c%c%lf,%c,%c%c%c%lf,%c,%lf,%lf,%lf,%lf,%c", &pNMEAData->utc, &pNMEAData->status, 
 			&pNMEAData->szlatdeg[0], &pNMEAData->szlatdeg[1], &pNMEAData->latmin, &pNMEAData->north, 
 			&pNMEAData->szlongdeg[0], &pNMEAData->szlongdeg[1], &pNMEAData->szlongdeg[2], &pNMEAData->longmin, &pNMEAData->east,
 			&pNMEAData->sog, &pNMEAData->cog, &pNMEAData->date, &pNMEAData->variation, &pNMEAData->var_east) != 16)
+			&&
+			(sscanf(sentence+offset, "RMC,%lf,%c,%c%c%lf,%c,%c%c%c%lf,%c,%lf,%lf,%lf,,,%c", &pNMEAData->utc, &pNMEAData->status, 
+			&pNMEAData->szlatdeg[0], &pNMEAData->szlatdeg[1], &pNMEAData->latmin, &pNMEAData->north, 
+			&pNMEAData->szlongdeg[0], &pNMEAData->szlongdeg[1], &pNMEAData->szlongdeg[2], &pNMEAData->longmin, &pNMEAData->east,
+			&pNMEAData->sog, &pNMEAData->cog, &pNMEAData->date, &pNMEAData->posMode) != 15)
 			&&
 			(sscanf(sentence+offset, "RMC,%lf,%c,%c%c%lf,%c,%c%c%c%lf,%c,%lf,%lf,%lf", &pNMEAData->utc, &pNMEAData->status, 
 			&pNMEAData->szlatdeg[0], &pNMEAData->szlatdeg[1], &pNMEAData->latmin, &pNMEAData->north, 
@@ -665,11 +721,15 @@ inline int ProcessSentenceNMEA(char* sentence, int sentencelen, char* talkerid, 
 	// GPS position, latitude / longitude and time.
 	if (strstr(mnemonic, "GLL"))
 	{
-		offset = 1+strlen(talkerid);
+		offset = 1+(int)strlen(talkerid);
 		memset(pNMEAData->szlatdeg, 0, sizeof(pNMEAData->szlatdeg));
 		memset(pNMEAData->szlongdeg, 0, sizeof(pNMEAData->szlongdeg));
 
-		if ((sscanf(sentence+offset, "GLL,%c%c%lf,%c,%c%c%c%lf,%c,%lf,%c", 
+		if ((sscanf(sentence+offset, "GLL,%c%c%lf,%c,%c%c%c%lf,%c,%lf,%c,%c", 
+			&pNMEAData->szlatdeg[0], &pNMEAData->szlatdeg[1], &pNMEAData->latmin, &pNMEAData->north, 
+			&pNMEAData->szlongdeg[0], &pNMEAData->szlongdeg[1], &pNMEAData->szlongdeg[2], &pNMEAData->longmin, &pNMEAData->east, 
+			&pNMEAData->utc, &pNMEAData->status, &pNMEAData->posMode) != 12)&&
+			(sscanf(sentence+offset, "GLL,%c%c%lf,%c,%c%c%c%lf,%c,%lf,%c", 
 			&pNMEAData->szlatdeg[0], &pNMEAData->szlatdeg[1], &pNMEAData->latmin, &pNMEAData->north, 
 			&pNMEAData->szlongdeg[0], &pNMEAData->szlongdeg[1], &pNMEAData->szlongdeg[2], &pNMEAData->longmin, &pNMEAData->east, 
 			&pNMEAData->utc, &pNMEAData->status) != 11)&&
@@ -701,13 +761,22 @@ inline int ProcessSentenceNMEA(char* sentence, int sentencelen, char* talkerid, 
 	// GPS COG and SOG.
 	if (strstr(mnemonic, "VTG"))
 	{
-		offset = 1+strlen(talkerid);
-		if ((sscanf(sentence+offset, "VTG,%lf,T,%lf,M,%lf,N", &pNMEAData->cog, &pNMEAData->mag_cog, &pNMEAData->sog) != 3)&&
+		offset = 1+(int)strlen(talkerid);
+		if ((sscanf(sentence+offset, "VTG,%lf,T,%lf,M,%lf,N,%lf,K,%c", &pNMEAData->cog, &pNMEAData->mag_cog, &pNMEAData->sog, &pNMEAData->kph, &pNMEAData->posMode) != 5)&&
+			(sscanf(sentence+offset, "VTG,%lf,T,,M,%lf,N,%lf,K,%c", &pNMEAData->cog, &pNMEAData->sog, &pNMEAData->kph, &pNMEAData->posMode) != 4)&&
+			(sscanf(sentence+offset, "VTG,%lf,T,,,%lf,N,%lf,K,%c", &pNMEAData->cog, &pNMEAData->sog, &pNMEAData->kph, &pNMEAData->posMode) != 4)&&
+			(sscanf(sentence+offset, "VTG,%lf,T,%lf,M,%lf,N", &pNMEAData->cog, &pNMEAData->mag_cog, &pNMEAData->sog) != 3)&&
 			(sscanf(sentence+offset, "VTG,%lf,T,,M,%lf,N", &pNMEAData->cog, &pNMEAData->sog) != 2)&&
 			(sscanf(sentence+offset, "VTG,%lf,T,,,%lf,N", &pNMEAData->cog, &pNMEAData->sog) != 2)&&
+			(sscanf(sentence+offset, "VTG,nan,T,nan,M,%lf,N,%lf,K,%c", &pNMEAData->sog, &pNMEAData->kph, &pNMEAData->posMode) != 3)&&
+			(sscanf(sentence+offset, "VTG,NAN,T,NAN,M,%lf,N,%lf,K,%c", &pNMEAData->sog, &pNMEAData->kph, &pNMEAData->posMode) != 3)&&
+			(sscanf(sentence+offset, "VTG,NaN,T,NaN,M,%lf,N,%lf,K,%c", &pNMEAData->sog, &pNMEAData->kph, &pNMEAData->posMode) != 3)&&
 			(sscanf(sentence+offset, "VTG,nan,T,nan,M,%lf,N", &pNMEAData->sog) != 1)&&
 			(sscanf(sentence+offset, "VTG,NAN,T,NAN,M,%lf,N", &pNMEAData->sog) != 1)&&
 			(sscanf(sentence+offset, "VTG,NaN,T,NaN,M,%lf,N", &pNMEAData->sog) != 1)&&
+			(sscanf(sentence+offset, "VTG,nan,T,,,%lf,N,%lf,K,%c", &pNMEAData->sog, &pNMEAData->kph, &pNMEAData->posMode) != 3)&&
+			(sscanf(sentence+offset, "VTG,NAN,T,,,%lf,N,%lf,K,%c", &pNMEAData->sog, &pNMEAData->kph, &pNMEAData->posMode) != 3)&&
+			(sscanf(sentence+offset, "VTG,NaN,T,,,%lf,N,%lf,K,%c", &pNMEAData->sog, &pNMEAData->kph, &pNMEAData->posMode) != 3)&&
 			(sscanf(sentence+offset, "VTG,nan,T,,,%lf,N", &pNMEAData->sog) != 1)&&
 			(sscanf(sentence+offset, "VTG,NAN,T,,,%lf,N", &pNMEAData->sog) != 1)&&
 			(sscanf(sentence+offset, "VTG,NaN,T,,,%lf,N", &pNMEAData->sog) != 1))
@@ -724,7 +793,7 @@ inline int ProcessSentenceNMEA(char* sentence, int sentencelen, char* talkerid, 
 	// Heading data.
 	if (strstr(mnemonic, "HDG"))
 	{
-		offset = 1+strlen(talkerid);
+		offset = 1+(int)strlen(talkerid);
 		if (sscanf(sentence+offset, "HDG,%lf,%lf,%c,%lf,%c", 
 			&pNMEAData->heading, &pNMEAData->deviation, &pNMEAData->dev_east, &pNMEAData->variation, &pNMEAData->var_east) != 5)
 		{
@@ -740,7 +809,7 @@ inline int ProcessSentenceNMEA(char* sentence, int sentencelen, char* talkerid, 
 	// Wind speed and angle, in relation to the vessel's bow/centerline.
 	if (strstr(mnemonic, "MWV"))
 	{
-		offset = 1+strlen(talkerid);
+		offset = 1+(int)strlen(talkerid);
 		if (sscanf(sentence+offset, "MWV,%lf,R,%lf,%c,A", 
 			&pNMEAData->awinddir, &pNMEAData->awindspeed, &pNMEAData->cawindspeed) != 3)
 		{
@@ -765,7 +834,7 @@ inline int ProcessSentenceNMEA(char* sentence, int sentencelen, char* talkerid, 
 	// Wind direction and speed, with respect to north.
 	if (strstr(mnemonic, "MWD"))
 	{
-		offset = 1+strlen(talkerid);
+		offset = 1+(int)strlen(talkerid);
 		if (sscanf(sentence+offset, "MWD,%lf,%c,%lf,%c,%lf,%c,%lf,%c", 
 			&pNMEAData->winddir, &pNMEAData->cwinddir, &f1, &c1, &f2, &c2, &pNMEAData->windspeed, &pNMEAData->cwindspeed) != 8)
 		{
@@ -783,7 +852,7 @@ inline int ProcessSentenceNMEA(char* sentence, int sentencelen, char* talkerid, 
 	// Meteorological composite data.
 	if (strstr(mnemonic, "MDA"))
 	{
-		offset = 1+strlen(talkerid);
+		offset = 1+(int)strlen(talkerid);
 		if (sscanf(sentence+offset, "MDA,%lf,%c,%lf,%c,%lf,%c,,,,,,,%lf,%c,%lf,%c,%lf,%c,%lf,%c", 
 			&f0, &c0, &pNMEAData->pressure, &pNMEAData->cpressure, &pNMEAData->temperature, &pNMEAData->ctemperature,  
 			&pNMEAData->winddir, &pNMEAData->cwinddir, &f1, &c1, &f2, &c2, &pNMEAData->windspeed, &pNMEAData->cwindspeed) != 14)
@@ -802,7 +871,7 @@ inline int ProcessSentenceNMEA(char* sentence, int sentencelen, char* talkerid, 
 	// AIS data.
 	if (strstr(mnemonic, "VDM"))
 	{
-		offset = 1+strlen(talkerid);
+		offset = 1+(int)strlen(talkerid);
 		memset(aisbuf, 0, sizeof(aisbuf));
 		if (sscanf(sentence+offset, "VDM,%d,%d,,%c,%128s", 
 			&pNMEAData->nbsentences, &pNMEAData->sentence_number, &pNMEAData->AIS_channel, aisbuf) != 4)
@@ -845,6 +914,97 @@ inline int ProcessSentenceNMEA(char* sentence, int sentencelen, char* talkerid, 
 		{
 			// Unhandled...
 		}
+	}
+
+	// PD6 RDI DVL (SYSTEM ATTITUDE DATA).
+	if ((strlen(mnemonic) == 0)&&(strstr(talkerid, "SA")))
+	{
+		offset = 1;
+		if (sscanf(sentence+offset, "SA,%lf,%lf,%lf",
+			&pNMEAData->pitch, &pNMEAData->roll, &pNMEAData->heading) != 3)
+		{
+			//printf("Error parsing NMEA sentence : Invalid data. \n");
+			//return EXIT_FAILURE;
+		}
+
+		// Convert heading to angle in rad.
+		pNMEAData->Heading = pNMEAData->heading*M_PI/180.0;
+		pNMEAData->Pitch = pNMEAData->pitch*M_PI/180.0;
+		pNMEAData->Roll = pNMEAData->roll*M_PI/180.0;
+	}
+
+	// PD6 RDI DVL (TIMING AND SCALING DATA).
+	if ((strlen(mnemonic) == 0)&&(strstr(talkerid, "TS")))
+	{
+		offset = 1;
+		if (sscanf(sentence+offset, "TS,%d,%d,%d,%d,%d,%d,%d,%lf,%lf,%lf,%lf",
+			&pNMEAData->year, &pNMEAData->month, &pNMEAData->day, &pNMEAData->hour, &pNMEAData->minute, 
+			&i0, &i1, &pNMEAData->salinity, &pNMEAData->temperature, &pNMEAData->depth, &pNMEAData->speedofsound) != 11)
+		{
+			//printf("Error parsing NMEA sentence : Invalid data. \n");
+			//return EXIT_FAILURE;
+		}
+
+		// Conversions...
+		pNMEAData->year += 2000;
+		pNMEAData->second = i0+0.01*i1;
+	}
+
+	// PD6 RDI DVL (BOTTOM-TRACK, INSTRUMENT-REFERENCED VELOCITY DATA).
+	if ((strlen(mnemonic) == 0)&&(strstr(talkerid, "BI")))
+	{
+		offset = 1;
+		if (sscanf(sentence+offset, "BI,%lf,%lf,%lf,%lf,%c",
+			&pNMEAData->vx_dvl, &pNMEAData->vy_dvl, &pNMEAData->vz_dvl, &pNMEAData->verr_dvl, &pNMEAData->vstatus_dvl) != 5)
+		{
+			//printf("Error parsing NMEA sentence : Invalid data. \n");
+			//return EXIT_FAILURE;
+		}
+	}
+
+	// PD6 RDI DVL (BOTTOM-TRACK, SHIP-REFERENCED VELOCITY DATA).
+	if ((strlen(mnemonic) == 0)&&(strstr(talkerid, "BS")))
+	{
+		offset = 1;
+		if (sscanf(sentence+offset, "BS,%lf,%lf,%lf,%c",
+			&pNMEAData->vt_ship, &pNMEAData->vl_ship, &pNMEAData->vn_ship, &pNMEAData->vstatus_ship) != 4)
+		{
+			//printf("Error parsing NMEA sentence : Invalid data. \n");
+			//return EXIT_FAILURE;
+		}
+	}
+
+	// PD6 RDI DVL (BOTTOM-TRACK, EARTH-REFERENCED VELOCITY DATA).
+	if ((strlen(mnemonic) == 0)&&(strstr(talkerid, "BE")))
+	{
+		offset = 1;
+		if (sscanf(sentence+offset, "BE,%lf,%lf,%lf,%c",
+			&pNMEAData->v_east, &pNMEAData->v_north, &pNMEAData->v_up, &pNMEAData->vstatus_earth) != 4)
+		{
+			//printf("Error parsing NMEA sentence : Invalid data. \n");
+			//return EXIT_FAILURE;
+		}
+
+		// Conversions...
+		pNMEAData->COG = atan2(pNMEAData->v_east, pNMEAData->v_north);
+		if (pNMEAData->COG != 0) pNMEAData->SOG = sqrt(sqr(pNMEAData->v_north)+sqr(pNMEAData->v_east));
+		pNMEAData->sog = pNMEAData->SOG*1.94;
+		pNMEAData->cog = pNMEAData->COG*180.0/M_PI;
+	}
+
+	// PD6 RDI DVL (BOTTOM-TRACK, EARTH-REFERENCED DISTANCE DATA).
+	if ((strlen(mnemonic) == 0)&&(strstr(talkerid, "BD")))
+	{
+		offset = 1;
+		if (sscanf(sentence+offset, "BD,%lf,%lf,%lf,%lf,%lf",
+			&pNMEAData->d_east, &pNMEAData->d_north, &pNMEAData->d_up, &pNMEAData->rangetobottom, &pNMEAData->timesincelastgood) != 5)
+		{
+			//printf("Error parsing NMEA sentence : Invalid data. \n");
+			//return EXIT_FAILURE;
+		}
+
+		// Conversions...
+		pNMEAData->Altitude_AGL = pNMEAData->rangetobottom;
 	}
 
 	return EXIT_SUCCESS;

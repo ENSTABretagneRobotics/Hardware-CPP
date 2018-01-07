@@ -18,4 +18,4 @@ Hardware support :
 - Seanet : Tritech Micron Sonar, Tritech Miniking Sonar.
 - SSC-32 : Lynxmotion SSC-32, SSC-32u servo controllers.
 
-See also https://github.com/ENSTABretagneRobotics/Android, https://github.com/ENSTABretagneRobotics/Hardware-MATLAB, https://github.com/ENSTABretagneRobotics/Hardware-Java.
+See also https://github.com/ENSTABretagneRobotics/Android, https://github.com/ENSTABretagneRobotics/Hardware-MATLAB, https://github.com/ENSTABretagneRobotics/Hardware-Python, https://github.com/ENSTABretagneRobotics/Hardware-Java.

@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project DefaultTargets="Build" ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
       <Configuration>Debug</Configuration>
@@ -11,20 +11,21 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{1311C417-8215-49B8-A6A2-D628E6BE1A04}</ProjectGuid>
+    <ProjectGuid>{30A6807A-5214-4E51-9ECA-AAFA08F9F6D8}</ProjectGuid>
     <RootNamespace>Test_devices</RootNamespace>
     <Keyword>Win32Proj</Keyword>
+    <WindowsTargetPlatformVersion>8.1</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
-    <PlatformToolset>v110_xp</PlatformToolset>
+    <PlatformToolset>v141_xp</PlatformToolset>
     <CharacterSet>NotSet</CharacterSet>
     <WholeProgramOptimization>true</WholeProgramOptimization>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
-    <PlatformToolset>v110_xp</PlatformToolset>
+    <PlatformToolset>v141_xp</PlatformToolset>
     <CharacterSet>NotSet</CharacterSet>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
@@ -54,7 +55,7 @@
     <ClCompile>
       <Optimization>Disabled</Optimization>
       <AdditionalIncludeDirectories>.;..;..\..;$(ProgramFiles)\MAVLinkSDK;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;ENABLE_MAVLINK_SUPPORT;DISABLE_THREADS_OSNET;SIMULATED_INTERNET_SWARMONDEVICE;DISABLE_AIS_SUPPORT;ENABLE_DEFAULT_SAVE_RAW_DATA_MDM;DISABLE_MTTHREAD;DISABLE_RAZORAHRSTHREAD;DISABLE_NMEADEVICETHREAD;DISABLE_SWARMONDEVICETHREAD;DISABLE_P33XTHREAD;DISABLE_SSC32THREAD;DISABLE_MAESTROTHREAD;DISABLE_MINISSCTHREAD;DISABLE_MDMTHREAD;DISABLE_HOKUYOTHREAD;DISABLE_RPLIDARTHREAD;DISABLE_SEANETTHREAD;DISABLE_MAVLINKDEVICETHREAD;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;DISABLE_THREADS_OSNET;SIMULATED_INTERNET_SWARMONDEVICE;DISABLE_AIS_SUPPORT;ENABLE_DEFAULT_SAVE_RAW_DATA_MDM;DISABLE_HOKUYOTHREAD;DISABLE_MAESTROTHREAD;DISABLE_MDMTHREAD;DISABLE_MINISSCTHREAD;DISABLE_MTTHREAD;DISABLE_NMEADEVICETHREAD;DISABLE_P33XTHREAD;DISABLE_PATHFINDERDVLTHREAD;DISABLE_RAZORAHRSTHREAD;DISABLE_RPLIDARTHREAD;DISABLE_SEANETTHREAD;DISABLE_SSC32THREAD;DISABLE_SWARMONDEVICETHREAD;DISABLE_UBLOXTHREAD;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <MinimalRebuild>true</MinimalRebuild>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
@@ -67,13 +68,14 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Console</SubSystem>
       <TargetMachine>MachineX86</TargetMachine>
+      <ImageHasSafeExceptionHandlers />
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
       <Optimization>MaxSpeed</Optimization>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;ENABLE_MAVLINK_SUPPORT;DISABLE_THREADS_OSNET;SIMULATED_INTERNET_SWARMONDEVICE;DISABLE_AIS_SUPPORT;ENABLE_DEFAULT_SAVE_RAW_DATA_MDM;DISABLE_MTTHREAD;DISABLE_RAZORAHRSTHREAD;DISABLE_NMEADEVICETHREAD;DISABLE_SWARMONDEVICETHREAD;DISABLE_P33XTHREAD;DISABLE_SSC32THREAD;DISABLE_MAESTROTHREAD;DISABLE_MINISSCTHREAD;DISABLE_MDMTHREAD;DISABLE_HOKUYOTHREAD;DISABLE_RPLIDARTHREAD;DISABLE_SEANETTHREAD;DISABLE_MAVLINKDEVICETHREAD;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;DISABLE_THREADS_OSNET;SIMULATED_INTERNET_SWARMONDEVICE;DISABLE_AIS_SUPPORT;ENABLE_DEFAULT_SAVE_RAW_DATA_MDM;DISABLE_HOKUYOTHREAD;DISABLE_MAESTROTHREAD;DISABLE_MDMTHREAD;DISABLE_MINISSCTHREAD;DISABLE_MTTHREAD;DISABLE_NMEADEVICETHREAD;DISABLE_P33XTHREAD;DISABLE_PATHFINDERDVLTHREAD;DISABLE_RAZORAHRSTHREAD;DISABLE_RPLIDARTHREAD;DISABLE_SEANETTHREAD;DISABLE_SSC32THREAD;DISABLE_SWARMONDEVICETHREAD;DISABLE_UBLOXTHREAD;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <PrecompiledHeader />
@@ -112,12 +114,15 @@
     <ClInclude Include="OSNet.h" />
     <ClInclude Include="OSTime.h" />
     <ClInclude Include="P33x.h" />
+    <ClInclude Include="PathfinderDVL.h" />
     <ClInclude Include="RazorAHRS.h" />
     <ClInclude Include="RPLIDAR.h" />
     <ClInclude Include="RS232Port.h" />
     <ClInclude Include="Seanet.h" />
     <ClInclude Include="SSC32.h" />
     <ClInclude Include="SwarmonDevice.h" />
+    <ClInclude Include="ublox.h" />
+    <ClInclude Include="UBXProtocol.h" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="Hokuyo0.txt" />
@@ -127,12 +132,14 @@
     <Text Include="MT0.txt" />
     <Text Include="NMEADevice0.txt" />
     <Text Include="P33x0.txt" />
+    <Text Include="PathfinderDVL0.txt" />
     <Text Include="RazorAHRS0.txt" />
     <Text Include="ReadMe.txt" />
     <Text Include="RPLIDAR0.txt" />
     <Text Include="Seanet0.txt" />
     <Text Include="SSC320.txt" />
     <Text Include="SwarmonDevice0.txt" />
+    <Text Include="ublox0.txt" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Makefile" />

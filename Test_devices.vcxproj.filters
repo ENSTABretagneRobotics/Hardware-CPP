@@ -13,6 +13,9 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav</Extensions>
     </Filter>
+    <Filter Include="Input Files">
+      <UniqueIdentifier>{9e5dc256-7fa0-4be8-970b-09fb0fe39b18}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Main.cpp">
@@ -92,21 +95,60 @@
     <ClInclude Include="RPLIDAR.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="PathfinderDVL.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ublox.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="UBXProtocol.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <Text Include="Hokuyo0.txt" />
-    <Text Include="Maestro0.txt" />
-    <Text Include="MDM0.txt" />
-    <Text Include="MiniSSC0.txt" />
-    <Text Include="MT0.txt" />
-    <Text Include="NMEADevice0.txt" />
-    <Text Include="P33x0.txt" />
-    <Text Include="RazorAHRS0.txt" />
     <Text Include="ReadMe.txt" />
-    <Text Include="Seanet0.txt" />
-    <Text Include="SSC320.txt" />
-    <Text Include="SwarmonDevice0.txt" />
-    <Text Include="RPLIDAR0.txt" />
+    <Text Include="Hokuyo0.txt">
+      <Filter>Input Files</Filter>
+    </Text>
+    <Text Include="Maestro0.txt">
+      <Filter>Input Files</Filter>
+    </Text>
+    <Text Include="MDM0.txt">
+      <Filter>Input Files</Filter>
+    </Text>
+    <Text Include="MiniSSC0.txt">
+      <Filter>Input Files</Filter>
+    </Text>
+    <Text Include="MT0.txt">
+      <Filter>Input Files</Filter>
+    </Text>
+    <Text Include="NMEADevice0.txt">
+      <Filter>Input Files</Filter>
+    </Text>
+    <Text Include="P33x0.txt">
+      <Filter>Input Files</Filter>
+    </Text>
+    <Text Include="RazorAHRS0.txt">
+      <Filter>Input Files</Filter>
+    </Text>
+    <Text Include="RPLIDAR0.txt">
+      <Filter>Input Files</Filter>
+    </Text>
+    <Text Include="Seanet0.txt">
+      <Filter>Input Files</Filter>
+    </Text>
+    <Text Include="SSC320.txt">
+      <Filter>Input Files</Filter>
+    </Text>
+    <Text Include="SwarmonDevice0.txt">
+      <Filter>Input Files</Filter>
+    </Text>
+    <Text Include="PathfinderDVL0.txt">
+      <Filter>Input Files</Filter>
+    </Text>
+    <Text Include="ublox0.txt">
+      <Filter>Input Files</Filter>
+    </Text>
   </ItemGroup>
   <ItemGroup>
     <None Include="Makefile" />

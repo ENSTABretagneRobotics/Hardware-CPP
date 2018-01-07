@@ -14,7 +14,7 @@
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav</Extensions>
     </Filter>
     <Filter Include="Input Files">
-      <UniqueIdentifier>{9e5dc256-7fa0-4be8-970b-09fb0fe39b18}</UniqueIdentifier>
+      <UniqueIdentifier>{727bb22e-bf8f-40a7-8e4f-d6a5e720645b}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -44,16 +44,13 @@
     <ClInclude Include="Maestro.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="MDM.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="MiniSSC.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="MT.h">
+    <ClInclude Include="NMEAProtocol.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="NMEADevice.h">
+    <ClInclude Include="RPLIDAR.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="OSComputerRS232Port.h">
@@ -62,13 +59,19 @@
     <ClInclude Include="OSCore.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="OSMisc.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="OSNet.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="OSTime.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="MDM.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="MT.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="NMEADevice.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="P33x.h">
@@ -89,53 +92,65 @@
     <ClInclude Include="SwarmonDevice.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="NMEAProtocol.h">
+    <ClInclude Include="OSMisc.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="RPLIDAR.h">
+    <ClInclude Include="PathfinderDVL.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ublox.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="UBXProtocol.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Text Include="ReadMe.txt" />
-    <Text Include="Hokuyo0.txt">
+    <Text Include="PathfinderDVL0.txt">
       <Filter>Input Files</Filter>
     </Text>
-    <Text Include="Maestro0.txt">
-      <Filter>Input Files</Filter>
-    </Text>
-    <Text Include="MDM0.txt">
-      <Filter>Input Files</Filter>
-    </Text>
-    <Text Include="MiniSSC0.txt">
-      <Filter>Input Files</Filter>
-    </Text>
-    <Text Include="MT0.txt">
-      <Filter>Input Files</Filter>
-    </Text>
-    <Text Include="NMEADevice0.txt">
-      <Filter>Input Files</Filter>
-    </Text>
-    <Text Include="P33x0.txt">
-      <Filter>Input Files</Filter>
-    </Text>
-    <Text Include="RazorAHRS0.txt">
-      <Filter>Input Files</Filter>
-    </Text>
-    <Text Include="RPLIDAR0.txt">
-      <Filter>Input Files</Filter>
-    </Text>
-    <Text Include="Seanet0.txt">
-      <Filter>Input Files</Filter>
-    </Text>
-    <Text Include="SSC320.txt">
-      <Filter>Input Files</Filter>
-    </Text>
-    <Text Include="SwarmonDevice0.txt">
+    <Text Include="ublox0.txt">
       <Filter>Input Files</Filter>
     </Text>
   </ItemGroup>
   <ItemGroup>
     <None Include="Makefile" />
+    <None Include="Hokuyo0.txt">
+      <Filter>Input Files</Filter>
+    </None>
+    <None Include="Maestro0.txt">
+      <Filter>Input Files</Filter>
+    </None>
+    <None Include="MDM0.txt">
+      <Filter>Input Files</Filter>
+    </None>
+    <None Include="MiniSSC0.txt">
+      <Filter>Input Files</Filter>
+    </None>
+    <None Include="MT0.txt">
+      <Filter>Input Files</Filter>
+    </None>
+    <None Include="NMEADevice0.txt">
+      <Filter>Input Files</Filter>
+    </None>
+    <None Include="P33x0.txt">
+      <Filter>Input Files</Filter>
+    </None>
+    <None Include="RazorAHRS0.txt">
+      <Filter>Input Files</Filter>
+    </None>
+    <None Include="RPLIDAR0.txt">
+      <Filter>Input Files</Filter>
+    </None>
+    <None Include="Seanet0.txt">
+      <Filter>Input Files</Filter>
+    </None>
+    <None Include="SSC320.txt">
+      <Filter>Input Files</Filter>
+    </None>
+    <None Include="SwarmonDevice0.txt">
+      <Filter>Input Files</Filter>
+    </None>
   </ItemGroup>
 </Project>

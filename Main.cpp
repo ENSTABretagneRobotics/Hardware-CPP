@@ -1,6 +1,7 @@
 #include "MT.h"
 #include "RazorAHRS.h"
 #include "NMEADevice.h"
+#include "ublox.h"
 #include "SwarmonDevice.h"
 #include "P33x.h"
 #include "SSC32.h"
@@ -10,6 +11,7 @@
 #include "Hokuyo.h"
 #include "RPLIDAR.h"
 #include "Seanet.h"
+#include "PathfinderDVL.h"
 
 // Comment/uncomment lines depending on the device you wish to test.
 // Change the device path and other parameters in the configuration files if necessary.
@@ -67,6 +69,7 @@ int main(int argc, char* argv[])
 	RAZORAHRSDATA razorahrsdata;
 	NMEADEVICE nmeadevice;
 	NMEADATA nmeadata;
+	UBLOX ublox;
 	SWARMONDEVICE swarmondevice;
 	SWARMONDATA swarmondata;
 	P33X p33x;
@@ -89,6 +92,7 @@ int main(int argc, char* argv[])
 	SEANET seanet;
 	double angle = 0, d = 0;
 	unsigned char scanline[MAX_NB_BYTES_SEANET];
+	PATHFINDERDVL pathfinderdvl;
 
 	// Disable buffering for printf()...
 	setbuf(stdout, NULL);
@@ -97,6 +101,7 @@ int main(int argc, char* argv[])
 	memset(&mt, 0, sizeof(MT));
 	memset(&razorahrs, 0, sizeof(RAZORAHRS));
 	memset(&nmeadevice, 0, sizeof(NMEADEVICE));
+	memset(&ublox, 0, sizeof(UBLOX));
 	memset(&swarmondevice, 0, sizeof(SWARMONDEVICE));
 	memset(&p33x, 0, sizeof(P33X));
 	memset(&ssc32, 0, sizeof(SSC32));
@@ -110,6 +115,7 @@ int main(int argc, char* argv[])
 	//ConnectMT(&mt, "MT0.txt");
 	ConnectRazorAHRS(&razorahrs, "RazorAHRS0.txt");
 	//ConnectNMEADevice(&nmeadevice, "NMEADevice0.txt");
+	//Connectublox(&ublox, "ublox0.txt");
 	//ConnectSwarmonDevice(&swarmondevice, "SwarmonDevice0.txt");
 	//ConnectP33x(&p33x, "P33x0.txt");
 	//ConnectSSC32(&ssc32, "SSC320.txt");
@@ -119,6 +125,7 @@ int main(int argc, char* argv[])
 	//ConnectHokuyo(&hokuyo, "Hokuyo0.txt");
 	//ConnectRPLIDAR(&rplidar, "RPLIDAR0.txt");
 	//ConnectSeanet(&seanet, "Seanet0.txt");
+	//ConnectPathfinderDVL(&seanet, "PathfinderDVL0.txt");
 
 	//mdm.pfSaveFile = fopen("rawmdm.txt", "wb");
 
@@ -135,6 +142,9 @@ int main(int argc, char* argv[])
 		printf("%f %f %f\n", razorahrsdata.Yaw*180.0/M_PI, razorahrsdata.Pitch*180.0/M_PI, razorahrsdata.Roll*180.0/M_PI);
 
 		//GetLatestDataNMEADevice(&nmeadevice, &nmeadata);
+		//printf("%f;%f\n", nmeadata.Latitude, nmeadata.Longitude);
+
+		//GetNMEASentenceublox(&ublox, &nmeadata);
 		//printf("%f;%f\n", nmeadata.Latitude, nmeadata.Longitude);
 
 		//GetLatestDataSwarmonDevice(&swarmondevice, &swarmondata);
@@ -186,10 +196,14 @@ int main(int argc, char* argv[])
 		//d = 0; // Will receive the distance in m of the first obstacle at angle.
 		//GetFirstObstacleDist(scanline, 70, 0.5, seanet.RangeScale, seanet.NBins, seanet.RangeScale, &d);
 		//printf("%f deg; %f m\n", angle, d);
+
+		//GetNMEASentencePathfinderDVL(&pathfinderdvl, &nmeadata);
+		//printf("%f;%f;%f;%c\n", nmeadata.vt_ship, nmeadata.vl_ship, nmeadata.vn_ship, nmeadata.vstatus_ship);
 	}
 
 	//fclose(mdm.pfSaveFile);
 
+	//DisconnectPathfinderDVL(&pathfinderdvl);
 	//DisconnectSeanet(&seanet);
 	//DisconnectRPLIDAR(&rplidar);
 	//DisconnectHokuyo(&hokuyo);
@@ -199,6 +213,7 @@ int main(int argc, char* argv[])
 	//DisconnectSSC32(&ssc32);
 	//DisconnectP33x(&p33x);
 	//DisconnectSwarmonDevice(&swarmondevice);
+	//Disconnectublox(&ublox);
 	//DisconnectNMEADevice(&nmeadevice);
 	DisconnectRazorAHRS(&razorahrs);
 	//DisconnectMT(&mt);

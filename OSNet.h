@@ -1529,7 +1529,7 @@ inline int LaunchMultiCliTCPSrv(char* port, int (*handlecli)(SOCKET, void*), voi
 //#pragma warning(default : 4127) 
 #endif // _MSC_VER
 
-// The 2 following functions are a little bit deprecated...
+// The 2 following functions should be used with caution...
 
 #ifdef _MSC_VER
 // Disable some Visual Studio warnings.
@@ -1539,9 +1539,10 @@ inline int LaunchMultiCliTCPSrv(char* port, int (*handlecli)(SOCKET, void*), voi
 Wait for data to read on a given socket.
 
 SOCKET sock : (IN) Socket.
-timeval timeout : (IN) max time to wait before returning.
+timeval timeout : (IN) Max time to wait before returning.
 
-Return : EXIT_SUCCESS or EXIT_FAILURE if there is an error or no data to read from the socket after the timeout.
+Return : EXIT_SUCCESS if there is data to read from the socket, EXIT_TIMEOUT if a timeout occurs or 
+EXIT_FAILURE if there is an error.
 */
 inline int waitforsocket(SOCKET sock, struct timeval timeout)
 {

@@ -231,7 +231,7 @@ inline int OpenComputerRS232Port(HANDLE* phDev, char* szDevice)
 	// in C because the '\' is a special character).
 	memset(szDeviceTemp, 0, sizeof(szDeviceTemp));
 #ifdef WINCE
-	sprintf(szDeviceTemp, "%s", szDevice);
+	strcpy(szDeviceTemp, szDevice);
 #else
 	sprintf(szDeviceTemp, "\\\\.\\%s", szDevice);
 #endif // WINCE
@@ -976,6 +976,89 @@ inline int GetDTRState(HANDLE hDev, BOOL* pbClear)
 	return EXIT_SUCCESS;
 }
 #endif // ENABLE_DTR_FUNCTIONS
+
+/*
+Check for any data available to read on a computer RS232 port.
+
+HANDLE hDev : (IN) Identifier of the computer RS232 port.
+
+Return : EXIT_SUCCESS if there is data to read, EXIT_TIMEOUT if there is currently no data
+ available or EXIT_FAILURE if there is an error.
+*/
+inline int CheckAvailableBytesComputerRS232Port(HANDLE hDev)
+{
+#ifdef _WIN32
+	COMSTAT stats;
+
+	memset(&stats, 0, sizeof(COMSTAT));
+	if (!ClearCommError(hDev, NULL, &stats))
+	{
+		PRINT_DEBUG_ERROR_OSCOMPUTERRS232PORT(("CheckAvailableBytesComputerRS232Port error (%s) : %s(hDev=%#x)\n", 
+			strtime_m(), 
+			GetLastErrorMsg(), 
+			hDev));
+		return EXIT_FAILURE;
+	}
+	if (stats.cbInQue <= 0) return EXIT_TIMEOUT;
+#else
+	int bytes_avail = 0;
+
+	if (ioctl((intptr_t)hDev, FIONREAD, &bytes_avail) != EXIT_SUCCESS)
+	{
+		PRINT_DEBUG_ERROR_OSCOMPUTERRS232PORT(("CheckAvailableBytesComputerRS232Port error (%s) : %s(hDev=%#x)\n", 
+			strtime_m(), 
+			GetLastErrorMsg(), 
+			hDev));
+		return EXIT_FAILURE;
+	}
+	if (bytes_avail <= 0) return EXIT_TIMEOUT;
+#endif // _WIN32
+
+	return EXIT_SUCCESS;
+}
+
+/*
+Send a hardware break (continuous stream of zero-valued bits) for a specific duration on a 
+computer RS232 port.
+
+HANDLE hDev : (IN) Identifier of the computer RS232 port.
+int duration : (IN) Duration of the break in ms.
+
+Return : EXIT_SUCCESS or EXIT_FAILURE if there is an error.
+*/
+inline int SendBreakComputerRS232Port(HANDLE hDev, int duration)
+{
+#ifdef _WIN32
+	if (!SetCommBreak(hDev))
+	{
+		PRINT_DEBUG_ERROR_OSCOMPUTERRS232PORT(("SendBreakComputerRS232Port error (%s) : %s(hDev=%#x)\n", 
+			strtime_m(), 
+			GetLastErrorMsg(), 
+			hDev));
+		return EXIT_FAILURE;
+	}
+	mSleep(duration);
+	if (!ClearCommBreak(hDev))
+	{
+		PRINT_DEBUG_ERROR_OSCOMPUTERRS232PORT(("SendBreakComputerRS232Port error (%s) : %s(hDev=%#x)\n", 
+			strtime_m(), 
+			GetLastErrorMsg(), 
+			hDev));
+		return EXIT_FAILURE;
+	}
+#else 
+	if (tcsendbreak((intptr_t)hDev, duration) != EXIT_SUCCESS)
+	{
+		PRINT_DEBUG_ERROR_OSCOMPUTERRS232PORT(("SendBreakComputerRS232Port error (%s) : %s(hDev=%#x)\n", 
+			strtime_m(), 
+			GetLastErrorMsg(), 
+			hDev));
+		return EXIT_FAILURE;
+	}
+#endif // _WIN32
+
+	return EXIT_SUCCESS;
+}
 
 /*
 Write data to a computer RS232 port.
