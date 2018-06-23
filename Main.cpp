@@ -19,16 +19,14 @@
 // (e.g. sometimes in the generated ../Test_devices-build-desktop folder for Qt).
 
 // min and max might cause incompatibilities on Linux...
-#ifndef _WIN32
-#if !defined(NOMINMAX)
+#ifndef _MSC_VER
 #ifndef max
 #define max(a,b) (((a) > (b)) ? (a) : (b))
 #endif // max
 #ifndef min
 #define min(a,b) (((a) < (b)) ? (a) : (b))
 #endif // min
-#endif // !defined(NOMINMAX)
-#endif // _WIN32
+#endif // _MSC_VER
 
 /*
 Return the distance to the first obstacle from a sonar scanline.

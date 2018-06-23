@@ -36,7 +36,7 @@ else {
  DEFINES += NDEBUG
 }
 win32:DEFINES += WIN32 _CONSOLE
-unix:QMAKE_CXXFLAGS += -fpermissive -Wno-unknown-pragmas
+unix:QMAKE_CXXFLAGS += -fpermissive -Wno-unknown-pragmas -Wextra -Winline
 
 win32:LIBS += -lWS2_32
 unix:LIBS += -lrt -lm

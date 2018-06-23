@@ -13,7 +13,7 @@ CXX = g++
 CFLAGS += -g
 #CFLAGS += -O3
 CFLAGS += -Wall -Wno-unknown-pragmas
-#CFLAGS += -Wextra -Winline
+CFLAGS += -Wextra -Winline
 
 #CFLAGS += -D _DEBUG -D _DEBUG_DISPLAY 
 #CFLAGS += -D _DEBUG_MESSAGES 
@@ -41,6 +41,7 @@ CXXFLAGS += $(CFLAGS) -fpermissive
 # For Windows/MinGW
 #LDFLAGS += -lws2_32
 # For Linux
+#LDFLAGS += -static-libgcc -static-libstdc++ -static
 LDFLAGS += -lrt -lm
 
 default: $(PROGS)

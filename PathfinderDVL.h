@@ -15,22 +15,20 @@
 
 #ifndef DISABLE_PATHFINDERDVLTHREAD
 #include "OSThread.h"
-#endif // DISABLE_PATHFINDERDVLTHREAD
+#endif // !DISABLE_PATHFINDERDVLTHREAD
 
 #include "NMEAProtocol.h"
 
 // Need to be undefined at the end of the file...
-// min and max might cause incompatibilities on Linux...
-#ifndef _WIN32
-#if !defined(NOMINMAX)
+// min and max might cause incompatibilities with GCC...
+#ifndef _MSC_VER
 #ifndef max
 #define max(a,b) (((a) > (b)) ? (a) : (b))
-#endif // max
+#endif // !max
 #ifndef min
 #define min(a,b) (((a) < (b)) ? (a) : (b))
-#endif // min
-#endif // !defined(NOMINMAX)
-#endif // _WIN32
+#endif // !min
+#endif // !_MSC_VER
 
 #define TIMEOUT_MESSAGE_PATHFINDERDVL 4.0 // In s.
 // Should be at least 2 * number of bytes to be sure to contain entirely the biggest desired message (or group of messages) + 1.
@@ -83,6 +81,7 @@ struct PATHFINDERDVL
 	int BaudRate;
 	int timeout;
 	BOOL bSaveRawData;
+	int StartupDelay;
 	BOOL bSendBreak;
 	int BreakMode;
 	int BreakDuration;
@@ -117,7 +116,7 @@ inline int SendBreakPathfinderDVL(PATHFINDERDVL* pPathfinderDVL, int mode, int b
 	case HARD_BREAK_MODE_PATHFINDERDVL:
 		if (pPathfinderDVL->RS232Port.DevType == LOCAL_TYPE_RS232PORT)
 		{
-			if (SendBreakComputerRS232Port(&pPathfinderDVL->RS232Port.hDev, breakduration) != EXIT_SUCCESS)
+			if (SendBreakComputerRS232Port(pPathfinderDVL->RS232Port.hDev, breakduration) != EXIT_SUCCESS)
 			{
 				printf("Error writing data to a PathfinderDVL. \n");
 				return EXIT_FAILURE;
@@ -146,7 +145,7 @@ inline int SendBreakPathfinderDVL(PATHFINDERDVL* pPathfinderDVL, int mode, int b
 	case HARD_SOFT_BREAK_MODE_PATHFINDERDVL:
 		if (pPathfinderDVL->RS232Port.DevType == LOCAL_TYPE_RS232PORT)
 		{
-			if (SendBreakComputerRS232Port(&pPathfinderDVL->RS232Port.hDev, breakduration) != EXIT_SUCCESS)
+			if (SendBreakComputerRS232Port(pPathfinderDVL->RS232Port.hDev, breakduration) != EXIT_SUCCESS)
 			{
 				printf("Error writing data to a PathfinderDVL. \n");
 				return EXIT_FAILURE;
@@ -172,18 +171,18 @@ inline int SendBreakPathfinderDVL(PATHFINDERDVL* pPathfinderDVL, int mode, int b
 	case DOUBLE_HARD_BREAK_MODE_PATHFINDERDVL:
 		if (pPathfinderDVL->RS232Port.DevType == LOCAL_TYPE_RS232PORT)
 		{
-			if (SendBreakComputerRS232Port(&pPathfinderDVL->RS232Port.hDev, breakduration) != EXIT_SUCCESS)
+			if (SendBreakComputerRS232Port(pPathfinderDVL->RS232Port.hDev, breakduration) != EXIT_SUCCESS)
 			{
 				printf("Error writing data to a PathfinderDVL. \n");
 				return EXIT_FAILURE;
 			}
-			if (SendBreakComputerRS232Port(&pPathfinderDVL->RS232Port.hDev, breakduration) != EXIT_SUCCESS)
+			if (SendBreakComputerRS232Port(pPathfinderDVL->RS232Port.hDev, breakduration) != EXIT_SUCCESS)
 			{
 				printf("Error writing data to a PathfinderDVL. \n");
 				return EXIT_FAILURE;
 			}
 			mSleep(breakduration/2);
-			if (SendBreakComputerRS232Port(&pPathfinderDVL->RS232Port.hDev, breakduration) != EXIT_SUCCESS)
+			if (SendBreakComputerRS232Port(pPathfinderDVL->RS232Port.hDev, breakduration) != EXIT_SUCCESS)
 			{
 				printf("Error writing data to a PathfinderDVL. \n");
 				return EXIT_FAILURE;
@@ -224,18 +223,18 @@ inline int SendBreakPathfinderDVL(PATHFINDERDVL* pPathfinderDVL, int mode, int b
 	default:
 		if (pPathfinderDVL->RS232Port.DevType == LOCAL_TYPE_RS232PORT)
 		{
-			if (SendBreakComputerRS232Port(&pPathfinderDVL->RS232Port.hDev, breakduration) != EXIT_SUCCESS)
+			if (SendBreakComputerRS232Port(pPathfinderDVL->RS232Port.hDev, breakduration) != EXIT_SUCCESS)
 			{
 				printf("Error writing data to a PathfinderDVL. \n");
 				return EXIT_FAILURE;
 			}
-			if (SendBreakComputerRS232Port(&pPathfinderDVL->RS232Port.hDev, breakduration) != EXIT_SUCCESS)
+			if (SendBreakComputerRS232Port(pPathfinderDVL->RS232Port.hDev, breakduration) != EXIT_SUCCESS)
 			{
 				printf("Error writing data to a PathfinderDVL. \n");
 				return EXIT_FAILURE;
 			}
 			mSleep(breakduration/2);
-			if (SendBreakComputerRS232Port(&pPathfinderDVL->RS232Port.hDev, breakduration) != EXIT_SUCCESS)
+			if (SendBreakComputerRS232Port(pPathfinderDVL->RS232Port.hDev, breakduration) != EXIT_SUCCESS)
 			{
 				printf("Error writing data to a PathfinderDVL. \n");
 				return EXIT_FAILURE;
@@ -300,7 +299,7 @@ inline int SetHeadingAlignmentPathfinderDVL(PATHFINDERDVL* pPathfinderDVL, doubl
 {
 	char buf[MAX_NB_BYTES_COMMAND_PATHFINDERDVL];
 	
-	sprintf(buf, "EA%+05d\r", (int)(100*angle));
+	sprintf(buf, "EA%+06d\r", (int)(100*angle));
 
 	if (WriteAllRS232Port(&pPathfinderDVL->RS232Port, (uint8*)buf, strlen(buf)) != EXIT_SUCCESS)
 	{
@@ -321,7 +320,7 @@ inline int SetRollPitchMisalignmentPathfinderDVL(PATHFINDERDVL* pPathfinderDVL, 
 {
 	char buf[MAX_NB_BYTES_COMMAND_PATHFINDERDVL];
 	
-	sprintf(buf, "#EI%+05d\r", (int)(100*roll));
+	sprintf(buf, "#EI%+06d\r", (int)(100*roll));
 
 	if (WriteAllRS232Port(&pPathfinderDVL->RS232Port, (uint8*)buf, strlen(buf)) != EXIT_SUCCESS)
 	{
@@ -334,7 +333,7 @@ inline int SetRollPitchMisalignmentPathfinderDVL(PATHFINDERDVL* pPathfinderDVL, 
 		fflush(pPathfinderDVL->pfSaveFile);
 	}
 	
-	sprintf(buf, "#EJ%+05d\r", (int)(100*pitch));
+	sprintf(buf, "#EJ%+06d\r", (int)(100*pitch));
 
 	if (WriteAllRS232Port(&pPathfinderDVL->RS232Port, (uint8*)buf, strlen(buf)) != EXIT_SUCCESS)
 	{
@@ -773,6 +772,7 @@ inline int ConnectPathfinderDVL(PATHFINDERDVL* pPathfinderDVL, char* szCfgFilePa
 		pPathfinderDVL->BaudRate = 115200;
 		pPathfinderDVL->timeout = 1500;
 		pPathfinderDVL->bSaveRawData = 1;
+		pPathfinderDVL->StartupDelay = 4000;
 		pPathfinderDVL->bSendBreak = 1;
 		pPathfinderDVL->BreakMode = 1;
 		pPathfinderDVL->BreakDuration = 300;
@@ -808,6 +808,8 @@ inline int ConnectPathfinderDVL(PATHFINDERDVL* pPathfinderDVL, char* szCfgFilePa
 			if (sscanf(line, "%d", &pPathfinderDVL->timeout) != 1) printf("Invalid configuration file.\n");
 			if (fgets3(file, line, sizeof(line)) == NULL) printf("Invalid configuration file.\n");
 			if (sscanf(line, "%d", &pPathfinderDVL->bSaveRawData) != 1) printf("Invalid configuration file.\n");
+			if (fgets3(file, line, sizeof(line)) == NULL) printf("Invalid configuration file.\n");
+			if (sscanf(line, "%d", &pPathfinderDVL->StartupDelay) != 1) printf("Invalid configuration file.\n");
 			if (fgets3(file, line, sizeof(line)) == NULL) printf("Invalid configuration file.\n");
 			if (sscanf(line, "%d", &pPathfinderDVL->bSendBreak) != 1) printf("Invalid configuration file.\n");
 			if (fgets3(file, line, sizeof(line)) == NULL) printf("Invalid configuration file.\n");
@@ -880,6 +882,11 @@ inline int ConnectPathfinderDVL(PATHFINDERDVL* pPathfinderDVL, char* szCfgFilePa
 	//pPathfinderDVL->pfSaveFile = NULL;
 
 	//pPathfinderDVL->LastAltitude = 0;
+	
+	// When the DVL restarts, it might silently miss the first commands if it is not yet ready
+	// (however this is unlikely to be a real problem as long as the correct parameters were saved).
+	// Or maybe try to send break and retry until their is the prompt?
+	mSleep(pPathfinderDVL->StartupDelay);
 
 	if (OpenRS232Port(&pPathfinderDVL->RS232Port, pPathfinderDVL->szDevPath) != EXIT_SUCCESS)
 	{
@@ -894,6 +901,8 @@ inline int ConnectPathfinderDVL(PATHFINDERDVL* pPathfinderDVL, char* szCfgFilePa
 		CloseRS232Port(&pPathfinderDVL->RS232Port);
 		return EXIT_FAILURE;
 	}
+	
+	mSleep(100);
 
 	if (pPathfinderDVL->bSendBreak)
 	{
@@ -903,7 +912,7 @@ inline int ConnectPathfinderDVL(PATHFINDERDVL* pPathfinderDVL, char* szCfgFilePa
 			CloseRS232Port(&pPathfinderDVL->RS232Port);
 			return EXIT_FAILURE;
 		}
-		//mSleep(100);
+		mSleep(500);
 	}
 
 	if (pPathfinderDVL->bRetrieveParameters)
@@ -914,7 +923,7 @@ inline int ConnectPathfinderDVL(PATHFINDERDVL* pPathfinderDVL, char* szCfgFilePa
 			CloseRS232Port(&pPathfinderDVL->RS232Port);
 			return EXIT_FAILURE;
 		}
-		//mSleep(100);
+		mSleep(100);
 	}
 
 	if (pPathfinderDVL->bSetHeadingAlignment)
@@ -925,7 +934,7 @@ inline int ConnectPathfinderDVL(PATHFINDERDVL* pPathfinderDVL, char* szCfgFilePa
 			CloseRS232Port(&pPathfinderDVL->RS232Port);
 			return EXIT_FAILURE;
 		}
-		//mSleep(100);
+		mSleep(100);
 	}
 
 	if (pPathfinderDVL->bSetRollPitchMisalignment)
@@ -936,7 +945,7 @@ inline int ConnectPathfinderDVL(PATHFINDERDVL* pPathfinderDVL, char* szCfgFilePa
 			CloseRS232Port(&pPathfinderDVL->RS232Port);
 			return EXIT_FAILURE;
 		}
-		//mSleep(100);
+		mSleep(100);
 	}
 
 	if (pPathfinderDVL->bUpOrientation)
@@ -947,7 +956,7 @@ inline int ConnectPathfinderDVL(PATHFINDERDVL* pPathfinderDVL, char* szCfgFilePa
 			CloseRS232Port(&pPathfinderDVL->RS232Port);
 			return EXIT_FAILURE;
 		}
-		//mSleep(100);
+		mSleep(100);
 	}
 
 	if (pPathfinderDVL->bSelectDataStream)
@@ -958,7 +967,7 @@ inline int ConnectPathfinderDVL(PATHFINDERDVL* pPathfinderDVL, char* szCfgFilePa
 			CloseRS232Port(&pPathfinderDVL->RS232Port);
 			return EXIT_FAILURE;
 		}
-		//mSleep(100);
+		mSleep(100);
 	}
 
 	if (pPathfinderDVL->bEnableAutoPing)
@@ -969,7 +978,7 @@ inline int ConnectPathfinderDVL(PATHFINDERDVL* pPathfinderDVL, char* szCfgFilePa
 			CloseRS232Port(&pPathfinderDVL->RS232Port);
 			return EXIT_FAILURE;
 		}
-		//mSleep(100);
+		mSleep(100);
 	}
 
 	if (pPathfinderDVL->bKeepAsUserDefaults)
@@ -980,7 +989,7 @@ inline int ConnectPathfinderDVL(PATHFINDERDVL* pPathfinderDVL, char* szCfgFilePa
 			CloseRS232Port(&pPathfinderDVL->RS232Port);
 			return EXIT_FAILURE;
 		}
-		//mSleep(100);
+		mSleep(100);
 	}
 
 	if (pPathfinderDVL->bStartPinging)
@@ -991,7 +1000,7 @@ inline int ConnectPathfinderDVL(PATHFINDERDVL* pPathfinderDVL, char* szCfgFilePa
 			CloseRS232Port(&pPathfinderDVL->RS232Port);
 			return EXIT_FAILURE;
 		}
-		//mSleep(100);
+		mSleep(100);
 	}
 	
 	printf("PathfinderDVL connected.\n");
@@ -1001,6 +1010,17 @@ inline int ConnectPathfinderDVL(PATHFINDERDVL* pPathfinderDVL, char* szCfgFilePa
 
 inline int DisconnectPathfinderDVL(PATHFINDERDVL* pPathfinderDVL)
 {
+	mSleep(100);
+	if (pPathfinderDVL->bSendBreak)
+	{
+		if (SendBreakPathfinderDVL(pPathfinderDVL, pPathfinderDVL->BreakMode, pPathfinderDVL->BreakDuration) != EXIT_SUCCESS)
+		{
+			printf("Unable to interrupt a PathfinderDVL : break failed.\n");
+			CloseRS232Port(&pPathfinderDVL->RS232Port);
+			return EXIT_FAILURE;
+		}
+		mSleep(500);
+	}
 	if (CloseRS232Port(&pPathfinderDVL->RS232Port) != EXIT_SUCCESS)
 	{
 		printf("PathfinderDVL disconnection failed.\n");
@@ -1014,16 +1034,16 @@ inline int DisconnectPathfinderDVL(PATHFINDERDVL* pPathfinderDVL)
 
 #ifndef DISABLE_PATHFINDERDVLTHREAD
 THREAD_PROC_RETURN_VALUE PathfinderDVLThread(void* pParam);
-#endif // DISABLE_PATHFINDERDVLTHREAD
+#endif // !DISABLE_PATHFINDERDVLTHREAD
 
-// min and max might cause incompatibilities on Linux...
-#ifndef _WIN32
+// min and max might cause incompatibilities with GCC...
+#ifndef _MSC_VER
 #ifdef max
 #undef max
 #endif // max
 #ifdef min
 #undef min
 #endif // min
-#endif // _WIN32
+#endif // !_MSC_VER
 
-#endif // PATHFINDERDVL_H
+#endif // !PATHFINDERDVL_H

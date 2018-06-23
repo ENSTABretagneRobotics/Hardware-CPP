@@ -15,7 +15,7 @@
 
 #ifndef DISABLE_P33XTHREAD
 #include "OSThread.h"
-#endif // DISABLE_P33XTHREAD
+#endif // !DISABLE_P33XTHREAD
 
 #define TIMEOUT_MESSAGE_P33X 4.0 // In s.
 // Should be at least 2 * number of bytes to be sure to contain entirely the biggest desired message (or group of messages) + 1.
@@ -46,8 +46,6 @@ typedef struct P33X P33X;
 
 /*
 Initialize a P33x.
-
-HANDLE hDev : (IN) Identifier of the device serial port.
 
 Return : EXIT_SUCCESS or EXIT_FAILURE if there is an error.
 */
@@ -129,7 +127,6 @@ inline int InitP33x(P33X* pP33x)
 /*
 Read the value at a specific channel of a P33x.
 
-HANDLE hDev : (IN) Identifier of the device serial port.
 uint8 Channel : (IN) Channel to read.
 float* pValue : (INOUT) Valid pointer receiving the value.
 
@@ -316,6 +313,6 @@ inline int DisconnectP33x(P33X* pP33x)
 
 #ifndef DISABLE_P33XTHREAD
 THREAD_PROC_RETURN_VALUE P33xThread(void* pParam);
-#endif // DISABLE_P33XTHREAD
+#endif // !DISABLE_P33XTHREAD
 
-#endif // P33X_H
+#endif // !P33X_H

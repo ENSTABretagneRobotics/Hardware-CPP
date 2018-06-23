@@ -15,24 +15,22 @@
 
 #ifndef DISABLE_UBLOXTHREAD
 #include "OSThread.h"
-#endif // DISABLE_UBLOXTHREAD
+#endif // !DISABLE_UBLOXTHREAD
 
 #include "UBXProtocol.h"
 #include "NMEAProtocol.h"
 //#include "RTCM3Protocol.h"
 
 // Need to be undefined at the end of the file...
-// min and max might cause incompatibilities on Linux...
-#ifndef _WIN32
-#if !defined(NOMINMAX)
+// min and max might cause incompatibilities with GCC...
+#ifndef _MSC_VER
 #ifndef max
 #define max(a,b) (((a) > (b)) ? (a) : (b))
-#endif // max
+#endif // !max
 #ifndef min
 #define min(a,b) (((a) < (b)) ? (a) : (b))
-#endif // min
-#endif // !defined(NOMINMAX)
-#endif // _WIN32
+#endif // !min
+#endif // !_MSC_VER
 
 //#pragma pack(show)
 
@@ -1159,19 +1157,19 @@ inline int Disconnectublox(UBLOX* publox)
 
 #ifndef DISABLE_UBLOXTHREAD
 THREAD_PROC_RETURN_VALUE ubloxThread(void* pParam);
-#endif // DISABLE_UBLOXTHREAD
+#endif // !DISABLE_UBLOXTHREAD
 
 // Restore default alignment settings.
 #pragma pack(pop) 
 
-// min and max might cause incompatibilities on Linux...
-#ifndef _WIN32
+// min and max might cause incompatibilities with GCC...
+#ifndef _MSC_VER
 #ifdef max
 #undef max
 #endif // max
 #ifdef min
 #undef min
 #endif // min
-#endif // _WIN32
+#endif // !_MSC_VER
 
-#endif // UBLOX_H
+#endif // !UBLOX_H

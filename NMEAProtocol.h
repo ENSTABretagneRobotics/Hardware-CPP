@@ -18,17 +18,15 @@
 #endif // defined(__cplusplus) && !defined(DISABLE_AIS_SUPPORT)
 
 // Need to be undefined at the end of the file...
-// min and max might cause incompatibilities on Linux...
-#ifndef _WIN32
-#if !defined(NOMINMAX)
+// min and max might cause incompatibilities with GCC...
+#ifndef _MSC_VER
 #ifndef max
 #define max(a,b) (((a) > (b)) ? (a) : (b))
-#endif // max
+#endif // !max
 #ifndef min
 #define min(a,b) (((a) < (b)) ? (a) : (b))
-#endif // min
-#endif // !defined(NOMINMAX)
-#endif // _WIN32
+#endif // !min
+#endif // !_MSC_VER
 
 #pragma region NMEA-SPECIFIC DEFINITIONS
 // A NMEA sentence begins with a '$' and ends with a carriage return/line feed sequence and can 
@@ -82,6 +80,18 @@ struct NMEADATA
 	double sog, kph, cog, mag_cog; // Respectively in knots, km/h, deg in NED coordinate system.
 	double heading, deviation, variation; // Respectively in deg in NED coordinate system.
 	char dev_east, var_east;
+	int wplatdeg, wplongdeg;
+	double wplatmin, wplongmin;
+	char szwplatdeg[3];
+	char szwplongdeg[4];
+	char wpnorth, wpeast;
+	char szwpname[64];
+	int totalrtemsg, rtemsgnb;
+	char rtemsgmode;
+	char szrtewp1name[64];
+	char szrtewp2name[64];
+	char szrtewp3name[64];
+	char szrtewp4name[64];
 	// AIS.
 	int nbsentences;
 	int sentence_number;
@@ -93,7 +103,7 @@ struct NMEADATA
 	double salinity; 
 	double depth; // In m.
 	double speedofsound; // In m/s.
-	double vx_dvl, vy_dvl, vz_dvl, verr_dvl, vt_ship, vl_ship, vn_ship, v_east, v_north, v_up; // In mm/s.
+	double vx_dvl, vy_dvl, vz_dvl, verr_dvl, vt_ship, vl_ship, vn_ship, v_east, v_north, v_up; // Already converted from mm/s to m/s...
 	char vstatus_dvl, vstatus_ship, vstatus_earth; // 'A' = good, 'V' = bad.
 	double d_east, d_north, d_up, rangetobottom; // In m.
 	double timesincelastgood; // In s.
@@ -113,6 +123,8 @@ struct NMEADATA
 	double WindSpeed; // In m/s.
 	double ApparentWindDir; // In rad.
 	double ApparentWindSpeed; // In m/s.
+	double wpLatitude; // In decimal degrees.
+	double wpLongitude; // In decimal degrees.
 	double AIS_Latitude; // In decimal degrees.
 	double AIS_Longitude; // In decimal degrees.
 	double AIS_SOG; // In m/s.
@@ -138,7 +150,7 @@ inline void ComputeChecksumNMEA(char* sentence, int sentencelen, char* checksum)
 	sprintf(checksum, "*%02X", (int)(unsigned char)res);
 	if (checksum[MAX_NB_BYTES_CHECKSUM_NMEA] != 0)
 	{
-		printf("Warning : NMEA checksum computation failed.");
+		PRINT_DEBUG_WARNING(("Warning : NMEA checksum computation failed."));
 	}
 }
 
@@ -270,7 +282,7 @@ inline int AnalyzeSentenceNMEA(char* buf, int buflen, char* talkerid, char* mnem
 		ComputeChecksumNMEA(buf, *psentencelen, checksum);
 		if ((buf[*psentencelen-2-nb_bytes_end] != checksum[1])||(buf[*psentencelen-1-nb_bytes_end] != checksum[2]))
 		{ 
-			printf("Warning : NMEA checksum error (computed \"%.3s\", found \"*%c%c\"). \n", checksum, buf[*psentencelen-2-nb_bytes_end], buf[*psentencelen-1-nb_bytes_end]);
+			PRINT_DEBUG_WARNING(("Warning : NMEA checksum error (computed \"%.3s\", found \"*%c%c\"). \n", checksum, buf[*psentencelen-2-nb_bytes_end], buf[*psentencelen-1-nb_bytes_end]));
 			*pnbBytesToDiscard = *psentencelen;
 			return EXIT_FAILURE;	
 		}
@@ -473,7 +485,7 @@ inline int AnalyzeSentenceWithAddressNMEA(char* buf, int buflen, char* talkerid,
 		ComputeChecksumNMEA(buf, *psentencelen, checksum);
 		if ((buf[*psentencelen-2-nb_bytes_end] != checksum[1])||(buf[*psentencelen-1-nb_bytes_end] != checksum[2]))
 		{ 
-			printf("Warning : NMEA checksum error (computed \"%.3s\", found \"*%c%c\"). \n", checksum, buf[*psentencelen-2-nb_bytes_end], buf[*psentencelen-1-nb_bytes_end]);
+			PRINT_DEBUG_WARNING(("Warning : NMEA checksum error (computed \"%.3s\", found \"*%c%c\"). \n", checksum, buf[*psentencelen-2-nb_bytes_end], buf[*psentencelen-1-nb_bytes_end]));
 			*pnbBytesToDiscard = *psentencelen;
 			return EXIT_FAILURE;	
 		}
@@ -868,12 +880,67 @@ inline int ProcessSentenceNMEA(char* sentence, int sentencelen, char* talkerid, 
 		pNMEAData->WindSpeed = pNMEAData->windspeed; 
 	}
 
+	// Waypoint location data.
+	if (strstr(mnemonic, "WPL"))
+	{
+		offset = 1+(int)strlen(talkerid);
+		memset(pNMEAData->szwpname, 0, sizeof(pNMEAData->szwpname));
+		if (sscanf(sentence+offset, "WPL,%c%c%lf,%c,%c%c%c%lf,%c,%63s", 
+			&pNMEAData->szwplatdeg[0], &pNMEAData->szwplatdeg[1], &pNMEAData->wplatmin, &pNMEAData->wpnorth, 
+			&pNMEAData->szwplongdeg[0], &pNMEAData->szwplongdeg[1], &pNMEAData->szwplongdeg[2], &pNMEAData->wplongmin, &pNMEAData->wpeast, 
+			pNMEAData->szwpname) != 10)
+		{
+			//printf("Error parsing NMEA sentence : Invalid data. \n");
+			//return EXIT_FAILURE;
+		}
+		// Do other else if (sscanf() != x) if more/less complete sentence...
+		
+		if ((strlen(pNMEAData->szwplatdeg) > 0)&&(strlen(pNMEAData->szwplongdeg) > 0))
+		{
+			pNMEAData->wplatdeg = atoi(pNMEAData->szwplatdeg);
+			pNMEAData->wplongdeg = atoi(pNMEAData->szwplongdeg);
+
+			// Convert GPS latitude and longitude in decimal.
+			pNMEAData->wpLatitude = (pNMEAData->wpnorth == 'N')?(pNMEAData->wplatdeg+pNMEAData->wplatmin/60.0):-(pNMEAData->wplatdeg+pNMEAData->wplatmin/60.0);
+			pNMEAData->wpLongitude = (pNMEAData->wpeast == 'E')?(pNMEAData->wplongdeg+pNMEAData->wplongmin/60.0):-(pNMEAData->wplongdeg+pNMEAData->wplongmin/60.0);
+		}
+	}
+
+	// Routes data.
+	if (strstr(mnemonic, "RTE"))
+	{
+		offset = 1+(int)strlen(talkerid);
+		memset(pNMEAData->szrtewp1name, 0, sizeof(pNMEAData->szrtewp1name));
+		memset(pNMEAData->szrtewp2name, 0, sizeof(pNMEAData->szrtewp2name));
+		memset(pNMEAData->szrtewp3name, 0, sizeof(pNMEAData->szrtewp3name));
+		memset(pNMEAData->szrtewp4name, 0, sizeof(pNMEAData->szrtewp4name));
+		if (
+			(sscanf(sentence+offset, "RTE,%d,%d,%c,%63s,%63s,%63s,%63s", 
+			&pNMEAData->totalrtemsg, &pNMEAData->rtemsgnb, &pNMEAData->rtemsgmode, pNMEAData->szrtewp1name, pNMEAData->szrtewp2name, pNMEAData->szrtewp3name, pNMEAData->szrtewp3name) != 7)
+			&&
+			(sscanf(sentence+offset, "RTE,%d,%d,%c,%63s,%63s,%63s", 
+			&pNMEAData->totalrtemsg, &pNMEAData->rtemsgnb, &pNMEAData->rtemsgmode, pNMEAData->szrtewp1name, pNMEAData->szrtewp2name, pNMEAData->szrtewp3name) != 6)
+			&&
+			(sscanf(sentence+offset, "RTE,%d,%d,%c,%63s,%63s", 
+			&pNMEAData->totalrtemsg, &pNMEAData->rtemsgnb, &pNMEAData->rtemsgmode, pNMEAData->szrtewp1name, pNMEAData->szrtewp2name) != 5)
+			&&
+			(sscanf(sentence+offset, "RTE,%d,%d,%c,%63s", 
+			&pNMEAData->totalrtemsg, &pNMEAData->rtemsgnb, &pNMEAData->rtemsgmode, pNMEAData->szrtewp1name) != 4)
+			)
+		{
+			//printf("Error parsing NMEA sentence : Invalid data. \n");
+			//return EXIT_FAILURE;
+		}
+		// Do other else if (sscanf() != x) if more/less complete sentence...
+		
+	}
+
 	// AIS data.
 	if (strstr(mnemonic, "VDM"))
 	{
 		offset = 1+(int)strlen(talkerid);
 		memset(aisbuf, 0, sizeof(aisbuf));
-		if (sscanf(sentence+offset, "VDM,%d,%d,,%c,%128s", 
+		if (sscanf(sentence+offset, "VDM,%d,%d,,%c,%127s", 
 			&pNMEAData->nbsentences, &pNMEAData->sentence_number, &pNMEAData->AIS_channel, aisbuf) != 4)
 		{
 			//printf("Error parsing NMEA sentence : Invalid data. \n");
@@ -960,6 +1027,11 @@ inline int ProcessSentenceNMEA(char* sentence, int sentencelen, char* talkerid, 
 			//printf("Error parsing NMEA sentence : Invalid data. \n");
 			//return EXIT_FAILURE;
 		}
+		// Conversion from mm/s to m/s.
+		pNMEAData->vx_dvl = 0.001*pNMEAData->vx_dvl;
+		pNMEAData->vy_dvl = 0.001*pNMEAData->vy_dvl;
+		pNMEAData->vz_dvl = 0.001*pNMEAData->vz_dvl;
+		pNMEAData->verr_dvl = 0.001*pNMEAData->verr_dvl;
 	}
 
 	// PD6 RDI DVL (BOTTOM-TRACK, SHIP-REFERENCED VELOCITY DATA).
@@ -972,6 +1044,10 @@ inline int ProcessSentenceNMEA(char* sentence, int sentencelen, char* talkerid, 
 			//printf("Error parsing NMEA sentence : Invalid data. \n");
 			//return EXIT_FAILURE;
 		}
+		// Conversion from mm/s to m/s.
+		pNMEAData->vt_ship = 0.001*pNMEAData->vt_ship;
+		pNMEAData->vl_ship = 0.001*pNMEAData->vl_ship;
+		pNMEAData->vn_ship = 0.001*pNMEAData->vn_ship;
 	}
 
 	// PD6 RDI DVL (BOTTOM-TRACK, EARTH-REFERENCED VELOCITY DATA).
@@ -984,7 +1060,10 @@ inline int ProcessSentenceNMEA(char* sentence, int sentencelen, char* talkerid, 
 			//printf("Error parsing NMEA sentence : Invalid data. \n");
 			//return EXIT_FAILURE;
 		}
-
+		// Conversion from mm/s to m/s.
+		pNMEAData->v_east = 0.001*pNMEAData->v_east;
+		pNMEAData->v_north = 0.001*pNMEAData->v_north;
+		pNMEAData->v_up = 0.001*pNMEAData->v_up;
 		// Conversions...
 		pNMEAData->COG = atan2(pNMEAData->v_east, pNMEAData->v_north);
 		if (pNMEAData->COG != 0) pNMEAData->SOG = sqrt(sqr(pNMEAData->v_north)+sqr(pNMEAData->v_east));
@@ -1010,14 +1089,14 @@ inline int ProcessSentenceNMEA(char* sentence, int sentencelen, char* talkerid, 
 	return EXIT_SUCCESS;
 }
 
-// min and max might cause incompatibilities on Linux...
-#ifndef _WIN32
+// min and max might cause incompatibilities with GCC...
+#ifndef _MSC_VER
 #ifdef max
 #undef max
 #endif // max
 #ifdef min
 #undef min
 #endif // min
-#endif // _WIN32
+#endif // !_MSC_VER
 
-#endif // NMEAPROTOCOL_H
+#endif // !NMEAPROTOCOL_H
