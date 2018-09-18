@@ -12,8 +12,8 @@ CXX = g++
 
 CFLAGS += -g
 #CFLAGS += -O3
-CFLAGS += -Wall -Wno-unknown-pragmas
-CFLAGS += -Wextra -Winline
+CFLAGS += -Wall -Wno-unknown-pragmas -Wextra
+#CFLAGS += -Winline
 
 #CFLAGS += -D _DEBUG -D _DEBUG_DISPLAY 
 #CFLAGS += -D _DEBUG_MESSAGES 
@@ -22,13 +22,13 @@ CFLAGS += -D SIMULATED_INTERNET_SWARMONDEVICE
 CFLAGS += -D DISABLE_AIS_SUPPORT
 CFLAGS += -D ENABLE_DEFAULT_SAVE_RAW_DATA_MDM
 CFLAGS += -D DISABLE_HOKUYOTHREAD
-CFLAGS += -D DISABLE_MAESTROTHREAD
 CFLAGS += -D DISABLE_MDMTHREAD
 CFLAGS += -D DISABLE_MINISSCTHREAD
 CFLAGS += -D DISABLE_MTTHREAD
 CFLAGS += -D DISABLE_NMEADEVICETHREAD
 CFLAGS += -D DISABLE_P33XTHREAD
 CFLAGS += -D DISABLE_PATHFINDERDVLTHREAD
+CFLAGS += -D DISABLE_POLOLUTHREAD
 CFLAGS += -D DISABLE_RAZORAHRSTHREAD
 CFLAGS += -D DISABLE_RPLIDARTHREAD
 CFLAGS += -D DISABLE_SEANETTHREAD
@@ -65,7 +65,7 @@ OSTime.o: OSTime.c OSTime.h OSCore.o
 
 ############################# PROGS #############################
 
-Main.o: Main.cpp OSCore.h OSTime.h OSMisc.h OSNet.h OSComputerRS232Port.h Hokuyo.h Maestro.h MDM.h MiniSSC.h MT.h NMEADevice.h NMEAProtocol.h P33x.h PathfinderDVL.h RazorAHRS.h RPLIDAR.h RS232Port.h Seanet.h SSC32.h SwarmonDevice.h ublox.h UBXProtocol.h 
+Main.o: Main.cpp OSCore.h OSTime.h OSMisc.h OSNet.h OSComputerRS232Port.h Hokuyo.h MDM.h MiniSSC.h MT.h NMEADevice.h NMEAProtocol.h P33x.h PathfinderDVL.h Pololu.h RazorAHRS.h RPLIDAR.h RS232Port.h Seanet.h SSC32.h SwarmonDevice.h ublox.h UBXProtocol.h 
 	$(CXX) $(CXXFLAGS) -c $<
 
 Test_devices: Main.o OSNet.o OSComputerRS232Port.o OSMisc.o OSTime.o OSCore.o

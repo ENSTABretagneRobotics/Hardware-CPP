@@ -243,7 +243,18 @@ inline int InitNet(void)
 			"WSAStartup failed. "));
 		return EXIT_FAILURE;
 	}
-#endif
+#else
+#ifndef DISABLE_IGNORE_SIGPIPE
+	// See https://stackoverflow.com/questions/17332646/server-dies-on-send-if-client-was-closed-with-ctrlc...
+	if (signal(SIGPIPE, SIG_IGN) == SIG_ERR)
+	{
+		PRINT_DEBUG_WARNING_OSNET(("InitNet warning (%s) : %s"
+			"\n",
+			strtime_m(),
+			"signal failed. "));
+	}
+#endif // DISABLE_IGNORE_SIGPIPE
+#endif // _WIN32
 
 	return EXIT_SUCCESS;
 }
@@ -494,6 +505,8 @@ On return it will contain the actual length in bytes of the address returned. NU
 
 //int shutdown(SOCKET s);
 
+//int setsockopt(SOCKET s, int level, int optname, char *optval, int optlen);
+
 /*
 Set timeout options for a socket.
 
@@ -551,6 +564,33 @@ inline int setsockettimeouts(SOCKET sock, int timeout)
 		//return EXIT_FAILURE;
 	}
 #endif // _WIN32
+
+	return EXIT_SUCCESS;
+}
+
+/*
+Set SO_REUSEADDR option for a socket.
+
+SOCKET sock : (IN) Socket.
+BOOL reuseaddr : (IN) 1 to enable SO_REUSEADDR, 0 to disable.
+
+Return : EXIT_SUCCESS or EXIT_FAILURE if there is an error.
+*/
+inline int setsocketreuseaddr(SOCKET sock, BOOL reuseaddr)
+{
+	int iOptVal = 0;
+	int iOptLen = 0;
+
+	iOptVal = (int)reuseaddr;
+	iOptLen = sizeof(int);
+	if (setsockopt(sock, SOL_SOCKET, SO_REUSEADDR, (char*)&iOptVal, iOptLen) == SOCKET_ERROR) 
+	{
+		PRINT_DEBUG_WARNING_OSNET(("setsocketreuseaddr warning (%s) : %s(sock=%d, reuseaddr=%d)\n", 
+			strtime_m(), 
+			"setsockopt failed. ", 
+			(int)sock, (int)reuseaddr));
+		//return EXIT_FAILURE;
+	}
 
 	return EXIT_SUCCESS;
 }
@@ -882,6 +922,22 @@ inline int inittcpsrv(SOCKET* pSock, char* address, char* port, int maxnbcli, in
 		return EXIT_FAILURE;
 	}
 
+#ifndef DISABLE_TCPSERVER_SO_REUSEADDR
+	// Enable immediate reuse of the address and port.
+	if (setsocketreuseaddr(*pSock, TRUE) != EXIT_SUCCESS)
+	{
+		PRINT_DEBUG_ERROR_OSNET(("inittcpsrv error (%s) : %s(address=%s, port=%s, maxnbcli=%d, timeout=%d)\n",
+			strtime_m(),
+			"setsocketreuseaddr failed. ",
+			address, port, maxnbcli, timeout));
+		closesocket(*pSock);
+#ifdef _WIN32
+		WSACleanup();
+#endif // _WIN32
+		return EXIT_FAILURE;
+	}
+#endif // DISABLE_TCPSERVER_SO_REUSEADDR
+
 	memset(&sa, 0, sizeof(sa));
 
 	// The sockaddr_in structure specifies the address family,
@@ -1023,6 +1079,22 @@ inline int initudpsrv(SOCKET* pSock, char* address, char* port, int timeout)
 #endif // _WIN32
 		return EXIT_FAILURE;
 	}
+
+#ifndef DISABLE_UDPSERVER_SO_REUSEADDR
+	// Enable immediate reuse of the address and port.
+	if (setsocketreuseaddr(*pSock, TRUE) != EXIT_SUCCESS)
+	{
+		PRINT_DEBUG_ERROR_OSNET(("initudpsrv error (%s) : %s(address=%s, port=%s, timeout=%d)\n", 
+			strtime_m(), 
+			"setsocketreuseaddr failed. ", 
+			address, port, timeout));
+		closesocket(*pSock);
+#ifdef _WIN32
+		WSACleanup();
+#endif // _WIN32
+		return EXIT_FAILURE;
+	}
+#endif // DISABLE_UDPSERVER_SO_REUSEADDR
 
 	memset(&sa, 0, sizeof(sa));
 

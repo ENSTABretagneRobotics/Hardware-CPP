@@ -332,6 +332,18 @@ inline int OpenComputerRS232Port(HANDLE* phDev, char* szDevice)
 	}
 #endif // !DISABLE_FORCE_CLEAR_DTR
 
+#ifndef DISABLE_IGNORE_SIGPIPE
+	// See https://stackoverflow.com/questions/17332646/server-dies-on-send-if-client-was-closed-with-ctrlc...
+	if (signal(SIGPIPE, SIG_IGN) == SIG_ERR)
+	{
+		PRINT_DEBUG_WARNING_OSCOMPUTERRS232PORT(("OpenComputerRS232Port warning (%s) : %s"
+			"(szDevice=%s)\n",
+			strtime_m(),
+			"signal failed ",
+			szDevice));
+	}
+#endif // DISABLE_IGNORE_SIGPIPE
+
 	*phDev = (HANDLE)(intptr_t)fd;
 #endif // _WIN32
 

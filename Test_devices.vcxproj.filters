@@ -41,9 +41,6 @@
     <ClInclude Include="Hokuyo.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Maestro.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="MDM.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -104,13 +101,13 @@
     <ClInclude Include="UBXProtocol.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Pololu.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Text Include="ReadMe.txt" />
     <Text Include="Hokuyo0.txt">
-      <Filter>Input Files</Filter>
-    </Text>
-    <Text Include="Maestro0.txt">
       <Filter>Input Files</Filter>
     </Text>
     <Text Include="MDM0.txt">
@@ -147,6 +144,9 @@
       <Filter>Input Files</Filter>
     </Text>
     <Text Include="ublox0.txt">
+      <Filter>Input Files</Filter>
+    </Text>
+    <Text Include="Pololu0.txt">
       <Filter>Input Files</Filter>
     </Text>
   </ItemGroup>

@@ -5,7 +5,7 @@
 #include "SwarmonDevice.h"
 #include "P33x.h"
 #include "SSC32.h"
-#include "Maestro.h"
+#include "Pololu.h"
 #include "MiniSSC.h"
 #include "MDM.h"
 #include "Hokuyo.h"
@@ -74,7 +74,7 @@ int main(int argc, char* argv[])
 	double value = 0;
 	int ivalue = 0;
 	SSC32 ssc32;
-	MAESTRO maestro;
+	POLOLU pololu;
 	MINISSC minissc;
 	double u1 = 0.25, u2 = -0.25;
 	MDM mdm;
@@ -95,6 +95,20 @@ int main(int argc, char* argv[])
 	// Disable buffering for printf()...
 	setbuf(stdout, NULL);
 
+#ifdef _WIN32
+	// Prevent display/system sleep...
+	SetThreadExecutionState(ES_CONTINUOUS|ES_DISPLAY_REQUIRED);
+	//SetThreadExecutionState(ES_CONTINUOUS|ES_SYSTEM_REQUIRED);
+#else
+#ifndef DISABLE_IGNORE_SIGPIPE
+	// See https://stackoverflow.com/questions/17332646/server-dies-on-send-if-client-was-closed-with-ctrlc...
+	if (signal(SIGPIPE, SIG_IGN) == SIG_ERR)
+	{
+		PRINT_DEBUG_WARNING(("signal failed. \n"));
+	}
+#endif // DISABLE_IGNORE_SIGPIPE
+#endif // _WIN32
+
 	// Initialize to 0 all the fields of the structure.
 	memset(&mt, 0, sizeof(MT));
 	memset(&razorahrs, 0, sizeof(RAZORAHRS));
@@ -103,12 +117,13 @@ int main(int argc, char* argv[])
 	memset(&swarmondevice, 0, sizeof(SWARMONDEVICE));
 	memset(&p33x, 0, sizeof(P33X));
 	memset(&ssc32, 0, sizeof(SSC32));
-	memset(&maestro, 0, sizeof(MAESTRO));
+	memset(&pololu, 0, sizeof(POLOLU));
 	memset(&minissc, 0, sizeof(MINISSC));
 	memset(&mdm, 0, sizeof(MDM));
 	memset(&hokuyo, 0, sizeof(HOKUYO));
 	memset(&rplidar, 0, sizeof(RPLIDAR));
 	memset(&seanet, 0, sizeof(SEANET));
+	memset(&pathfinderdvl, 0, sizeof(PATHFINDERDVL));
 
 	//ConnectMT(&mt, "MT0.txt");
 	ConnectRazorAHRS(&razorahrs, "RazorAHRS0.txt");
@@ -117,13 +132,13 @@ int main(int argc, char* argv[])
 	//ConnectSwarmonDevice(&swarmondevice, "SwarmonDevice0.txt");
 	//ConnectP33x(&p33x, "P33x0.txt");
 	//ConnectSSC32(&ssc32, "SSC320.txt");
-	//ConnectMaestro(&maestro, "Maestro0.txt");
+	//ConnectPololu(&pololu, "Pololu0.txt");
 	//ConnectMiniSSC(&minissc, "MiniSSC0.txt");
 	//ConnectMDM(&mdm, "MDM0.txt");
 	//ConnectHokuyo(&hokuyo, "Hokuyo0.txt");
 	//ConnectRPLIDAR(&rplidar, "RPLIDAR0.txt");
 	//ConnectSeanet(&seanet, "Seanet0.txt");
-	//ConnectPathfinderDVL(&seanet, "PathfinderDVL0.txt");
+	//ConnectPathfinderDVL(&pathfinderdvl, "PathfinderDVL0.txt");
 
 	//mdm.pfSaveFile = fopen("rawmdm.txt", "wb");
 
@@ -154,11 +169,11 @@ int main(int argc, char* argv[])
 		//u1 = u2;
 		//u2 = -u1;
 		//SetThrustersSSC32(&ssc32, u1, u2);
-		//SetThrustersMaestro(&maestro, u1, u2);
+		//SetThrustersPololu(&pololu, u1, u2);
 		//SetThrustersMiniSSC(&minissc, u1, u2);
 		//printf("%f;%f\n", u1, u2);
 		//ivalue = 0;
-		//GetValueMaestro(&maestro, 11, &ivalue);
+		//GetValuePololu(&pololu, 11, &ivalue);
 		//printf("%f\n", ivalue*5.0/1024);
 
 		//b = 0;
@@ -207,7 +222,7 @@ int main(int argc, char* argv[])
 	//DisconnectHokuyo(&hokuyo);
 	//DisconnectMDM(&mdm);
 	//DisconnectMiniSSC(&minissc);
-	//DisconnectMaestro(&maestro);
+	//DisconnectPololu(&pololu);
 	//DisconnectSSC32(&ssc32);
 	//DisconnectP33x(&p33x);
 	//DisconnectSwarmonDevice(&swarmondevice);

@@ -55,7 +55,7 @@
     <ClCompile>
       <Optimization>Disabled</Optimization>
       <AdditionalIncludeDirectories>.;..;..\..;$(ProgramFiles)\MAVLinkSDK;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;DISABLE_THREADS_OSNET;SIMULATED_INTERNET_SWARMONDEVICE;DISABLE_AIS_SUPPORT;ENABLE_DEFAULT_SAVE_RAW_DATA_MDM;DISABLE_HOKUYOTHREAD;DISABLE_MAESTROTHREAD;DISABLE_MDMTHREAD;DISABLE_MINISSCTHREAD;DISABLE_MTTHREAD;DISABLE_NMEADEVICETHREAD;DISABLE_P33XTHREAD;DISABLE_PATHFINDERDVLTHREAD;DISABLE_RAZORAHRSTHREAD;DISABLE_RPLIDARTHREAD;DISABLE_SEANETTHREAD;DISABLE_SSC32THREAD;DISABLE_SWARMONDEVICETHREAD;DISABLE_UBLOXTHREAD;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;DISABLE_THREADS_OSNET;SIMULATED_INTERNET_SWARMONDEVICE;DISABLE_AIS_SUPPORT;ENABLE_DEFAULT_SAVE_RAW_DATA_MDM;DISABLE_HOKUYOTHREAD;DISABLE_MDMTHREAD;DISABLE_MINISSCTHREAD;DISABLE_MTTHREAD;DISABLE_NMEADEVICETHREAD;DISABLE_P33XTHREAD;DISABLE_PATHFINDERDVLTHREAD;DISABLE_POLOLUTHREAD;DISABLE_RAZORAHRSTHREAD;DISABLE_RPLIDARTHREAD;DISABLE_SEANETTHREAD;DISABLE_SSC32THREAD;DISABLE_SWARMONDEVICETHREAD;DISABLE_UBLOXTHREAD;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <MinimalRebuild>true</MinimalRebuild>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
@@ -75,7 +75,7 @@
     <ClCompile>
       <Optimization>MaxSpeed</Optimization>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;DISABLE_THREADS_OSNET;SIMULATED_INTERNET_SWARMONDEVICE;DISABLE_AIS_SUPPORT;ENABLE_DEFAULT_SAVE_RAW_DATA_MDM;DISABLE_HOKUYOTHREAD;DISABLE_MAESTROTHREAD;DISABLE_MDMTHREAD;DISABLE_MINISSCTHREAD;DISABLE_MTTHREAD;DISABLE_NMEADEVICETHREAD;DISABLE_P33XTHREAD;DISABLE_PATHFINDERDVLTHREAD;DISABLE_RAZORAHRSTHREAD;DISABLE_RPLIDARTHREAD;DISABLE_SEANETTHREAD;DISABLE_SSC32THREAD;DISABLE_SWARMONDEVICETHREAD;DISABLE_UBLOXTHREAD;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;DISABLE_THREADS_OSNET;SIMULATED_INTERNET_SWARMONDEVICE;DISABLE_AIS_SUPPORT;ENABLE_DEFAULT_SAVE_RAW_DATA_MDM;DISABLE_HOKUYOTHREAD;DISABLE_MDMTHREAD;DISABLE_MINISSCTHREAD;DISABLE_MTTHREAD;DISABLE_NMEADEVICETHREAD;DISABLE_P33XTHREAD;DISABLE_PATHFINDERDVLTHREAD;DISABLE_POLOLUTHREAD;DISABLE_RAZORAHRSTHREAD;DISABLE_RPLIDARTHREAD;DISABLE_SEANETTHREAD;DISABLE_SSC32THREAD;DISABLE_SWARMONDEVICETHREAD;DISABLE_UBLOXTHREAD;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <PrecompiledHeader />
@@ -102,7 +102,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Hokuyo.h" />
-    <ClInclude Include="Maestro.h" />
     <ClInclude Include="MDM.h" />
     <ClInclude Include="MiniSSC.h" />
     <ClInclude Include="MT.h" />
@@ -115,6 +114,7 @@
     <ClInclude Include="OSTime.h" />
     <ClInclude Include="P33x.h" />
     <ClInclude Include="PathfinderDVL.h" />
+    <ClInclude Include="Pololu.h" />
     <ClInclude Include="RazorAHRS.h" />
     <ClInclude Include="RPLIDAR.h" />
     <ClInclude Include="RS232Port.h" />
@@ -126,13 +126,13 @@
   </ItemGroup>
   <ItemGroup>
     <Text Include="Hokuyo0.txt" />
-    <Text Include="Maestro0.txt" />
     <Text Include="MDM0.txt" />
     <Text Include="MiniSSC0.txt" />
     <Text Include="MT0.txt" />
     <Text Include="NMEADevice0.txt" />
     <Text Include="P33x0.txt" />
     <Text Include="PathfinderDVL0.txt" />
+    <Text Include="Pololu0.txt" />
     <Text Include="RazorAHRS0.txt" />
     <Text Include="ReadMe.txt" />
     <Text Include="RPLIDAR0.txt" />
