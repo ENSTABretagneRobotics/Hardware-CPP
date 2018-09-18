@@ -198,7 +198,7 @@ int main(int argc, char* argv[])
 		//bNewScan = FALSE;
 		//quality = 0;
 		//GetScanDataResponseRPLIDAR(&rplidar, &d, &angle, &bNewScan, &quality);
-		//printf("%f deg; %f m\n", angle, d);
+		//printf("%f rad; %f m\n", angle, d);
 
 		//angle = 0; // Will receive the angle of the ping in deg.
 		//memset(scanline, 0, sizeof(scanline)); // Will receive the data of the ping (NBins values in [0..255]).

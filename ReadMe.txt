@@ -15,7 +15,7 @@ Hardware support :
 - PathfinderDVL : TRDI Pathfinder DVL.
 - Pololu : Pololu Mini Maestro 6, 18, 24 servo controllers, Pololu Jrk (preliminary support).
 - RazorAHRS : SparkFun 9DOF Razor IMU (flash firmware from https://github.com/lebarsfa/razor-9dof-ahrs if needed).
-- RPLIDAR : RPLIDAR A2 laser telemeter.
+- RPLIDAR : RPLIDAR A1 and A2 laser telemeters.
 - Seanet : Tritech Micron Sonar, Tritech MiniKing Sonar.
 - SSC-32 : Lynxmotion SSC-32, SSC-32u servo controllers.
 - ublox : ublox GPS, Furuno WS200 weather station, or other NMEA-compatible devices with supported NMEA sentences.

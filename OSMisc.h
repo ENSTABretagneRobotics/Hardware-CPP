@@ -935,7 +935,7 @@ inline char* strstrbeginend(char* str, char* beginpattern, char* endpattern, cha
 		*pOutstrlen = 0;
 		return NULL;
 	}
-	*pOutstrlen = ptr2-(ptr+strlen(beginpattern));
+	*pOutstrlen = (int)(ptr2-(ptr+strlen(beginpattern)));
 	if (*pOutstrlen < 0)
 	{
 		*pOut = NULL;
@@ -966,7 +966,7 @@ inline char* stristrbeginend(char* str, char* beginpattern, char* endpattern, ch
 		*pOutstrlen = 0;
 		return NULL;
 	}
-	*pOutstrlen = ptr2-(ptr+strlen(beginpattern));
+	*pOutstrlen = (int)(ptr2-(ptr+strlen(beginpattern)));
 	if (*pOutstrlen < 0)
 	{
 		*pOut = NULL;
