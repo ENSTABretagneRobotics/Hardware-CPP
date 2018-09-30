@@ -14,18 +14,18 @@
     <ProjectGuid>{30A6807A-5214-4E51-9ECA-AAFA08F9F6D8}</ProjectGuid>
     <RootNamespace>Test_devices</RootNamespace>
     <Keyword>Win32Proj</Keyword>
-    <WindowsTargetPlatformVersion>8.1</WindowsTargetPlatformVersion>
+    <WindowsTargetPlatformVersion>10.0.17134.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
-    <PlatformToolset>v141_xp</PlatformToolset>
+    <PlatformToolset>v141</PlatformToolset>
     <CharacterSet>NotSet</CharacterSet>
     <WholeProgramOptimization>true</WholeProgramOptimization>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
-    <PlatformToolset>v141_xp</PlatformToolset>
+    <PlatformToolset>v141</PlatformToolset>
     <CharacterSet>NotSet</CharacterSet>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
@@ -55,7 +55,7 @@
     <ClCompile>
       <Optimization>Disabled</Optimization>
       <AdditionalIncludeDirectories>.;..;..\..;$(ProgramFiles)\MAVLinkSDK;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;DISABLE_THREADS_OSNET;SIMULATED_INTERNET_SWARMONDEVICE;DISABLE_AIS_SUPPORT;ENABLE_DEFAULT_SAVE_RAW_DATA_MDM;DISABLE_HOKUYOTHREAD;DISABLE_MDMTHREAD;DISABLE_MINISSCTHREAD;DISABLE_MTTHREAD;DISABLE_NMEADEVICETHREAD;DISABLE_P33XTHREAD;DISABLE_PATHFINDERDVLTHREAD;DISABLE_POLOLUTHREAD;DISABLE_RAZORAHRSTHREAD;DISABLE_RPLIDARTHREAD;DISABLE_SEANETTHREAD;DISABLE_SSC32THREAD;DISABLE_SWARMONDEVICETHREAD;DISABLE_UBLOXTHREAD;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;DISABLE_THREADS_OSNET;SIMULATED_INTERNET_SWARMONDEVICE;DISABLE_AIS_SUPPORT;ENABLE_DEFAULT_SAVE_RAW_DATA_MDM;DISABLE_HOKUYOTHREAD;DISABLE_IM483ITHREAD;DISABLE_MDMTHREAD;DISABLE_MINISSCTHREAD;DISABLE_MTTHREAD;DISABLE_NMEADEVICETHREAD;DISABLE_P33XTHREAD;DISABLE_PATHFINDERDVLTHREAD;DISABLE_POLOLUTHREAD;DISABLE_RAZORAHRSTHREAD;DISABLE_RPLIDARTHREAD;DISABLE_SEANETTHREAD;DISABLE_SSC32THREAD;DISABLE_SWARMONDEVICETHREAD;DISABLE_UBLOXTHREAD;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <MinimalRebuild>true</MinimalRebuild>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
@@ -75,7 +75,7 @@
     <ClCompile>
       <Optimization>MaxSpeed</Optimization>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;DISABLE_THREADS_OSNET;SIMULATED_INTERNET_SWARMONDEVICE;DISABLE_AIS_SUPPORT;ENABLE_DEFAULT_SAVE_RAW_DATA_MDM;DISABLE_HOKUYOTHREAD;DISABLE_MDMTHREAD;DISABLE_MINISSCTHREAD;DISABLE_MTTHREAD;DISABLE_NMEADEVICETHREAD;DISABLE_P33XTHREAD;DISABLE_PATHFINDERDVLTHREAD;DISABLE_POLOLUTHREAD;DISABLE_RAZORAHRSTHREAD;DISABLE_RPLIDARTHREAD;DISABLE_SEANETTHREAD;DISABLE_SSC32THREAD;DISABLE_SWARMONDEVICETHREAD;DISABLE_UBLOXTHREAD;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;DISABLE_THREADS_OSNET;SIMULATED_INTERNET_SWARMONDEVICE;DISABLE_AIS_SUPPORT;ENABLE_DEFAULT_SAVE_RAW_DATA_MDM;DISABLE_HOKUYOTHREAD;DISABLE_IM483ITHREAD;DISABLE_MDMTHREAD;DISABLE_MINISSCTHREAD;DISABLE_MTTHREAD;DISABLE_NMEADEVICETHREAD;DISABLE_P33XTHREAD;DISABLE_PATHFINDERDVLTHREAD;DISABLE_POLOLUTHREAD;DISABLE_RAZORAHRSTHREAD;DISABLE_RPLIDARTHREAD;DISABLE_SEANETTHREAD;DISABLE_SSC32THREAD;DISABLE_SWARMONDEVICETHREAD;DISABLE_UBLOXTHREAD;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <PrecompiledHeader />
@@ -102,6 +102,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Hokuyo.h" />
+    <ClInclude Include="IM483I.h" />
     <ClInclude Include="MDM.h" />
     <ClInclude Include="MiniSSC.h" />
     <ClInclude Include="MT.h" />
@@ -126,6 +127,7 @@
   </ItemGroup>
   <ItemGroup>
     <Text Include="Hokuyo0.txt" />
+    <Text Include="IM483I0.txt" />
     <Text Include="MDM0.txt" />
     <Text Include="MiniSSC0.txt" />
     <Text Include="MT0.txt" />

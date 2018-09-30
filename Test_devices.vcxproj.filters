@@ -104,6 +104,9 @@
     <ClInclude Include="Pololu.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="IM483I.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Text Include="ReadMe.txt" />
@@ -147,6 +150,9 @@
       <Filter>Input Files</Filter>
     </Text>
     <Text Include="Pololu0.txt">
+      <Filter>Input Files</Filter>
+    </Text>
+    <Text Include="IM483I0.txt">
       <Filter>Input Files</Filter>
     </Text>
   </ItemGroup>

@@ -7,6 +7,7 @@
 #include "SSC32.h"
 #include "Pololu.h"
 #include "MiniSSC.h"
+#include "IM483I.h"
 #include "MDM.h"
 #include "Hokuyo.h"
 #include "RPLIDAR.h"
@@ -76,6 +77,7 @@ int main(int argc, char* argv[])
 	SSC32 ssc32;
 	POLOLU pololu;
 	MINISSC minissc;
+	IM483I im483i;
 	double u1 = 0.25, u2 = -0.25;
 	MDM mdm;
 	char b = 0;
@@ -119,6 +121,7 @@ int main(int argc, char* argv[])
 	memset(&ssc32, 0, sizeof(SSC32));
 	memset(&pololu, 0, sizeof(POLOLU));
 	memset(&minissc, 0, sizeof(MINISSC));
+	memset(&im483i, 0, sizeof(IM483I));
 	memset(&mdm, 0, sizeof(MDM));
 	memset(&hokuyo, 0, sizeof(HOKUYO));
 	memset(&rplidar, 0, sizeof(RPLIDAR));
@@ -134,6 +137,7 @@ int main(int argc, char* argv[])
 	//ConnectSSC32(&ssc32, "SSC320.txt");
 	//ConnectPololu(&pololu, "Pololu0.txt");
 	//ConnectMiniSSC(&minissc, "MiniSSC0.txt");
+	//ConnectIM483I(&im483i, "IM483I0.txt");
 	//ConnectMDM(&mdm, "MDM0.txt");
 	//ConnectHokuyo(&hokuyo, "Hokuyo0.txt");
 	//ConnectRPLIDAR(&rplidar, "RPLIDAR0.txt");
@@ -171,6 +175,7 @@ int main(int argc, char* argv[])
 		//SetThrustersSSC32(&ssc32, u1, u2);
 		//SetThrustersPololu(&pololu, u1, u2);
 		//SetThrustersMiniSSC(&minissc, u1, u2);
+		//SetMaxAngleIM483I(&im483i, u1);
 		//printf("%f;%f\n", u1, u2);
 		//ivalue = 0;
 		//GetValuePololu(&pololu, 11, &ivalue);
@@ -221,6 +226,7 @@ int main(int argc, char* argv[])
 	//DisconnectRPLIDAR(&rplidar);
 	//DisconnectHokuyo(&hokuyo);
 	//DisconnectMDM(&mdm);
+	//DisconnectIM483I(&im483i);
 	//DisconnectMiniSSC(&minissc);
 	//DisconnectPololu(&pololu);
 	//DisconnectSSC32(&ssc32);

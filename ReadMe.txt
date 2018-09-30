@@ -8,6 +8,7 @@ Change the device path and other parameters in the configuration files if necess
 
 Hardware support : 
 - Hokuyo : Hokuyo URG-04LX-UG01 laser telemeter.
+- IM483I : Intelligent Motion Systems IM483I step motor controller.
 - MDM : Tritech Micron Data Modem (or other kinds of simple RS232 modems).
 - MT : Xsens MTi, MTi-G AHRS.
 - NMEADevice (superseded by ublox) : GPS, Furuno WS200 weather station.
