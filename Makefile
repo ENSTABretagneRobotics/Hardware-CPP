@@ -1,8 +1,8 @@
-# Makefile for Linux, tested with Ubuntu 15.10. 
+# Makefile for Linux, designed for Ubuntu 16.04. 
 # You might need to install C/C++ development tools by typing :
 #    sudo apt-get install build-essential
 # in a terminal.
-# For more information on the configuration used, see www.ensta-bretagne.fr/lebars/Share/Ubuntu.txt .
+# For more information on the configuration used, see http://www.ensta-bretagne.fr/lebars/Share/Ubuntu.txt .
 # Use dos2unix *.txt to ensure line endings are correct for Linux in the configuration files.
 
 PROGS = Test_devices
@@ -37,12 +37,18 @@ CFLAGS += -D DISABLE_SSC32THREAD
 CFLAGS += -D DISABLE_SWARMONDEVICETHREAD
 CFLAGS += -D DISABLE_UBLOXTHREAD
 
+# Depending on your OS (old Linux or Mac OS)...
+#CFLAGS += -DUSE_OLD_CHRONO
+
 CXXFLAGS += $(CFLAGS) -fpermissive
 
 # For Windows/MinGW
 #LDFLAGS += -lws2_32
-# For Linux
+
+# For Linux, if static needed...
 #LDFLAGS += -static-libgcc -static-libstdc++ -static
+
+# Might need to remove -lrt for Mac OS...
 LDFLAGS += -lrt -lm
 
 default: $(PROGS)
