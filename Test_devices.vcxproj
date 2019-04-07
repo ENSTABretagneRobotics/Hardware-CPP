@@ -56,7 +56,8 @@
       <Optimization>Disabled</Optimization>
       <AdditionalIncludeDirectories>.;..;..\..;$(ProgramFiles)\MAVLinkSDK;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;DISABLE_THREADS_OSNET;SIMULATED_INTERNET_SWARMONDEVICE;DISABLE_AIS_SUPPORT;ENABLE_DEFAULT_SAVE_RAW_DATA_MDM;DISABLE_HOKUYOTHREAD;DISABLE_IM483ITHREAD;DISABLE_MDMTHREAD;DISABLE_MINISSCTHREAD;DISABLE_MTTHREAD;DISABLE_NMEADEVICETHREAD;DISABLE_P33XTHREAD;DISABLE_PATHFINDERDVLTHREAD;DISABLE_POLOLUTHREAD;DISABLE_RAZORAHRSTHREAD;DISABLE_RPLIDARTHREAD;DISABLE_SEANETTHREAD;DISABLE_SSC32THREAD;DISABLE_SWARMONDEVICETHREAD;DISABLE_UBLOXTHREAD;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <MinimalRebuild>true</MinimalRebuild>
+      <MinimalRebuild>
+      </MinimalRebuild>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
       <PrecompiledHeader />

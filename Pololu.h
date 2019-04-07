@@ -72,6 +72,8 @@
 // In us.
 #define DEFAULT_ABSOLUTE_MAX_PW_POLOLU 2500
 
+#define MAX_NB_TELEMETERS_POLOLU 12
+
 struct POLOLU
 {
 	RS232PORT RS232Port;
@@ -84,6 +86,8 @@ struct POLOLU
 	int BaudRate;
 	int timeout;
 	BOOL bSaveRawData;
+	int RangingDelay;
+	BOOL bMedianFilter;
 	int PololuType;
 	int DeviceNumber;
 	int MinPWs[NB_CHANNELS_PWM_POLOLU];
@@ -137,6 +141,10 @@ struct POLOLU
 	int telem6analoginputchan;
 	int telem7analoginputchan;
 	int telem8analoginputchan;
+	int telem9analoginputchan;
+	int telem10analoginputchan;
+	int telem11analoginputchan;
+	int telem12analoginputchan;
 	double MinAngle;
 	double MidAngle;
 	double MaxAngle;
@@ -778,7 +786,7 @@ inline int SetRudderJrkPololu(POLOLU* pPololu, double angle)
 }
 
 // In m.
-inline int GetTelemetersPololu(POLOLU* pPololu, double* pDist1, double* pDist2, double* pDist3, double* pDist4, double* pDist5, double* pDist6, double* pDist7, double* pDist8)
+inline int GetTelemetersPololu(POLOLU* pPololu, double* pDist1, double* pDist2, double* pDist3, double* pDist4, double* pDist5, double* pDist6, double* pDist7, double* pDist8, double* pDist9, double* pDist10, double* pDist11, double* pDist12)
 {
 	int selectedchannels[NB_CHANNELS_AI_POLOLU];
 	int ais[NB_CHANNELS_AI_POLOLU];
@@ -795,6 +803,10 @@ inline int GetTelemetersPololu(POLOLU* pPololu, double* pDist1, double* pDist2, 
 	selectedchannels[pPololu->telem6analoginputchan] = 1;
 	selectedchannels[pPololu->telem7analoginputchan] = 1;
 	selectedchannels[pPololu->telem8analoginputchan] = 1;
+	selectedchannels[pPololu->telem9analoginputchan] = 1;
+	selectedchannels[pPololu->telem10analoginputchan] = 1;
+	selectedchannels[pPololu->telem11analoginputchan] = 1;
+	selectedchannels[pPololu->telem12analoginputchan] = 1;
 
 	if (GetAllValuesPololu(pPololu, selectedchannels, ais) != EXIT_SUCCESS)
 	{
@@ -817,6 +829,30 @@ inline int GetTelemetersPololu(POLOLU* pPololu, double* pDist1, double* pDist2, 
 	*pDist7 = pPololu->analoginputcoef[i]*ais[i]*5.0/1023.0+pPololu->analoginputoffset[i];
 	i = pPololu->telem8analoginputchan;
 	*pDist8 = pPololu->analoginputcoef[i]*ais[i]*5.0/1023.0+pPololu->analoginputoffset[i];
+	i = pPololu->telem9analoginputchan;
+	*pDist9 = pPololu->analoginputcoef[i]*ais[i]*5.0/1023.0+pPololu->analoginputoffset[i];
+	i = pPololu->telem10analoginputchan;
+	*pDist10 = pPololu->analoginputcoef[i]*ais[i]*5.0/1023.0+pPololu->analoginputoffset[i];
+	i = pPololu->telem11analoginputchan;
+	*pDist11 = pPololu->analoginputcoef[i]*ais[i]*5.0/1023.0+pPololu->analoginputoffset[i];
+	i = pPololu->telem12analoginputchan;
+	*pDist12 = pPololu->analoginputcoef[i]*ais[i]*5.0/1023.0+pPololu->analoginputoffset[i];
+
+	return EXIT_SUCCESS;
+}
+
+// duration in us.
+inline int SetPulsePololu(POLOLU* pPololu, int channel, int duration)
+{
+	if (SetPWMPololu(pPololu, channel, 2000) != EXIT_SUCCESS)
+	{
+		return EXIT_FAILURE;
+	}
+	mSleep(duration/1000);
+	if (SetPWMPololu(pPololu, channel, 1000) != EXIT_SUCCESS)
+	{
+		return EXIT_FAILURE;
+	}
 
 	return EXIT_SUCCESS;
 }
@@ -885,6 +921,8 @@ inline int ConnectPololu(POLOLU* pPololu, char* szCfgFilePath)
 		pPololu->BaudRate = 115200;
 		pPololu->timeout = 1000;
 		pPololu->bSaveRawData = 1;
+		pPololu->RangingDelay = 1000;
+		pPololu->bMedianFilter = 0;
 		pPololu->PololuType = 0;
 		pPololu->DeviceNumber = DEFAULT_DEVICE_NUMBER_MAESTRO;
 		for (channel = 0; channel < NB_CHANNELS_PWM_POLOLU; channel++)
@@ -944,6 +982,10 @@ inline int ConnectPololu(POLOLU* pPololu, char* szCfgFilePath)
 		pPololu->telem6analoginputchan = -1;
 		pPololu->telem7analoginputchan = -1;
 		pPololu->telem8analoginputchan = -1;
+		pPololu->telem9analoginputchan = -1;
+		pPololu->telem10analoginputchan = -1;
+		pPololu->telem11analoginputchan = -1;
+		pPololu->telem12analoginputchan = -1;
 		pPololu->MinAngle = -0.5;
 		pPololu->MidAngle = 0;
 		pPololu->MaxAngle = 0.5;
@@ -963,6 +1005,10 @@ inline int ConnectPololu(POLOLU* pPololu, char* szCfgFilePath)
 			if (sscanf(line, "%d", &pPololu->timeout) != 1) printf("Invalid configuration file.\n");
 			if (fgets3(file, line, sizeof(line)) == NULL) printf("Invalid configuration file.\n");
 			if (sscanf(line, "%d", &pPololu->bSaveRawData) != 1) printf("Invalid configuration file.\n");
+			if (fgets3(file, line, sizeof(line)) == NULL) printf("Invalid configuration file.\n");
+			if (sscanf(line, "%d", &pPololu->RangingDelay) != 1) printf("Invalid configuration file.\n");
+			if (fgets3(file, line, sizeof(line)) == NULL) printf("Invalid configuration file.\n");
+			if (sscanf(line, "%d", &pPololu->bMedianFilter) != 1) printf("Invalid configuration file.\n");
 			if (fgets3(file, line, sizeof(line)) == NULL) printf("Invalid configuration file.\n");
 			if (sscanf(line, "%d", &pPololu->PololuType) != 1) printf("Invalid configuration file.\n");
 			if (fgets3(file, line, sizeof(line)) == NULL) printf("Invalid configuration file.\n");
@@ -1078,6 +1124,14 @@ inline int ConnectPololu(POLOLU* pPololu, char* szCfgFilePath)
 			if (sscanf(line, "%d", &pPololu->telem7analoginputchan) != 1) printf("Invalid configuration file.\n");
 			if (fgets3(file, line, sizeof(line)) == NULL) printf("Invalid configuration file.\n");
 			if (sscanf(line, "%d", &pPololu->telem8analoginputchan) != 1) printf("Invalid configuration file.\n");
+			if (fgets3(file, line, sizeof(line)) == NULL) printf("Invalid configuration file.\n");
+			if (sscanf(line, "%d", &pPololu->telem9analoginputchan) != 1) printf("Invalid configuration file.\n");
+			if (fgets3(file, line, sizeof(line)) == NULL) printf("Invalid configuration file.\n");
+			if (sscanf(line, "%d", &pPololu->telem10analoginputchan) != 1) printf("Invalid configuration file.\n");
+			if (fgets3(file, line, sizeof(line)) == NULL) printf("Invalid configuration file.\n");
+			if (sscanf(line, "%d", &pPololu->telem11analoginputchan) != 1) printf("Invalid configuration file.\n");
+			if (fgets3(file, line, sizeof(line)) == NULL) printf("Invalid configuration file.\n");
+			if (sscanf(line, "%d", &pPololu->telem12analoginputchan) != 1) printf("Invalid configuration file.\n");
 
 			if (fgets3(file, line, sizeof(line)) == NULL) printf("Invalid configuration file.\n");
 			if (sscanf(line, "%lf", &pPololu->MinAngle) != 1) printf("Invalid configuration file.\n");
