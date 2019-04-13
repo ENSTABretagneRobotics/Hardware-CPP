@@ -10,6 +10,7 @@ Hardware support :
 - Hokuyo : Hokuyo URG-04LX-UG01 laser telemeter.
 - IM483I : Intelligent Motion Systems IM483I step motor controller.
 - MDM : Tritech Micron Data Modem (or other kinds of simple RS232 modems).
+- MES : Tritech Micron Echosounder.
 - MT : Xsens MTi, MTi-G AHRS.
 - NMEADevice (superseded by ublox) : GPS, Furuno WS200 weather station.
 - P33x : Keller pressure sensor PAA-33x.

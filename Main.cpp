@@ -9,6 +9,7 @@
 #include "MiniSSC.h"
 #include "IM483I.h"
 #include "MDM.h"
+#include "MES.h"
 #include "Hokuyo.h"
 #include "RPLIDAR.h"
 #include "Seanet.h"
@@ -80,6 +81,7 @@ int main(int argc, char* argv[])
 	IM483I im483i;
 	double u1 = 0.25, u2 = -0.25;
 	MDM mdm;
+	MDM mes;
 	char b = 0;
 	int receivedbytes = 0;
 	unsigned char buf[256];
@@ -123,6 +125,7 @@ int main(int argc, char* argv[])
 	memset(&minissc, 0, sizeof(MINISSC));
 	memset(&im483i, 0, sizeof(IM483I));
 	memset(&mdm, 0, sizeof(MDM));
+	memset(&mes, 0, sizeof(MES));
 	memset(&hokuyo, 0, sizeof(HOKUYO));
 	memset(&rplidar, 0, sizeof(RPLIDAR));
 	memset(&seanet, 0, sizeof(SEANET));
@@ -139,6 +142,7 @@ int main(int argc, char* argv[])
 	//ConnectMiniSSC(&minissc, "MiniSSC0.txt");
 	//ConnectIM483I(&im483i, "IM483I0.txt");
 	//ConnectMDM(&mdm, "MDM0.txt");
+	//ConnectMES(&mes, "MES0.txt");
 	//ConnectHokuyo(&hokuyo, "Hokuyo0.txt");
 	//ConnectRPLIDAR(&rplidar, "RPLIDAR0.txt");
 	//ConnectSeanet(&seanet, "Seanet0.txt");
@@ -215,6 +219,9 @@ int main(int argc, char* argv[])
 		//GetFirstObstacleDist(scanline, 70, 0.5, seanet.RangeScale, seanet.NBins, seanet.RangeScale, &d);
 		//printf("%f deg; %f m\n", angle, d);
 
+		//GetLatestDataMES(&mes, &d);
+		//printf("%f m\n", d);
+
 		//GetNMEASentencePathfinderDVL(&pathfinderdvl, &nmeadata);
 		//printf("%f;%f;%f;%c\n", nmeadata.vt_ship, nmeadata.vl_ship, nmeadata.vn_ship, nmeadata.vstatus_ship);
 	}
@@ -225,6 +232,7 @@ int main(int argc, char* argv[])
 	//DisconnectSeanet(&seanet);
 	//DisconnectRPLIDAR(&rplidar);
 	//DisconnectHokuyo(&hokuyo);
+	//DisconnectMES(&mes);
 	//DisconnectMDM(&mdm);
 	//DisconnectIM483I(&im483i);
 	//DisconnectMiniSSC(&minissc);

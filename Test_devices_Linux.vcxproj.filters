@@ -107,6 +107,9 @@
     <ClInclude Include="IM483I.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="MES.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Text Include="ReadMe.txt" />
@@ -156,6 +159,9 @@
       <Filter>Input Files</Filter>
     </None>
     <None Include="IM483I0.txt">
+      <Filter>Input Files</Filter>
+    </None>
+    <None Include="MES0.txt">
       <Filter>Input Files</Filter>
     </None>
   </ItemGroup>
