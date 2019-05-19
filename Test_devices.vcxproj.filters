@@ -110,6 +110,9 @@
     <ClInclude Include="MES.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="SBG.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Text Include="ReadMe.txt" />
@@ -159,6 +162,9 @@
       <Filter>Input Files</Filter>
     </Text>
     <Text Include="MES0.txt">
+      <Filter>Input Files</Filter>
+    </Text>
+    <Text Include="SBG0.txt">
       <Filter>Input Files</Filter>
     </Text>
   </ItemGroup>

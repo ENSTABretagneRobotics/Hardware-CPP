@@ -5,8 +5,10 @@ COM14
 9600
 % Timeout (in ms)
 1500
-% bSaveRawData
-0
+% threadperiod (in ms, require associated thread)
+100
+% bSaveRawData (require associated thread)
+1
 % bRevertToDefaultCfg
 0
 % SetCfg (0 : keep current, 1 : default for rover, 2 : default for base)

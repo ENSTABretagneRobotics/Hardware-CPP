@@ -5,10 +5,12 @@ COM9
 115200
 % Timeout (in ms)
 1000
-% bSaveRawData
-0
+% threadperiod (in ms, require associated thread)
+50
+% bSaveRawData (require associated thread)
+1
 % ScanMode (0 : SCAN, 1 : EXPRESS_SCAN, 2 : FORCE_SCAN)
-0
+1
 % motordelay (in ms)
 500
 % maxhist (0 : try to automatically remove old data, around 180 : advised for SCAN mode, around 360 : advised for EXPRESS_SCAN mode)

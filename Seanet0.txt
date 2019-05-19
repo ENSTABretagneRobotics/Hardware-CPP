@@ -5,8 +5,10 @@ COM9
 115200
 % Timeout (in ms)
 1500
-% bSaveRawData
-0
+% threadperiod (in ms, require associated thread)
+100
+% bSaveRawData (require associated thread)
+1
 % RangeScale (in m)
 10
 % Gain (in %)
@@ -27,7 +29,7 @@ COM9
 1
 % scanright (0 or 1)
 0
-% invert (0 or 1)
+% invert (0 if the sonar is head down, 1 if head up, inverted logic w.r.t. Seanet Pro or Micron Sonar software corresponding option)
 0
 % stareLLim (0 or 1)
 0

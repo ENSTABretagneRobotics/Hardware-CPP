@@ -57,6 +57,7 @@ struct UBLOX
 	char szDevPath[256];
 	int BaudRate;
 	int timeout;
+	int threadperiod;
 	BOOL bSaveRawData;
 	BOOL bRevertToDefaultCfg;
 	int SetCfg;
@@ -966,6 +967,7 @@ inline int Connectublox(UBLOX* publox, char* szCfgFilePath)
 		sprintf(publox->szDevPath, "COM1");
 		publox->BaudRate = 9600;
 		publox->timeout = 1000;
+		publox->threadperiod = 100;
 		publox->bSaveRawData = 1;
 		publox->bRevertToDefaultCfg = 1;
 		publox->SetCfg = KEEP_CURRENT_CFG_UBX;
@@ -1018,6 +1020,8 @@ inline int Connectublox(UBLOX* publox, char* szCfgFilePath)
 			if (fgets3(file, line, sizeof(line)) == NULL) printf("Invalid configuration file.\n");
 			if (sscanf(line, "%d", &publox->timeout) != 1) printf("Invalid configuration file.\n");
 			if (fgets3(file, line, sizeof(line)) == NULL) printf("Invalid configuration file.\n");
+			if (sscanf(line, "%d", &publox->threadperiod) != 1) printf("Invalid configuration file.\n");
+			if (fgets3(file, line, sizeof(line)) == NULL) printf("Invalid configuration file.\n");
 			if (sscanf(line, "%d", &publox->bSaveRawData) != 1) printf("Invalid configuration file.\n");
 			if (fgets3(file, line, sizeof(line)) == NULL) printf("Invalid configuration file.\n");
 			if (sscanf(line, "%d", &publox->bRevertToDefaultCfg) != 1) printf("Invalid configuration file.\n");
@@ -1039,11 +1043,13 @@ inline int Connectublox(UBLOX* publox, char* szCfgFilePath)
 			if (sscanf(line, "%lf", &publox->fixedPosAcc) != 1) printf("Invalid configuration file.\n");
 			if (fgets3(file, line, sizeof(line)) == NULL) printf("Invalid configuration file.\n");
 			if (sscanf(line, "%d", &publox->bSendStartSentence) != 1) printf("Invalid configuration file.\n");
-			if (fgets3(file, line, sizeof(line)) == NULL) printf("Invalid configuration file.\n");
+			// Need fgets4() because of '$'...
+			if (fgets4(file, line, sizeof(line)) == NULL) printf("Invalid configuration file.\n");
 			if (sscanf(line, "%255s", publox->szStartSentence) != 1) printf("Invalid configuration file.\n");
 			if (fgets3(file, line, sizeof(line)) == NULL) printf("Invalid configuration file.\n");
 			if (sscanf(line, "%d", &publox->bSendStopSentence) != 1) printf("Invalid configuration file.\n");
-			if (fgets3(file, line, sizeof(line)) == NULL) printf("Invalid configuration file.\n");
+			// Need fgets4() because of '$'...
+			if (fgets4(file, line, sizeof(line)) == NULL) printf("Invalid configuration file.\n");
 			if (sscanf(line, "%255s", publox->szStopSentence) != 1) printf("Invalid configuration file.\n");
 			if (fgets3(file, line, sizeof(line)) == NULL) printf("Invalid configuration file.\n");
 			if (sscanf(line, "%d", &publox->bEnable_NMEA_GGA) != 1) printf("Invalid configuration file.\n");
@@ -1101,6 +1107,11 @@ inline int Connectublox(UBLOX* publox, char* szCfgFilePath)
 		}
 	}
 
+	if (publox->threadperiod < 0)
+	{
+		printf("Invalid parameter : threadperiod.\n");
+		publox->threadperiod = 100;
+	}
 	if ((publox->fixedLat < -90)||(publox->fixedLat > 90))
 	{
 		printf("Invalid parameter : fixedLat.\n");

@@ -5,8 +5,10 @@ COM6
 57600
 % Timeout (in ms)
 1000
-% bSaveRawData
-0
+% threadperiod (in ms, require associated thread)
+50
+% bSaveRawData (require associated thread)
+1
 % RangingDelay (in ms)
 100
 % bMedianFilter

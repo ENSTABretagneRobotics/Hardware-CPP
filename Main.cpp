@@ -1,4 +1,5 @@
 #include "MT.h"
+#include "SBG.h"
 #include "RazorAHRS.h"
 #include "NMEADevice.h"
 #include "ublox.h"
@@ -65,6 +66,8 @@ int main(int argc, char* argv[])
 {
 	MT mt;
 	MTDATA mtdata;
+	SBG sbg;
+	SBGDATA sbgdata;
 	RAZORAHRS razorahrs;
 	RAZORAHRSDATA razorahrsdata;
 	NMEADEVICE nmeadevice;
@@ -115,10 +118,16 @@ int main(int argc, char* argv[])
 
 	// Initialize to 0 all the fields of the structure.
 	memset(&mt, 0, sizeof(MT));
+	memset(&mtdata, 0, sizeof(mtdata));
+	memset(&sbg, 0, sizeof(SBG));
+	memset(&sbgdata, 0, sizeof(sbgdata));
 	memset(&razorahrs, 0, sizeof(RAZORAHRS));
+	memset(&razorahrsdata, 0, sizeof(razorahrsdata));
 	memset(&nmeadevice, 0, sizeof(NMEADEVICE));
+	memset(&nmeadata, 0, sizeof(nmeadata));
 	memset(&ublox, 0, sizeof(UBLOX));
 	memset(&swarmondevice, 0, sizeof(SWARMONDEVICE));
+	memset(&swarmondata, 0, sizeof(swarmondata));
 	memset(&p33x, 0, sizeof(P33X));
 	memset(&ssc32, 0, sizeof(SSC32));
 	memset(&pololu, 0, sizeof(POLOLU));
@@ -132,6 +141,7 @@ int main(int argc, char* argv[])
 	memset(&pathfinderdvl, 0, sizeof(PATHFINDERDVL));
 
 	//ConnectMT(&mt, "MT0.txt");
+	//ConnectSBG(&sbg, "SBG0.txt");
 	ConnectRazorAHRS(&razorahrs, "RazorAHRS0.txt");
 	//ConnectNMEADevice(&nmeadevice, "NMEADevice0.txt");
 	//Connectublox(&ublox, "ublox0.txt");
@@ -158,6 +168,14 @@ int main(int argc, char* argv[])
 
 		//GetLatestDataMT(&mt, &mtdata);
 		//printf("%f %f %f\n", mtdata.Yaw*180.0/M_PI, mtdata.Pitch*180.0/M_PI, mtdata.Roll*180.0/M_PI);
+
+#ifdef ENABLE_SBG_SUPPORT
+		//GetLatestDataSBG(&sbg, &sbgdata);
+#else
+		// Warning : need to be run in a loop without delays...
+		//GetFrameSBG(&sbg, &sbgdata);
+#endif // ENABLE_SBG_SUPPORT
+		//printf("%f %f %f\n", sbgdata.Yaw*180.0/M_PI, sbgdata.Pitch*180.0/M_PI, sbgdata.Roll*180.0/M_PI);
 
 		GetLatestDataRazorAHRS(&razorahrs, &razorahrsdata);
 		printf("%f %f %f\n", razorahrsdata.Yaw*180.0/M_PI, razorahrsdata.Pitch*180.0/M_PI, razorahrsdata.Roll*180.0/M_PI);
@@ -243,6 +261,7 @@ int main(int argc, char* argv[])
 	//Disconnectublox(&ublox);
 	//DisconnectNMEADevice(&nmeadevice);
 	DisconnectRazorAHRS(&razorahrs);
+	//DisconnectSBG(&sbg);
 	//DisconnectMT(&mt);
 
 	return EXIT_SUCCESS;
