@@ -1,4 +1,4 @@
-# Makefile for Linux, designed for Ubuntu 16.04. 
+# Makefile for Linux, designed for Ubuntu 18.04. 
 # You might need to install C/C++ development tools by typing :
 #    sudo apt-get install build-essential
 # in a terminal.
