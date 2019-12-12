@@ -1,7 +1,7 @@
 Hardware-CPP
 ============
 - If you have Visual Studio, open the .sln file.
-- If you have Qt (with MinGW for Windows), open the .pro file (and possibly put the configuration files in the generated ../Test_devices-build-desktop folder).
+- If you have Qt (with MinGW for Windows), open the .pro file (you will probably need to put the configuration files in the generated ../Test_devices-build-desktop folder or change "Working directory" in the project "Run Settings").
 - If you have only gcc, change the Makefile to adapt to your OS if needed and run make.
 
 Change the device path and other parameters in the configuration files if necessary and comment/uncomment lines in Main.cpp depending on the device you wish to test. Mind the line endings in the configuration files depending on the OS (use e.g. the command dos2unix *.txt to convert line endings for Linux)!

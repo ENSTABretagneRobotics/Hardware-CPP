@@ -19,7 +19,8 @@
 // Comment/uncomment lines depending on the device you wish to test.
 // Change the device path and other parameters in the configuration files if necessary.
 // If you are using an IDE, check that the configuration files are in the correct folder for that IDE 
-// (e.g. sometimes in the generated ../Test_devices-build-desktop folder for Qt).
+// (e.g. for Qt you will probably need to put the configuration files in the generated 
+// ../Test_devices-build-desktop folder or change "Working directory" in the project "Run Settings").
 
 // min and max might cause incompatibilities on Linux...
 #ifndef _MSC_VER
