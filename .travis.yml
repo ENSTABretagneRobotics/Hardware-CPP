@@ -53,7 +53,7 @@ jobs:
      install: 
          # Take 2 min...
        - choco uninstall -y mingw
-       - wget http://www.ensta-bretagne.fr/lebars/Share/qt-sdk-win-opensource-2010.05.exe --no-check-certificate
+       - wget http://www.ensta-bretagne.fr/lebars/Share/qt-sdk-win-opensource-2010.05.exe --no-check-certificate -nv
        - cmd //c "move /Y qt-sdk-win-opensource-2010.05.exe %SystemDrive%\ "
          # Take several min...
        - cmd //c "%SystemDrive%\qt-sdk-win-opensource-2010.05.exe /S"
@@ -67,11 +67,11 @@ jobs:
      install: 
          # Take 2 min...
        - choco uninstall -y mingw
-       - wget http://download.qt.io/archive/qt/5.12/5.12.6/qt-opensource-windows-x86-5.12.6.exe --no-check-certificate
+       - wget http://download.qt.io/archive/qt/5.12/5.12.6/qt-opensource-windows-x86-5.12.6.exe --no-check-certificate -nv
        - cmd //c "move /Y qt-opensource-windows-x86-5.12.6.exe %SystemDrive%\ "
-#       - wget http://download.qt.io/archive/online_installers/3.1/qt-unified-windows-x86-3.1.1-online.exe --no-check-certificate
+#       - wget http://download.qt.io/archive/online_installers/3.1/qt-unified-windows-x86-3.1.1-online.exe --no-check-certificate -nv
 #       - cmd //c "move /Y qt-unified-windows-x86-3.1.1-online.exe %SystemDrive%\ "
-       - wget http://www.ensta-bretagne.fr/lebars/Share/qt-installer-5.12.6-mingw73_32.qs --no-check-certificate
+       - wget http://www.ensta-bretagne.fr/lebars/Share/qt-installer-5.12.6-mingw73_32.qs --no-check-certificate -nv
        - cmd //c "move /Y qt-installer-5.12.6-mingw73_32.qs %SystemDrive%\ "
          # Take several min...
        - cmd //c "%SystemDrive%\qt-opensource-windows-x86-5.12.6.exe --verbose --script %SystemDrive%\qt-installer-5.12.6-mingw73_32.qs"
