@@ -1,4 +1,4 @@
-# Makefile for Linux, designed for Ubuntu 18.04. 
+# Designed for Ubuntu 18.04. 
 # You might need to install C/C++ development tools by typing :
 #    sudo apt-get install build-essential
 # in a terminal.
@@ -44,13 +44,16 @@ CFLAGS += -D DISABLE_UBLOXTHREAD
 
 CXXFLAGS += $(CFLAGS) -fpermissive
 
-# For Windows/MinGW
-#LDFLAGS += -lws2_32
-
 # For Linux, if static needed...
 #LDFLAGS += -static-libgcc -static-libstdc++ -static
 
-# Might need to remove -lrt for Mac OS...
+# For MinGW
+#LDFLAGS += -lws2_32 -lm
+
+# For Mac OS
+#LDFLAGS += -lm
+
+# For Linux
 LDFLAGS += -lrt -lm
 
 default: $(PROGS)
@@ -77,7 +80,7 @@ OSTime.o: OSTime.c OSTime.h OSCore.o
 Main.o: Main.cpp OSCore.h OSTime.h OSMisc.h OSNet.h OSComputerRS232Port.h Hokuyo.h IM483I.h MDM.h MES.h MiniSSC.h MT.h NMEADevice.h NMEAProtocol.h P33x.h PathfinderDVL.h Pololu.h RazorAHRS.h RPLIDAR.h RS232Port.h SBG.h Seanet.h SSC32.h SwarmonDevice.h ublox.h UBXProtocol.h 
 	$(CXX) $(CXXFLAGS) -c $<
 
-Test_devices: Main.o OSNet.o OSComputerRS232Port.o OSMisc.o OSTime.o OSCore.o
+Test_devices: Main.o OSComputerRS232Port.o OSNet.o OSMisc.o OSTime.o OSCore.o
 	$(CXX) $(CXXFLAGS) -o $@ $^ $(LDFLAGS)
 
 clean:

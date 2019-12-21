@@ -244,7 +244,7 @@ inline int OpenComputerRS232Port(HANDLE* phDev, char* szDevice)
 #else
 	memcpy(tstr, szDeviceTemp, sizeof(szDeviceTemp)/2);
 #endif // UNICODE
-	tstr[sizeof(tstr)-1] = 0;
+	tstr[sizeof(tstr)/sizeof(TCHAR)-1] = 0;
 
 	hDev = CreateFile( 
 		tstr,

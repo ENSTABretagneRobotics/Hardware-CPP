@@ -1,0 +1,80 @@
+language: cpp
+jobs:
+  include:
+   - name: "Ubuntu 18.04"
+     os: linux
+     dist: bionic
+     compiler: gcc
+     script: cmake . && cmake --build .
+#     script: cmake -D CMAKE_BUILD_TYPE=Release . && cmake --build . --parallel 
+
+   - name: "Windows"
+     os: windows
+     script: 
+       - cmd //c "cmake . & cmake --build . --config Release --target Test_devices --parallel"
+ 
+   - name: "Mac OS"
+     os: osx
+     osx_image: xcode10.1
+     script: cmake . && cmake --build . 
+#     script: cmake -D CMAKE_BUILD_TYPE=Release . && cmake --build . --parallel 
+
+   - name: "Windows MinGW 8.1.0 x64"
+     os: windows
+     compiler: gcc
+     install: 
+       - choco install -y make
+     script: 
+       - cmake -G "MSYS Makefiles" -D CMAKE_BUILD_TYPE=Release . && cmake --build . --parallel
+
+   - name: "Ubuntu 12.04"
+     os: linux
+     dist: precise
+     compiler: gcc
+     script: make && make clean && cmake -D CMAKE_BUILD_TYPE=Release . && cmake --build . 
+
+   - name: "Ubuntu 18.04 Qt"
+     os: linux
+     dist: bionic
+     compiler: gcc
+     before_install: 
+       - sudo apt-get -q update
+     install: 
+#       - wget http://www.ensta-bretagne.fr/lebars/Share/qt-sdk-linux-x86_64-opensource-2010.05.1.bin
+#       - chmod +x qt-sdk-linux-x86_64-opensource-2010.05.1.bin
+#         # Unattended mode has a bug, see https://bugreports.qt.io/browse/QTCREATORBUG-472...?
+#       - ./qt-sdk-linux-x86_64-opensource-2010.05.1.bin --mode unattended
+       sudo apt-get -y install qtcreator qt5-default
+     script: qmake && make
+
+   - name: "Windows Qt 2010.05 MinGW 4.4.0 x86"
+     os: windows
+     compiler: gcc
+     install: 
+         # Take 2 min...
+       - choco uninstall -y mingw
+       - wget http://www.ensta-bretagne.fr/lebars/Share/qt-sdk-win-opensource-2010.05.exe --no-check-certificate
+       - cmd //c "move /Y qt-sdk-win-opensource-2010.05.exe %SystemDrive%\ "
+         # Take several min...
+       - cmd //c "%SystemDrive%\qt-sdk-win-opensource-2010.05.exe /S"
+     script: 
+#       - cmd //c "%SystemDrive%\Qt\2010.05\bin\qtenv.bat & qmake -r -spec win32-g++ & mingw32-make -w"
+       - cmd //c "%SystemDrive%\Qt\2010.05\bin\qtenv.bat & qmake & mingw32-make"
+
+   - name: "Windows Qt 5.12.6 MinGW 7.3.0 x86"
+     os: windows
+     compiler: gcc
+     install: 
+         # Take 2 min...
+       - choco uninstall -y mingw
+       - wget http://download.qt.io/archive/qt/5.12/5.12.6/qt-opensource-windows-x86-5.12.6.exe --no-check-certificate
+       - cmd //c "move /Y qt-opensource-windows-x86-5.12.6.exe %SystemDrive%\ "
+#       - wget http://download.qt.io/archive/online_installers/3.1/qt-unified-windows-x86-3.1.1-online.exe --no-check-certificate
+#       - cmd //c "move /Y qt-unified-windows-x86-3.1.1-online.exe %SystemDrive%\ "
+       - wget http://www.ensta-bretagne.fr/lebars/Share/qt-installer-5.12.6-mingw73_32.qs --no-check-certificate
+       - cmd //c "move /Y qt-installer-5.12.6-mingw73_32.qs %SystemDrive%\ "
+         # Take several min...
+       - cmd //c "%SystemDrive%\qt-opensource-windows-x86-5.12.6.exe --verbose --script %SystemDrive%\qt-installer-5.12.6-mingw73_32.qs"
+#       - cmd //c "%SystemDrive%\qt-unified-windows-x86-3.1.1-online.exe --verbose --script %SystemDrive%\qt-installer-5.12.6-mingw73_32.qs"
+     script: 
+       - cmd //c "set PATH=C:\Qt\Qt5.12.6\5.12.6\mingw73_32\bin;C:/Qt/Qt5.12.6/Tools/mingw730_32\bin;%PATH% & qmake & mingw32-make"
