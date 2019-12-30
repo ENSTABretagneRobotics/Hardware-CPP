@@ -184,8 +184,14 @@ _ Windows CE : WINCE
 #endif // !WINCE
 
 #ifdef __GNUC__
-// C99 headers. Some headers are not supported by all the compilers or depends 
+// C99 headers. Some headers are not supported by all the compilers or depend 
 // on its options.
+
+// See https://stackoverflow.com/questions/3233054/error-int32-max-was-not-declared-in-this-scope
+#ifndef __STDC_LIMIT_MACROS
+#define __STDC_LIMIT_MACROS
+#endif // !__STDC_LIMIT_MACROS
+
 //#include <complex.h> // Complex arithmetic.
 //#include <fenv.h> // IEEE-style floating-point arithmetic.
 //#include <inttypes.h> // Integer types.

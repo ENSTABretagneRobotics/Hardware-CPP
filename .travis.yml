@@ -38,13 +38,14 @@ jobs:
      dist: bionic
      compiler: gcc
      before_install: 
-       - sudo apt-get -q update
+         # Allowed to fail...
+       - sudo apt-get -q update || true
      install: 
 #       - wget http://www.ensta-bretagne.fr/lebars/Share/qt-sdk-linux-x86_64-opensource-2010.05.1.bin
 #       - chmod +x qt-sdk-linux-x86_64-opensource-2010.05.1.bin
 #         # Unattended mode has a bug, see https://bugreports.qt.io/browse/QTCREATORBUG-472...?
 #       - ./qt-sdk-linux-x86_64-opensource-2010.05.1.bin --mode unattended
-       sudo apt-get -y install qtcreator qt5-default
+       - sudo apt-get -y install qtcreator qt5-default
      script: qmake && make
 
    - name: "Windows Qt 2010.05 MinGW 4.4.0 x86"
@@ -74,7 +75,7 @@ jobs:
        - wget http://www.ensta-bretagne.fr/lebars/Share/qt-installer-5.12.6-mingw73_32.qs --no-check-certificate -nv
        - cmd //c "move /Y qt-installer-5.12.6-mingw73_32.qs %SystemDrive%\ "
          # Take several min...
-       - cmd //c "%SystemDrive%\qt-opensource-windows-x86-5.12.6.exe --verbose --script %SystemDrive%\qt-installer-5.12.6-mingw73_32.qs"
-#       - cmd //c "%SystemDrive%\qt-unified-windows-x86-3.1.1-online.exe --verbose --script %SystemDrive%\qt-installer-5.12.6-mingw73_32.qs"
+       - cmd //c "%SystemDrive%\qt-opensource-windows-x86-5.12.6.exe --script %SystemDrive%\qt-installer-5.12.6-mingw73_32.qs"
+#       - cmd //c "%SystemDrive%\qt-unified-windows-x86-3.1.1-online.exe --script %SystemDrive%\qt-installer-5.12.6-mingw73_32.qs"
      script: 
        - cmd //c "set PATH=C:\Qt\Qt5.12.6\5.12.6\mingw73_32\bin;C:/Qt/Qt5.12.6/Tools/mingw730_32\bin;%PATH% & qmake & mingw32-make"
