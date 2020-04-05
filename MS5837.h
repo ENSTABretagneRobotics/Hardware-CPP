@@ -83,15 +83,7 @@ struct MS5837
 {
 	I2CBUS I2CBus;
 	uint16_t eeprom_coeff[MS5837_COEFFICIENT_NUMBERS+1];
-	uint32_t conversion_time[6] =
-	{
-		MS5837_CONVERSION_TIME_OSR_256,
-		MS5837_CONVERSION_TIME_OSR_512,
-		MS5837_CONVERSION_TIME_OSR_1024,
-		MS5837_CONVERSION_TIME_OSR_2048,
-		MS5837_CONVERSION_TIME_OSR_4096,
-		MS5837_CONVERSION_TIME_OSR_8192
-	};
+	uint32_t conversion_time[6];
 	BOOL ms5837_coeff_read;
 	FILE* pfSaveFile; // Used to save raw data, should be handled specifically...
 	MS5837DATA LastMS5837Data;
@@ -507,6 +499,16 @@ inline int ConnectMS5837(MS5837* pMS5837, char* szCfgFilePath)
 		return EXIT_FAILURE;
 	}
 
+	pMS5837->conversion_time[0] = MS5837_CONVERSION_TIME_OSR_256;
+	pMS5837->conversion_time[1] = MS5837_CONVERSION_TIME_OSR_512;
+	pMS5837->conversion_time[2] = MS5837_CONVERSION_TIME_OSR_1024;
+	pMS5837->conversion_time[3] = MS5837_CONVERSION_TIME_OSR_2048;
+	pMS5837->conversion_time[4] = MS5837_CONVERSION_TIME_OSR_4096;
+	pMS5837->conversion_time[5] = MS5837_CONVERSION_TIME_OSR_8192;
+
+	// Default value to ensure coefficients are read before converting temperature.
+	pMS5837->ms5837_coeff_read = FALSE;
+
 	if (ms5837_write_command(pMS5837, MS5837_RESET_COMMAND) != EXIT_SUCCESS)
 	{
 		printf("Unable to connect to a MS5837.\n");
@@ -515,9 +517,6 @@ inline int ConnectMS5837(MS5837* pMS5837, char* szCfgFilePath)
 	}
 
 	mSleep(10);
-
-	// Default value to ensure coefficients are read before converting temperature.
-	pMS5837->ms5837_coeff_read = FALSE;
 
 	printf("MS5837 connected.\n");
 
