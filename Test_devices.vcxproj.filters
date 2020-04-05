@@ -21,9 +21,6 @@
     <ClCompile Include="Main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="OSComputerRS232Port.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="OSCore.c">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -113,6 +110,15 @@
     <ClInclude Include="SBG.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="MS5837.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="I2CBus.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="OSComputerI2CBus.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Text Include="ReadMe.txt" />
@@ -168,6 +174,9 @@
       <Filter>Input Files</Filter>
     </Text>
     <Text Include="CMakeLists.txt" />
+    <Text Include="MS58370.txt">
+      <Filter>Input Files</Filter>
+    </Text>
   </ItemGroup>
   <ItemGroup>
     <None Include="Makefile" />

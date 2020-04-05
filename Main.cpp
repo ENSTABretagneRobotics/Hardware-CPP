@@ -5,6 +5,7 @@
 #include "ublox.h"
 #include "SwarmonDevice.h"
 #include "P33x.h"
+#include "MS5837.h"
 #include "SSC32.h"
 #include "Pololu.h"
 #include "MiniSSC.h"
@@ -77,6 +78,8 @@ int main(int argc, char* argv[])
 	SWARMONDEVICE swarmondevice;
 	SWARMONDATA swarmondata;
 	P33X p33x;
+	MS5837 ms5837;
+	MS5837DATA ms5837data;
 	double value = 0;
 	int ivalue = 0;
 	SSC32 ssc32;
@@ -130,6 +133,8 @@ int main(int argc, char* argv[])
 	memset(&swarmondevice, 0, sizeof(SWARMONDEVICE));
 	memset(&swarmondata, 0, sizeof(swarmondata));
 	memset(&p33x, 0, sizeof(P33X));
+	memset(&ms5837, 0, sizeof(MS5837));
+	memset(&ms5837data, 0, sizeof(MS5837DATA));
 	memset(&ssc32, 0, sizeof(SSC32));
 	memset(&pololu, 0, sizeof(POLOLU));
 	memset(&minissc, 0, sizeof(MINISSC));
@@ -148,6 +153,7 @@ int main(int argc, char* argv[])
 	//Connectublox(&ublox, "ublox0.txt");
 	//ConnectSwarmonDevice(&swarmondevice, "SwarmonDevice0.txt");
 	//ConnectP33x(&p33x, "P33x0.txt");
+	//ConnectMS5837(&ms5837, "MS58370.txt");
 	//ConnectSSC32(&ssc32, "SSC320.txt");
 	//ConnectPololu(&pololu, "Pololu0.txt");
 	//ConnectMiniSSC(&minissc, "MiniSSC0.txt");
@@ -192,6 +198,9 @@ int main(int argc, char* argv[])
 
 		//GetPressureP33x(&p33x, &value);
 		//printf("%f\n", value);
+
+		//GetLatestDataMS5837(&ms5837, &ms5837data);
+		//printf("%f;%f\n", ms5837data.pressure, ms5837data.temperature);
 
 		//u1 = u2;
 		//u2 = -u1;
@@ -257,6 +266,7 @@ int main(int argc, char* argv[])
 	//DisconnectMiniSSC(&minissc);
 	//DisconnectPololu(&pololu);
 	//DisconnectSSC32(&ssc32);
+	//DisconnectMS5837(&ms5837);
 	//DisconnectP33x(&p33x);
 	//DisconnectSwarmonDevice(&swarmondevice);
 	//Disconnectublox(&ublox);

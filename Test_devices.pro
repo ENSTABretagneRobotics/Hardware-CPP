@@ -19,6 +19,7 @@ DEFINES += DISABLE_IM483ITHREAD
 DEFINES += DISABLE_MDMTHREAD
 DEFINES += DISABLE_MESTHREAD
 DEFINES += DISABLE_MINISSCTHREAD
+DEFINES += DISABLE_MS5837HREAD
 DEFINES += DISABLE_MTTHREAD
 DEFINES += DISABLE_NMEADEVICETHREAD
 DEFINES += DISABLE_P33XTHREAD
@@ -39,6 +40,8 @@ else {
  DEFINES += NDEBUG
 }
 win32:DEFINES += WIN32 _CONSOLE
+mac:DEFINES += USE_OLD_CHRONO
+unix:DEFINES += ENABLE_COMPUTERI2CBUS_SUPPORT
 QMAKE_CFLAGS += -Wall -Wno-unknown-pragmas -Wextra
 #QMAKE_CFLAGS += -Winline
 QMAKE_CXXFLAGS += $$QMAKE_CFLAGS -fpermissive
@@ -49,7 +52,6 @@ unix:LIBS += -lrt -lm
 
 SOURCES += \
     Main.cpp \
-    OSComputerRS232Port.c \
     OSCore.c \
     OSMisc.c \
     OSNet.c \
@@ -57,13 +59,16 @@ SOURCES += \
 
 HEADERS += \
     Hokuyo.h \
+    I2CBus.h \
     IM483I.h \
     MDM.h \
     MES.h \
     MiniSSC.h \
+    MS5837.h \
     MT.h \
     NMEADevice.h \
     NMEAProtocol.h \
+    OSComputerI2CBus.h \
     OSComputerRS232Port.h \
     OSCore.h \
     OSMisc.h \

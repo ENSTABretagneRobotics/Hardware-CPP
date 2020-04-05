@@ -26,6 +26,7 @@ CFLAGS += -D DISABLE_IM483ITHREAD
 CFLAGS += -D DISABLE_MDMTHREAD
 CFLAGS += -D DISABLE_MESTHREAD
 CFLAGS += -D DISABLE_MINISSCTHREAD
+CFLAGS += -D DISABLE_MS5837THREAD
 CFLAGS += -D DISABLE_MTTHREAD
 CFLAGS += -D DISABLE_NMEADEVICETHREAD
 CFLAGS += -D DISABLE_P33XTHREAD
@@ -54,14 +55,12 @@ CXXFLAGS += $(CFLAGS) -fpermissive
 #LDFLAGS += -lm
 
 # For Linux
+CFLAGS += -D ENABLE_COMPUTERI2CBUS_SUPPORT
 LDFLAGS += -lrt -lm
 
 default: $(PROGS)
 
 ############################# OSUtils #############################
-
-OSComputerRS232Port.o: OSComputerRS232Port.c OSComputerRS232Port.h OSTime.o
-	$(CC) $(CFLAGS) -c $<
 
 OSCore.o: OSCore.c OSCore.h
 	$(CC) $(CFLAGS) -c $<
@@ -77,10 +76,10 @@ OSTime.o: OSTime.c OSTime.h OSCore.o
 
 ############################# PROGS #############################
 
-Main.o: Main.cpp OSCore.h OSTime.h OSMisc.h OSNet.h OSComputerRS232Port.h Hokuyo.h IM483I.h MDM.h MES.h MiniSSC.h MT.h NMEADevice.h NMEAProtocol.h P33x.h PathfinderDVL.h Pololu.h RazorAHRS.h RPLIDAR.h RS232Port.h SBG.h Seanet.h SSC32.h SwarmonDevice.h ublox.h UBXProtocol.h 
+Main.o: Main.cpp OSCore.h OSTime.h OSMisc.h OSNet.h OSComputerRS232Port.h OSComputerI2CBus.h Hokuyo.h IM483I.h MDM.h MES.h MiniSSC.h MS5837.h MT.h NMEADevice.h NMEAProtocol.h P33x.h PathfinderDVL.h Pololu.h RazorAHRS.h RPLIDAR.h RS232Port.h SBG.h Seanet.h SSC32.h SwarmonDevice.h ublox.h UBXProtocol.h 
 	$(CXX) $(CXXFLAGS) -c $<
 
-Test_devices: Main.o OSComputerRS232Port.o OSNet.o OSMisc.o OSTime.o OSCore.o
+Test_devices: Main.o OSNet.o OSMisc.o OSTime.o OSCore.o
 	$(CXX) $(CXXFLAGS) -o $@ $^ $(LDFLAGS)
 
 clean:
