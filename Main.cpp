@@ -9,6 +9,7 @@
 #include "SSC32.h"
 #include "Pololu.h"
 #include "MiniSSC.h"
+#include "Roboteq.h"
 #include "IM483I.h"
 #include "MDM.h"
 #include "MES.h"
@@ -85,6 +86,7 @@ int main(int argc, char* argv[])
 	SSC32 ssc32;
 	POLOLU pololu;
 	MINISSC minissc;
+	ROBOTEQ roboteq;
 	IM483I im483i;
 	double u1 = 0.25, u2 = -0.25;
 	MDM mdm;
@@ -138,6 +140,7 @@ int main(int argc, char* argv[])
 	memset(&ssc32, 0, sizeof(SSC32));
 	memset(&pololu, 0, sizeof(POLOLU));
 	memset(&minissc, 0, sizeof(MINISSC));
+	memset(&roboteq, 0, sizeof(ROBOTEQ));
 	memset(&im483i, 0, sizeof(IM483I));
 	memset(&mdm, 0, sizeof(MDM));
 	memset(&mes, 0, sizeof(MES));
@@ -157,6 +160,7 @@ int main(int argc, char* argv[])
 	//ConnectSSC32(&ssc32, "SSC320.txt");
 	//ConnectPololu(&pololu, "Pololu0.txt");
 	//ConnectMiniSSC(&minissc, "MiniSSC0.txt");
+	//ConnectRoboteq(&roboteq, "Roboteq0.txt");
 	//ConnectIM483I(&im483i, "IM483I0.txt");
 	//ConnectMDM(&mdm, "MDM0.txt");
 	//ConnectMES(&mes, "MES0.txt");
@@ -207,6 +211,7 @@ int main(int argc, char* argv[])
 		//SetThrustersSSC32(&ssc32, u1, u2);
 		//SetThrustersPololu(&pololu, u1, u2);
 		//SetThrustersMiniSSC(&minissc, u1, u2);
+		//SetThrustersRoboteq(&roboteq, u1, u2);
 		//SetMaxAngleIM483I(&im483i, u1);
 		//printf("%f;%f\n", u1, u2);
 		//ivalue = 0;
@@ -236,6 +241,8 @@ int main(int argc, char* argv[])
 		//quality = 0;
 		//GetScanDataResponseRPLIDAR(&rplidar, &d, &angle, &bNewScan, &quality);
 		//printf("%f rad; %f m\n", angle, d);
+		//GetExpressScanDataResponseRPLIDAR(&rplidar, distances, angles, &bNewScan);
+		//printf("%f rad; %f m\n", angles[0], distances[0]);
 
 		//angle = 0; // Will receive the angle of the ping in deg.
 		//memset(scanline, 0, sizeof(scanline)); // Will receive the data of the ping (NBins values in [0..255]).
@@ -263,6 +270,7 @@ int main(int argc, char* argv[])
 	//DisconnectMES(&mes);
 	//DisconnectMDM(&mdm);
 	//DisconnectIM483I(&im483i);
+	//DisconnectRoboteq(&roboteq);
 	//DisconnectMiniSSC(&minissc);
 	//DisconnectPololu(&pololu);
 	//DisconnectSSC32(&ssc32);

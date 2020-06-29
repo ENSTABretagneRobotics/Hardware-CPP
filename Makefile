@@ -33,6 +33,7 @@ CFLAGS += -D DISABLE_P33XTHREAD
 CFLAGS += -D DISABLE_PATHFINDERDVLTHREAD
 CFLAGS += -D DISABLE_POLOLUTHREAD
 CFLAGS += -D DISABLE_RAZORAHRSTHREAD
+CFLAGS += -D DISABLE_ROBOTEQTHREAD
 CFLAGS += -D DISABLE_RPLIDARTHREAD
 CFLAGS += -D DISABLE_SBGTHREAD
 CFLAGS += -D DISABLE_SEANETTHREAD
@@ -76,7 +77,7 @@ OSTime.o: OSTime.c OSTime.h OSCore.o
 
 ############################# PROGS #############################
 
-Main.o: Main.cpp OSCore.h OSTime.h OSMisc.h OSNet.h OSComputerRS232Port.h OSComputerI2CBus.h Hokuyo.h IM483I.h MDM.h MES.h MiniSSC.h MS5837.h MT.h NMEADevice.h NMEAProtocol.h P33x.h PathfinderDVL.h Pololu.h RazorAHRS.h RPLIDAR.h RS232Port.h SBG.h Seanet.h SSC32.h SwarmonDevice.h ublox.h UBXProtocol.h 
+Main.o: Main.cpp OSCore.h OSTime.h OSMisc.h OSNet.h OSComputerRS232Port.h OSComputerI2CBus.h Hokuyo.h IM483I.h MDM.h MES.h MiniSSC.h MS5837.h MT.h NMEADevice.h NMEAProtocol.h P33x.h PathfinderDVL.h Pololu.h RazorAHRS.h Roboteq.h RPLIDAR.h RS232Port.h SBG.h Seanet.h SSC32.h SwarmonDevice.h ublox.h UBXProtocol.h 
 	$(CXX) $(CXXFLAGS) -c $<
 
 Test_devices: Main.o OSNet.o OSMisc.o OSTime.o OSCore.o

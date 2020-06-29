@@ -119,6 +119,9 @@
     <ClInclude Include="OSComputerI2CBus.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Roboteq.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Text Include="ReadMe.txt" />
@@ -175,6 +178,9 @@
     </Text>
     <Text Include="CMakeLists.txt" />
     <Text Include="MS58370.txt">
+      <Filter>Input Files</Filter>
+    </Text>
+    <Text Include="Roboteq0.txt">
       <Filter>Input Files</Filter>
     </Text>
   </ItemGroup>

@@ -88,7 +88,7 @@
 #define NB_CABINS_EXPRESS_SCAN_DATA_RESPONSE_RPLIDAR 16
 #define NB_MEASUREMENTS_EXPRESS_SCAN_DATA_RESPONSE_RPLIDAR (2*NB_CABINS_EXPRESS_SCAN_DATA_RESPONSE_RPLIDAR)
 
-#define MAX_NB_MEASUREMENTS_PER_SCAN_RPLIDAR 2048
+#define MAX_NB_MEASUREMENTS_PER_SCAN_RPLIDAR 8192
 
 struct RPLIDAR
 {
@@ -541,6 +541,13 @@ inline int StartExpressScanRequestRPLIDAR(RPLIDAR* pRPLIDAR)
 	{ 
 		printf("A RPLIDAR is not responding correctly. \n");
 		return EXIT_FAILURE;	
+	}
+
+	// The first data response might take some time to come, see https://github.com/ENSTABretagneRobotics/Hardware-MATLAB/issues/2...
+	if (WaitForRS232Port(&pRPLIDAR->RS232Port, 1500, 5) != EXIT_SUCCESS)
+	{
+		printf("A RPLIDAR is not responding correctly. \n");
+		return EXIT_FAILURE;
 	}
 
 	// Receive the first data response (2 data responses needed for angles computation...).

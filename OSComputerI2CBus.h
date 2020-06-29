@@ -61,7 +61,9 @@ Debug macros specific to OSComputerI2CBus.
 #else 
 #include <sys/ioctl.h>
 //#include <i2c/smbus.h>
+#ifdef __linux__
 #include <linux/i2c-dev.h>
+#endif // __linux__
 #ifndef DISABLE_SELECT_OSCOMPUTERI2CBUS
 #include <sys/select.h>
 #endif // !DISABLE_SELECT_OSCOMPUTERI2CBUS
