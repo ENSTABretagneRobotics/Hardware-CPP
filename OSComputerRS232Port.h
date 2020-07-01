@@ -65,6 +65,9 @@ Debug macros specific to OSComputerRS232Port.
 #endif // !DISABLE_SELECT_OSCOMPUTERRS232PORT
 #if !defined(DISABLE_CUSTOM_BAUDRATE) || !defined(DISABLE_FORCE_CLEAR_DTR) || defined(ENABLE_DTR_FUNCTIONS)
 #include <sys/ioctl.h>
+#ifdef __APPLE__
+#include <IOKit/serial/ioss.h>
+#endif // __APPLE__
 #ifdef __linux__
 #include <linux/serial.h>
 #endif // __linux__
@@ -663,7 +666,7 @@ inline int SetOptionsComputerRS232Port(HANDLE hDev, UINT BaudRate, BYTE ParityMo
 		// https://stackoverflow.com/questions/4968529/how-to-set-baud-rate-to-307200-on-linux/7152671, 
 		// https://stackoverflow.com/questions/37710525/including-termios-h-and-asm-termios-h-in-the-same-project.
 
-#if defined(MAC_OS_X_VERSION_10_4) && (MAC_OS_X_VERSION_MIN_REQUIRED >= MAC_OS_X_VERSION_10_4)
+#if defined(__APPLE__) && defined(IOSSIOSPEED)
 		// Starting with Tiger, the IOSSIOSPEED ioctl can be used to set arbitrary baud rates
 		// other than those specified by POSIX. The driver for the underlying serial hardware
 		// ultimately determines which baud rates can be used. This ioctl sets both the input
