@@ -180,12 +180,12 @@ int main(int argc, char* argv[])
 		//GetLatestDataMT(&mt, &mtdata);
 		//printf("%f %f %f\n", mtdata.Yaw*180.0/M_PI, mtdata.Pitch*180.0/M_PI, mtdata.Roll*180.0/M_PI);
 
-#ifdef ENABLE_SBG_SUPPORT
+#ifdef ENABLE_SBG_SDK_SUPPORT
 		//GetLatestDataSBG(&sbg, &sbgdata);
 #else
 		// Warning : need to be run in a loop without delays...
 		//GetFrameSBG(&sbg, &sbgdata);
-#endif // ENABLE_SBG_SUPPORT
+#endif // ENABLE_SBG_SDK_SUPPORT
 		//printf("%f %f %f\n", sbgdata.Yaw*180.0/M_PI, sbgdata.Pitch*180.0/M_PI, sbgdata.Roll*180.0/M_PI);
 
 		GetLatestDataRazorAHRS(&razorahrs, &razorahrsdata);
