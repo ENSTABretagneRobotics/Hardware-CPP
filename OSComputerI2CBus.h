@@ -147,7 +147,7 @@ inline int OpenComputerI2CBus(HANDLE* phDev, char* szDevice)
 	// the FNDELAY option:
 	//if (fcntl(fd, F_SETFL, 0) == (-1))
 	//{
-	//	PRINT_DEBUG_ERROR_OSCOMPUTERI2CBUS(("OpenComputerI2CBus error (%s) : %s"
+	//	PRINT_DEBUG_ERROR_OSCOMPUTERI2CBUS(("OpenComputerI2CBus error (%s) : (F_SETFL) %s"
 	//		"(szDevice=%s)\n", 
 	//		strtime_m(), 
 	//		GetLastErrorMsg(), 
@@ -232,7 +232,7 @@ inline int SetSlaveComputerI2CBus(HANDLE hDev, UINT addr, BOOL bTenBit, BOOL bPE
 #else 
 	if (ioctl((intptr_t)hDev, I2C_SLAVE, addr) != EXIT_SUCCESS)
 	{
-		PRINT_DEBUG_ERROR_OSCOMPUTERI2CBUS(("SetSlaveComputerI2CBus error (%s) : %s"
+		PRINT_DEBUG_ERROR_OSCOMPUTERI2CBUS(("SetSlaveComputerI2CBus error (%s) : (I2C_SLAVE) %s"
 			"(hDev=%#x, addr=%u, bTenBit=%d, bPEC=%d, nbretries=%u, timeout=%u)\n",
 			strtime_m(),
 			GetLastErrorMsg(),
@@ -241,7 +241,7 @@ inline int SetSlaveComputerI2CBus(HANDLE hDev, UINT addr, BOOL bTenBit, BOOL bPE
 	}
 	if (ioctl((intptr_t)hDev, I2C_TENBIT, bTenBit) != EXIT_SUCCESS)
 	{
-		PRINT_DEBUG_WARNING_OSCOMPUTERI2CBUS(("SetSlaveComputerI2CBus error (%s) : %s"
+		PRINT_DEBUG_WARNING_OSCOMPUTERI2CBUS(("SetSlaveComputerI2CBus error (%s) : (I2C_TENBIT) %s"
 			"(hDev=%#x, addr=%u, bTenBit=%d, bPEC=%d, nbretries=%u, timeout=%u)\n",
 			strtime_m(),
 			GetLastErrorMsg(),
@@ -249,7 +249,7 @@ inline int SetSlaveComputerI2CBus(HANDLE hDev, UINT addr, BOOL bTenBit, BOOL bPE
 	}
 	if (ioctl((intptr_t)hDev, I2C_PEC, bPEC) != EXIT_SUCCESS)
 	{
-		PRINT_DEBUG_WARNING_OSCOMPUTERI2CBUS(("SetSlaveComputerI2CBus error (%s) : %s"
+		PRINT_DEBUG_WARNING_OSCOMPUTERI2CBUS(("SetSlaveComputerI2CBus error (%s) : (I2C_PEC) %s"
 			"(hDev=%#x, addr=%u, bTenBit=%d, bPEC=%d, nbretries=%u, timeout=%u)\n",
 			strtime_m(),
 			GetLastErrorMsg(),
@@ -257,7 +257,7 @@ inline int SetSlaveComputerI2CBus(HANDLE hDev, UINT addr, BOOL bTenBit, BOOL bPE
 	}
 	if (ioctl((intptr_t)hDev, I2C_RETRIES, nbretries) != EXIT_SUCCESS)
 	{
-		PRINT_DEBUG_WARNING_OSCOMPUTERI2CBUS(("SetSlaveComputerI2CBus error (%s) : %s"
+		PRINT_DEBUG_WARNING_OSCOMPUTERI2CBUS(("SetSlaveComputerI2CBus error (%s) : (I2C_RETRIES) %s"
 			"(hDev=%#x, addr=%u, bTenBit=%d, bPEC=%d, nbretries=%u, timeout=%u)\n",
 			strtime_m(),
 			GetLastErrorMsg(),
@@ -265,7 +265,7 @@ inline int SetSlaveComputerI2CBus(HANDLE hDev, UINT addr, BOOL bTenBit, BOOL bPE
 	}
 	if (ioctl((intptr_t)hDev, I2C_TIMEOUT, timeout/10) != EXIT_SUCCESS)
 	{
-		PRINT_DEBUG_WARNING_OSCOMPUTERI2CBUS(("SetSlaveComputerI2CBus error (%s) : %s"
+		PRINT_DEBUG_WARNING_OSCOMPUTERI2CBUS(("SetSlaveComputerI2CBus error (%s) : (I2C_TIMEOUT) %s"
 			"(hDev=%#x, addr=%u, bTenBit=%d, bPEC=%d, nbretries=%u, timeout=%u)\n",
 			strtime_m(),
 			GetLastErrorMsg(),
@@ -297,7 +297,7 @@ inline int CheckAvailableBytesComputerI2CBus(HANDLE hDev)
 
 	if (ioctl((intptr_t)hDev, FIONREAD, &bytes_avail) != EXIT_SUCCESS)
 	{
-		PRINT_DEBUG_ERROR_OSCOMPUTERI2CBUS(("CheckAvailableBytesComputerI2CBus error (%s) : %s(hDev=%#x)\n",
+		PRINT_DEBUG_ERROR_OSCOMPUTERI2CBUS(("CheckAvailableBytesComputerI2CBus error (%s) : (FIONREAD) %s(hDev=%#x)\n",
 			strtime_m(),
 			GetLastErrorMsg(),
 			hDev));
@@ -351,7 +351,7 @@ inline int WaitForComputerI2CBus(HANDLE hDev, int timeout, int checkingperiod)
 		else
 		{
 			StopChronoQuick(&chrono);
-			PRINT_DEBUG_ERROR_OSCOMPUTERI2CBUS(("WaitForComputerI2CBus error (%s) : %s"
+			PRINT_DEBUG_ERROR_OSCOMPUTERI2CBUS(("WaitForComputerI2CBus error (%s) : (FIONREAD) %s"
 				"(hDev=%#x, timeout=%d, checkingperiod=%d)\n",
 				strtime_m(),
 				GetLastErrorMsg(),

@@ -615,7 +615,7 @@ inline int setsocketblocking(SOCKET sock, BOOL blocking)
 
 	if (ioctlsocket(sock, FIONBIO, &blockingMode) != NO_ERROR)
 	{
-		PRINT_DEBUG_ERROR_OSNET(("setsocketblocking error (%s) : %s(sock=%d, blocking=%d)\n",
+		PRINT_DEBUG_ERROR_OSNET(("setsocketblocking error (%s) : (FIONBIO) %s(sock=%d, blocking=%d)\n",
 			strtime_m(),
 			WSAGetLastErrorMsg(),
 			(int)sock, (int)blocking));
@@ -626,7 +626,7 @@ inline int setsocketblocking(SOCKET sock, BOOL blocking)
 
 	if (flags == -1)
 	{
-		PRINT_DEBUG_ERROR_OSNET(("setsocketblocking error (%s) : %s(sock=%d, blocking=%d)\n",
+		PRINT_DEBUG_ERROR_OSNET(("setsocketblocking error (%s) : (F_GETFL) %s(sock=%d, blocking=%d)\n",
 			strtime_m(),
 			WSAGetLastErrorMsg(),
 			(int)sock, (int)blocking));
@@ -635,7 +635,7 @@ inline int setsocketblocking(SOCKET sock, BOOL blocking)
 	flags = (blocking? (flags&~O_NONBLOCK): (flags|O_NONBLOCK));
 	if (fcntl(sock, F_SETFL, flags) != 0)
 	{
-		PRINT_DEBUG_ERROR_OSNET(("setsocketblocking error (%s) : %s(sock=%d, blocking=%d)\n",
+		PRINT_DEBUG_ERROR_OSNET(("setsocketblocking error (%s) : (F_SETFL) %s(sock=%d, blocking=%d)\n",
 			strtime_m(),
 			WSAGetLastErrorMsg(),
 			(int)sock, (int)blocking));
@@ -1736,7 +1736,7 @@ inline int checkavailablebytessocket(SOCKET sock)
 
 	if (ioctlsocket(sock, FIONREAD, &bytes_avail) != EXIT_SUCCESS)
 	{
-		PRINT_DEBUG_ERROR_OSNET(("checkavailablebytessocket error (%s) : %s(sock=%d)\n", 
+		PRINT_DEBUG_ERROR_OSNET(("checkavailablebytessocket error (%s) : (FIONREAD) %s(sock=%d)\n", 
 			strtime_m(), 
 			WSAGetLastErrorMsg(), 
 			(int)sock));
@@ -2690,7 +2690,8 @@ inline int GetAddrPortTypeFromDevPath(char* szDevPath, char* address, size_t add
 		if ((addresslen < tmplen+1)||(portlen < strlen(ptr+1)+1)) return EXIT_FAILURE;
 		memcpy(address, szDevPath, tmplen);
 		address[tmplen+1] = 0;
-		strcpy(port, ptr+1);
+		//strcpy(port, ptr+1);
+		sprintf(port, "%d", atoi(ptr+1)); // Other non-digit characters may follow the port...
 		*pDevType = TCP_CLIENT_DEV_TYPE_OSNET;
 	}
 

@@ -265,8 +265,7 @@ $RECYCLE.BIN/
 
 TODO/
 !*ReadMe.txt
+Upgrade*
 Test_devices_Debug.bat
 Test_devices_Release.bat
-UpgradeOSUtils.bat
-UpgradeHardware.bat
 rawmdm.txt
