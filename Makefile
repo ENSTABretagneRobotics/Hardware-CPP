@@ -41,7 +41,7 @@ CFLAGS += -D DISABLE_SSC32THREAD
 CFLAGS += -D DISABLE_SWARMONDEVICETHREAD
 CFLAGS += -D DISABLE_UBLOXTHREAD
 
-# Depending on your OS (old Linux or Mac OS)...
+# Depending on your OS (old Linux or macOS)...
 #CFLAGS += -D USE_OLD_CHRONO
 
 CXXFLAGS += $(CFLAGS) -fpermissive
@@ -52,7 +52,7 @@ CXXFLAGS += $(CFLAGS) -fpermissive
 # For MinGW
 #LDFLAGS += -lws2_32 -lm
 
-# For Mac OS
+# For macOS
 #LDFLAGS += -lm
 
 # For Linux

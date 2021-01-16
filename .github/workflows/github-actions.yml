@@ -1,0 +1,112 @@
+on: [push, pull_request]
+jobs:
+ j1:
+    name: Ubuntu 18.04
+    runs-on: ubuntu-18.04
+    steps: 
+    - uses: actions/checkout@v2
+    - run: cmake  . && cmake --build .
+#    - run: cmake -D CMAKE_BUILD_TYPE=Release . && cmake --build . --parallel
+
+ j2:
+    name: Windows
+    runs-on: windows-latest
+    steps: 
+    - uses: actions/checkout@v2
+    - run: cmake . & cmake --build . --config Release --target Test_devices --parallel
+      shell: cmd
+
+ j3:
+    name: macOS 10.15
+    runs-on: macos-10.15
+    steps: 
+    - uses: actions/checkout@v2
+    - run: cmake  . && cmake --build .
+#    - run: cmake -D CMAKE_BUILD_TYPE=Release . && cmake --build . --parallel
+
+ j4:
+    name: Windows MinGW 8.1.0 x64
+    runs-on: windows-latest
+    steps: 
+    - uses: actions/checkout@v2
+#    - run: choco install -y make
+    - run: cmake -G "MSYS Makefiles" -D CMAKE_BUILD_TYPE=Release . && cmake --build . --parallel
+      shell: bash
+
+ j5:
+    name: Ubuntu 16.04
+    runs-on: ubuntu-16.04
+    steps: 
+    - uses: actions/checkout@v2
+    - run: make && make clean && cmake -D CMAKE_BUILD_TYPE=Release . && cmake --build .
+
+ j6:
+    name: Ubuntu 18.04 Qt
+    runs-on: ubuntu-18.04
+    steps: 
+    - uses: actions/checkout@v2
+    - run: |
+        sudo apt-get -q update || true # Allowed to fail...
+        #wget http://www.ensta-bretagne.fr/lebars/Share/qt-sdk-linux-x86_64-opensource-2010.05.1.bin
+        #chmod +x qt-sdk-linux-x86_64-opensource-2010.05.1.bin
+        # Unattended mode has a bug, see https://bugreports.qt.io/browse/QTCREATORBUG-472...?
+        #./qt-sdk-linux-x86_64-opensource-2010.05.1.bin --mode unattended
+        sudo apt-get -y install qtcreator qt5-default
+    - run: qmake && make
+
+ j7:
+    name: Windows Qt 2010.05 MinGW 4.4.0 x86
+    runs-on: windows-latest
+    steps: 
+    - uses: actions/checkout@v2
+#    - run: choco install -y -r --no-progress wget
+    - run: |         
+        (New-Object System.Net.WebClient).DownloadFile("http://www.ensta-bretagne.fr/lebars/Share/windows_extra_tools.zip", "C:\Windows\Temp\windows_extra_tools.zip") 
+        7z x C:\Windows\Temp\windows_extra_tools.zip -o"C:\Windows" -y
+      shell: pwsh
+#    - run: |
+#        rem Take 5 min...
+#        choco uninstall -y mingw
+#      shell: cmd
+    - run: |
+        wget http://www.ensta-bretagne.fr/lebars/Share/qt-sdk-win-opensource-2010.05.exe --no-check-certificate -nv
+        move /Y qt-sdk-win-opensource-2010.05.exe %SystemDrive%\
+        rem Take several min...
+        %SystemDrive%\qt-sdk-win-opensource-2010.05.exe /S
+        del /f /q %SystemDrive%\qt-sdk-win-opensource-2010.05.exe
+      shell: cmd
+    - run: |
+        rem %SystemDrive%\Qt\2010.05\bin\qtenv.bat & qmake -r -spec win32-g++ & mingw32-make -w
+        %SystemDrive%\Qt\2010.05\bin\qtenv.bat & qmake & mingw32-make
+      shell: cmd
+
+ j8:
+    name: Windows Qt 5.12.6 MinGW 7.3.0 x86
+    runs-on: windows-latest
+    steps: 
+    - uses: actions/checkout@v2
+#    - run: choco install -y -r --no-progress wget
+    - run: |
+        (New-Object System.Net.WebClient).DownloadFile("http://www.ensta-bretagne.fr/lebars/Share/windows_extra_tools.zip", "C:\Windows\Temp\windows_extra_tools.zip") 
+        7z x C:\Windows\Temp\windows_extra_tools.zip -o"C:\Windows" -y
+      shell: pwsh
+#    - run: |
+#        rem Take 5 min...
+#        choco uninstall -y mingw
+#      shell: cmd
+    - run: |
+        wget http://download.qt.io/archive/qt/5.12/5.12.6/qt-opensource-windows-x86-5.12.6.exe --no-check-certificate -nv
+        move /Y qt-opensource-windows-x86-5.12.6.exe %SystemDrive%\
+        wget http://www.ensta-bretagne.fr/lebars/Share/qt-installer-5.12.6-mingw73_32.qs --no-check-certificate -nv
+        move /Y qt-installer-5.12.6-mingw73_32.qs %SystemDrive%\
+        netsh advfirewall set allprofiles state on
+        netsh advfirewall firewall add rule name="Qt offline installer" dir=out action=block program="%SystemDrive%\qt-opensource-windows-x86-5.12.6.exe" enable=yes
+        rem Take several min...
+        %SystemDrive%\qt-opensource-windows-x86-5.12.6.exe --script %SystemDrive%\qt-installer-5.12.6-mingw73_32.qs
+        netsh advfirewall firewall del rule name="Qt offline installer"
+        netsh advfirewall set allprofiles state off
+        del /f /q %SystemDrive%\qt-opensource-windows-x86-5.12.6.exe
+      shell: cmd
+    - run: |
+        set PATH=C:\Qt\Qt5.12.6\5.12.6\mingw73_32\bin;C:\Qt\Qt5.12.6\Tools\mingw730_32\bin;%PATH% & qmake & mingw32-make
+      shell: cmd
