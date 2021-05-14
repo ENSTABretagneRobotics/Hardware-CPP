@@ -252,6 +252,20 @@ inline double Pressure2Height(double pressure, double pressureref, double densit
 }
 
 /*
+Get the pressure from the depth (pressure difference = density x g x height).
+
+double depth : (IN) Depth in m.
+double pressureref : (IN) Pressure at the surface in bar, used as reference (e.g. 1).
+double density : (IN) Water density in kg/m3 (e.g. 1000).
+
+Return : The pressure in bar.
+*/
+inline double Height2Pressure(double height, double pressureref, double density)
+{
+	return -(density*STANDARD_GRAVITY)*height/1e5+pressureref;
+}
+
+/*
 Return an angle between 0 and 2*M_PI.
 
 double theta : (IN) Value.

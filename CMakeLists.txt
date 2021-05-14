@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 2.8...3.12)
+cmake_minimum_required(VERSION 2.8...3.16)
 
 project(Test_devices)
 

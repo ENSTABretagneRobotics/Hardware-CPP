@@ -1281,10 +1281,47 @@ inline int GetDTRState(HANDLE hDev, BOOL* pbClear)
 Check for any data available to read on a computer RS232 port.
 
 HANDLE hDev : (IN) Identifier of the computer RS232 port.
+int* pNbBytesAvail : (INOUT) Valid pointer that will receive the number of bytes currently 
+available. Ignored if NULL.
 
 Return : EXIT_SUCCESS if there is data to read, EXIT_TIMEOUT if there is currently no data
  available or EXIT_FAILURE if there is an error.
 */
+inline int CheckAvailBytesComputerRS232Port(HANDLE hDev, int* pNbBytesAvail)
+{
+#ifdef _WIN32
+	COMSTAT stats;
+
+	memset(&stats, 0, sizeof(COMSTAT));
+	if (!ClearCommError(hDev, NULL, &stats))
+	{
+		PRINT_DEBUG_ERROR_OSCOMPUTERRS232PORT(("CheckAvailableBytesComputerRS232Port error (%s) : %s(hDev=%#x)\n", 
+			strtime_m(), 
+			GetLastErrorMsg(), 
+			hDev));
+		return EXIT_FAILURE;
+	}
+	if (stats.cbInQue <= 0) return EXIT_TIMEOUT;
+	if (pNbBytesAvail) *pNbBytesAvail = (int)stats.cbInQue;
+#else
+	int bytes_avail = 0;
+
+	if (ioctl((intptr_t)hDev, FIONREAD, &bytes_avail) != EXIT_SUCCESS)
+	{
+		PRINT_DEBUG_ERROR_OSCOMPUTERRS232PORT(("CheckAvailableBytesComputerRS232Port error (%s) : (FIONREAD) %s(hDev=%#x)\n", 
+			strtime_m(), 
+			GetLastErrorMsg(), 
+			hDev));
+		return EXIT_FAILURE;
+	}
+	if (bytes_avail <= 0) return EXIT_TIMEOUT;
+	if (pNbBytesAvail) *pNbBytesAvail = (int)bytes_avail;
+#endif // _WIN32
+
+	return EXIT_SUCCESS;
+}
+
+// Deprecated, kept for compatibility...
 inline int CheckAvailableBytesComputerRS232Port(HANDLE hDev)
 {
 #ifdef _WIN32
@@ -1324,8 +1361,8 @@ HANDLE hDev : (IN) Identifier of the computer RS232 port.
 int timeout : (IN) Max time to wait before returning in ms.
 int checkingperiod : (IN) Checking period in ms.
 
-Return : EXIT_SUCCESS if there is data to read, EXIT_TIMEOUT if there is currently no data
- available or EXIT_FAILURE if there is an error.
+Return : EXIT_SUCCESS if there is data to read, EXIT_TIMEOUT if a timeout occurs or 
+EXIT_FAILURE if there is an error.
 */
 inline int WaitForComputerRS232Port(HANDLE hDev, int timeout, int checkingperiod)
 {

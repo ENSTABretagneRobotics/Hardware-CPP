@@ -1,4 +1,8 @@
-on: [push, pull_request]
+on:
+    push:
+        branches: '**'
+        tags: '' # Restrict to blank tags
+    pull_request:
 jobs:
  j1:
     name: Ubuntu 18.04
@@ -17,7 +21,7 @@ jobs:
       shell: cmd
 
  j3:
-    name: macOS 10.15
+    name: macOS Catalina 10.15
     runs-on: macos-10.15
     steps: 
     - uses: actions/checkout@v2
@@ -26,21 +30,33 @@ jobs:
 
  j4:
     name: Windows MinGW 8.1.0 x64
-    runs-on: windows-latest
+    runs-on: windows-2019
     steps: 
     - uses: actions/checkout@v2
-#    - run: choco install -y make
     - run: cmake -G "MSYS Makefiles" -D CMAKE_BUILD_TYPE=Release . && cmake --build . --parallel
       shell: bash
 
  j5:
+    name: Windows MinGW 8.1.0 x86
+    runs-on: windows-2019
+    steps: 
+    - uses: actions/checkout@v2
+    - run: |
+        choco install -y -r --no-progress mingw --version 8.1.0 --force --x86
+        choco install -y -r --no-progress make --force --x86
+        echo C:\ProgramData\chocolatey\lib\mingw\tools\install\mingw32\bin>>%GITHUB_PATH%
+      shell: cmd
+    - run: cmake -G "MSYS Makefiles" -D CMAKE_BUILD_TYPE=Release . && cmake --build . --parallel
+      shell: cmd
+
+ j6:
     name: Ubuntu 16.04
     runs-on: ubuntu-16.04
     steps: 
     - uses: actions/checkout@v2
     - run: make && make clean && cmake -D CMAKE_BUILD_TYPE=Release . && cmake --build .
 
- j6:
+ j7:
     name: Ubuntu 18.04 Qt
     runs-on: ubuntu-18.04
     steps: 
@@ -54,24 +70,19 @@ jobs:
         sudo apt-get -y install qtcreator qt5-default
     - run: qmake && make
 
- j7:
+ j8:
     name: Windows Qt 2010.05 MinGW 4.4.0 x86
     runs-on: windows-latest
     steps: 
     - uses: actions/checkout@v2
-#    - run: choco install -y -r --no-progress wget
-    - run: |         
+    - run: |
         (New-Object System.Net.WebClient).DownloadFile("http://www.ensta-bretagne.fr/lebars/Share/windows_extra_tools.zip", "C:\Windows\Temp\windows_extra_tools.zip") 
         7z x C:\Windows\Temp\windows_extra_tools.zip -o"C:\Windows" -y
       shell: pwsh
-#    - run: |
-#        rem Take 5 min...
-#        choco uninstall -y mingw
-#      shell: cmd
     - run: |
         wget http://www.ensta-bretagne.fr/lebars/Share/qt-sdk-win-opensource-2010.05.exe --no-check-certificate -nv
         move /Y qt-sdk-win-opensource-2010.05.exe %SystemDrive%\
-        rem Take several min...
+        rem Take 5 min...
         %SystemDrive%\qt-sdk-win-opensource-2010.05.exe /S
         del /f /q %SystemDrive%\qt-sdk-win-opensource-2010.05.exe
       shell: cmd
@@ -80,20 +91,15 @@ jobs:
         %SystemDrive%\Qt\2010.05\bin\qtenv.bat & qmake & mingw32-make
       shell: cmd
 
- j8:
+ j9:
     name: Windows Qt 5.12.6 MinGW 7.3.0 x86
     runs-on: windows-latest
     steps: 
     - uses: actions/checkout@v2
-#    - run: choco install -y -r --no-progress wget
     - run: |
         (New-Object System.Net.WebClient).DownloadFile("http://www.ensta-bretagne.fr/lebars/Share/windows_extra_tools.zip", "C:\Windows\Temp\windows_extra_tools.zip") 
         7z x C:\Windows\Temp\windows_extra_tools.zip -o"C:\Windows" -y
       shell: pwsh
-#    - run: |
-#        rem Take 5 min...
-#        choco uninstall -y mingw
-#      shell: cmd
     - run: |
         wget http://download.qt.io/archive/qt/5.12/5.12.6/qt-opensource-windows-x86-5.12.6.exe --no-check-certificate -nv
         move /Y qt-opensource-windows-x86-5.12.6.exe %SystemDrive%\
@@ -107,6 +113,5 @@ jobs:
         netsh advfirewall set allprofiles state off
         del /f /q %SystemDrive%\qt-opensource-windows-x86-5.12.6.exe
       shell: cmd
-    - run: |
-        set PATH=C:\Qt\Qt5.12.6\5.12.6\mingw73_32\bin;C:\Qt\Qt5.12.6\Tools\mingw730_32\bin;%PATH% & qmake & mingw32-make
+    - run: set PATH=C:\Qt\Qt5.12.6\5.12.6\mingw73_32\bin;C:\Qt\Qt5.12.6\Tools\mingw730_32\bin;%PATH% & qmake & mingw32-make
       shell: cmd
