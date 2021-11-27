@@ -24,15 +24,13 @@
 // (e.g. for Qt you will probably need to put the configuration files in the generated 
 // ../Test_devices-build-desktop folder or change "Working directory" in the project "Run Settings").
 
-// min and max might cause incompatibilities on Linux...
-#ifndef _MSC_VER
+// min and max might cause incompatibilities...
 #ifndef max
 #define max(a,b) (((a) > (b)) ? (a) : (b))
 #endif // max
 #ifndef min
 #define min(a,b) (((a) < (b)) ? (a) : (b))
 #endif // min
-#endif // _MSC_VER
 
 /*
 Return the distance to the first obstacle from a sonar scanline.

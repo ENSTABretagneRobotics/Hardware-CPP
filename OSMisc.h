@@ -101,15 +101,13 @@ Debug macros specific to OSMisc.
 //#endif // __GNUC__
 
 // Need to be undefined at the end of the file...
-// min and max might cause incompatibilities with GCC...
-#ifndef _MSC_VER
+// min and max might cause incompatibilities...
 #ifndef max
 #define max(a,b) (((a) > (b)) ? (a) : (b))
 #endif // !max
 #ifndef min
 #define min(a,b) (((a) < (b)) ? (a) : (b))
 #endif // !min
-#endif // !_MSC_VER
 
 #define MAX_BUF_LEN 256
 
@@ -544,13 +542,12 @@ inline double rect_mv_avg(double newvalue, double oldestvalue, double prevaverag
 	return prevaverage+(newvalue-oldestvalue)/(double)n;
 }
 
-// https://fr.wikipedia.org/wiki/Moyenne_mobile
-// https://en.wikipedia.org/wiki/Moving_average
-// http://www.cafemath.fr/mathblog/article.php?page=MovingAverages.php
 inline double exp_mv_avg(double newvalue, double prevaverage, double alpha)
 {
 	return alpha*prevaverage+(1.0-alpha)*newvalue;
 }
+
+// See also https://gist.github.com/mrfaptastic/3fd6394c5d6294c993d8b42b026578da?
 
 #ifndef FGETS2_DEFINED
 #define FGETS2_DEFINED
@@ -1518,9 +1515,9 @@ inline void DegDecMin2DecDeg(int deg, double decmin, double* pDecDeg)
 	*pDecDeg = (deg >= 0)?deg+fabs(decmin/60.0):deg-fabs(decmin/60.0);
 }
 
-inline void DegMinDecSec2DecDeg(int deg, int min, double decsec, double* pDecDeg)
+inline void DegMinDecSec2DecDeg(int deg, int minute, double decsec, double* pDecDeg)
 {
-	double decmin = abs(min)+fabs(decsec)/60.0;
+	double decmin = abs(minute)+fabs(decsec)/60.0;
 	DegDecMin2DecDeg(deg, decmin, pDecDeg);
 }
 
@@ -1564,15 +1561,15 @@ inline void GPSLongitudeDecDeg2DegMinDecSec(double val, int* pDeg, int* pMin, do
 	*pEastOrWest = (val >= 0)?'E':'W';
 }
 
-inline void GPSLatitudeDegMinDecSec2DecDeg(int deg, int min, double decsec, char NorthOrSouth, double* pDecDeg)
+inline void GPSLatitudeDegMinDecSec2DecDeg(int deg, int minute, double decsec, char NorthOrSouth, double* pDecDeg)
 {
-	DegMinDecSec2DecDeg(abs(deg), abs(min), fabs(decsec), pDecDeg);
+	DegMinDecSec2DecDeg(abs(deg), abs(minute), fabs(decsec), pDecDeg);
 	*pDecDeg = (NorthOrSouth == 'N')?*pDecDeg:-*pDecDeg;
 }
 
-inline void GPSLongitudeDegMinDecSec2DecDeg(int deg, int min, double decsec, char EastOrWest, double* pDecDeg)
+inline void GPSLongitudeDegMinDecSec2DecDeg(int deg, int minute, double decsec, char EastOrWest, double* pDecDeg)
 {
-	DegMinDecSec2DecDeg(abs(deg), abs(min), fabs(decsec), pDecDeg);
+	DegMinDecSec2DecDeg(abs(deg), abs(minute), fabs(decsec), pDecDeg);
 	*pDecDeg = (EastOrWest == 'E')?*pDecDeg:-*pDecDeg;
 }
 
@@ -2036,14 +2033,12 @@ inline void useless_function(int useless_param)
 	printf("This function is not so useless!\n");
 }
 
-// min and max might cause incompatibilities with GCC...
-#ifndef _MSC_VER
+// min and max might cause incompatibilities...
 #ifdef max
 #undef max
 #endif // max
 #ifdef min
 #undef min
 #endif // min
-#endif // !_MSC_VER
 
 #endif // !OSMISC_H

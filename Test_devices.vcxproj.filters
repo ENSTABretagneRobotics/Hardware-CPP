@@ -124,11 +124,16 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <Text Include="ReadMe.txt" />
     <Text Include="Hokuyo0.txt">
       <Filter>Input Files</Filter>
     </Text>
+    <Text Include="IM483I0.txt">
+      <Filter>Input Files</Filter>
+    </Text>
     <Text Include="MDM0.txt">
+      <Filter>Input Files</Filter>
+    </Text>
+    <Text Include="MES0.txt">
       <Filter>Input Files</Filter>
     </Text>
     <Text Include="MiniSSC0.txt">
@@ -137,16 +142,28 @@
     <Text Include="MT0.txt">
       <Filter>Input Files</Filter>
     </Text>
+    <Text Include="MS58370.txt">
+      <Filter>Input Files</Filter>
+    </Text>
     <Text Include="NMEADevice0.txt">
       <Filter>Input Files</Filter>
     </Text>
     <Text Include="P33x0.txt">
       <Filter>Input Files</Filter>
     </Text>
+    <Text Include="Pololu0.txt">
+      <Filter>Input Files</Filter>
+    </Text>
     <Text Include="RazorAHRS0.txt">
       <Filter>Input Files</Filter>
     </Text>
+    <Text Include="Roboteq0.txt">
+      <Filter>Input Files</Filter>
+    </Text>
     <Text Include="RPLIDAR0.txt">
+      <Filter>Input Files</Filter>
+    </Text>
+    <Text Include="SBG0.txt">
       <Filter>Input Files</Filter>
     </Text>
     <Text Include="Seanet0.txt">
@@ -164,27 +181,11 @@
     <Text Include="ublox0.txt">
       <Filter>Input Files</Filter>
     </Text>
-    <Text Include="Pololu0.txt">
-      <Filter>Input Files</Filter>
-    </Text>
-    <Text Include="IM483I0.txt">
-      <Filter>Input Files</Filter>
-    </Text>
-    <Text Include="MES0.txt">
-      <Filter>Input Files</Filter>
-    </Text>
-    <Text Include="SBG0.txt">
-      <Filter>Input Files</Filter>
-    </Text>
-    <Text Include="CMakeLists.txt" />
-    <Text Include="MS58370.txt">
-      <Filter>Input Files</Filter>
-    </Text>
-    <Text Include="Roboteq0.txt">
-      <Filter>Input Files</Filter>
-    </Text>
   </ItemGroup>
   <ItemGroup>
+    <None Include=".github\workflows\github-actions.yml" />
+    <Text Include="CMakeLists.txt" />
     <None Include="Makefile" />
+    <Text Include="ReadMe.txt" />
   </ItemGroup>
 </Project>

@@ -136,7 +136,6 @@
     <ClInclude Include="UBXProtocol.h" />
   </ItemGroup>
   <ItemGroup>
-    <Text Include="CMakeLists.txt" />
     <Text Include="Hokuyo0.txt" />
     <Text Include="IM483I0.txt" />
     <Text Include="MDM0.txt" />
@@ -149,7 +148,6 @@
     <Text Include="PathfinderDVL0.txt" />
     <Text Include="Pololu0.txt" />
     <Text Include="RazorAHRS0.txt" />
-    <Text Include="ReadMe.txt" />
     <Text Include="Roboteq0.txt" />
     <Text Include="RPLIDAR0.txt" />
     <Text Include="SBG0.txt" />
@@ -159,7 +157,10 @@
     <Text Include="ublox0.txt" />
   </ItemGroup>
   <ItemGroup>
+    <None Include=".github\workflows\github-actions.yml" />
+    <Text Include="CMakeLists.txt" />
     <None Include="Makefile" />
+    <Text Include="ReadMe.txt" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
