@@ -3,12 +3,13 @@ on:
         branches: '**'
         tags: '' # Restrict to blank tags
     pull_request:
+
 jobs:
  j1:
     name: Windows
     runs-on: windows-latest
     steps: 
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
     - run: cmake . && cmake --build . --config Release --target Test_devices --parallel
       shell: cmd
 
@@ -16,7 +17,7 @@ jobs:
     name: Windows MinGW 8.1.0 x64
     runs-on: windows-2019
     steps: 
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
     - run: cmake -G "MSYS Makefiles" -D CMAKE_BUILD_TYPE=Release . && cmake --build . --parallel
       shell: bash
 
@@ -24,7 +25,7 @@ jobs:
     name: Windows MinGW 8.1.0 x86
     runs-on: windows-2019
     steps: 
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
     - run: |
         choco install -y -r --no-progress mingw --version=8.1.0 --force --x86
         choco install -y -r --no-progress make --force --x86
@@ -37,7 +38,7 @@ jobs:
     name: Ubuntu 20.04
     runs-on: ubuntu-20.04
     steps: 
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
     - run: cmake  . && cmake --build .
 #    - run: cmake -D CMAKE_BUILD_TYPE=Release . && cmake --build . --parallel
 
@@ -45,62 +46,49 @@ jobs:
     name: Ubuntu 18.04
     runs-on: ubuntu-18.04
     steps: 
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
     - run: cmake  . && cmake --build .
 
  j6:
-    name: macOS Catalina
-    runs-on: macos-11
+    name: macOS Monterey
+    runs-on: macos-12
     steps: 
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
     - run: cmake  . && cmake --build .
 #    - run: cmake -D CMAKE_BUILD_TYPE=Release . && cmake --build . --parallel
 
  j7:
-    name: macOS Catalina
-    runs-on: macos-10.15
+    name: macOS Big Sur
+    runs-on: macos-11
     steps: 
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
     - run: cmake  . && cmake --build .
 
  j8:
     name: Ubuntu (other tests)
     runs-on: ubuntu-latest
     steps: 
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
     - run: make && make clean && cmake -D CMAKE_BUILD_TYPE=Release . && cmake --build .
 
  j9:
     name: Ubuntu 20.04 Qt
     runs-on: ubuntu-20.04
     steps: 
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
     - run: |
         sudo apt-get -q update || true # Allowed to fail...
-        sudo apt-get -y install qtcreator qt5-default
+        sudo apt-get -y install qt5-default
     - run: qmake && make
 
  j10:
-    name: Windows Qt 5.12.6 MinGW 7.3.0 x86
+    name: Windows Qt MinGW
     runs-on: windows-latest
     steps: 
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
     - run: |
-        (New-Object System.Net.WebClient).DownloadFile("http://www.ensta-bretagne.fr/lebars/Share/windows_extra_tools.zip", "C:\Windows\Temp\windows_extra_tools.zip") 
-        7z x C:\Windows\Temp\windows_extra_tools.zip -o"C:\Windows" -y
-      shell: pwsh
-    - run: |
-        wget http://download.qt.io/archive/qt/5.12/5.12.6/qt-opensource-windows-x86-5.12.6.exe --no-check-certificate -nv
-        move /Y qt-opensource-windows-x86-5.12.6.exe %SystemDrive%\
-        wget http://www.ensta-bretagne.fr/lebars/Share/qt-installer-5.12.6-mingw73_32.qs --no-check-certificate -nv
-        move /Y qt-installer-5.12.6-mingw73_32.qs %SystemDrive%\
-        netsh advfirewall set allprofiles state on
-        netsh advfirewall firewall add rule name="Qt offline installer" dir=out action=block program="%SystemDrive%\qt-opensource-windows-x86-5.12.6.exe" enable=yes
-        rem Take several min...
-        %SystemDrive%\qt-opensource-windows-x86-5.12.6.exe --script %SystemDrive%\qt-installer-5.12.6-mingw73_32.qs
-        netsh advfirewall firewall del rule name="Qt offline installer"
-        netsh advfirewall set allprofiles state off
-        del /f /q %SystemDrive%\qt-opensource-windows-x86-5.12.6.exe
+        choco install -y -r --no-progress qt5-default make
+        echo C:\Qt\5.15.2\mingw81_64\bin>>%GITHUB_PATH%
       shell: cmd
-    - run: set PATH=C:\Qt\Qt5.12.6\5.12.6\mingw73_32\bin;C:\Qt\Qt5.12.6\Tools\mingw730_32\bin;%PATH% && qmake && mingw32-make
+    - run: qmake && make
       shell: cmd
