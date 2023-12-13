@@ -14,20 +14,20 @@ jobs:
       shell: cmd
 
  j2:
-    name: Windows MinGW 8.1.0 x64
-    runs-on: windows-2019
+    name: Windows MinGW 11.2.0 x64
+    runs-on: windows-2022
     steps: 
     - uses: actions/checkout@v3
     - run: cmake -G "MSYS Makefiles" -D CMAKE_BUILD_TYPE=Release . && cmake --build . --parallel
       shell: bash
 
  j3:
-    name: Windows MinGW 8.1.0 x86
-    runs-on: windows-2019
+    name: Windows MinGW 11.2.0 x86
+    runs-on: windows-2022
     steps: 
     - uses: actions/checkout@v3
     - run: |
-        choco install -y -r --no-progress mingw --version=8.1.0 --force --x86
+        choco install -y -r --no-progress mingw --version=11.2.0.07112021 --force --x86
         choco install -y -r --no-progress make --force --x86
         echo C:\ProgramData\chocolatey\lib\mingw\tools\install\mingw32\bin>>%GITHUB_PATH%
       shell: cmd
@@ -43,8 +43,8 @@ jobs:
 #    - run: cmake -D CMAKE_BUILD_TYPE=Release . && cmake --build . --parallel
 
  j5:
-    name: Ubuntu 18.04
-    runs-on: ubuntu-18.04
+    name: Ubuntu 22.04
+    runs-on: ubuntu-22.04
     steps: 
     - uses: actions/checkout@v3
     - run: cmake  . && cmake --build .
@@ -72,13 +72,13 @@ jobs:
     - run: make && make clean && cmake -D CMAKE_BUILD_TYPE=Release . && cmake --build .
 
  j9:
-    name: Ubuntu 20.04 Qt
-    runs-on: ubuntu-20.04
+    name: Ubuntu 22.04 Qt
+    runs-on: ubuntu-22.04
     steps: 
     - uses: actions/checkout@v3
     - run: |
         sudo apt-get -q update || true # Allowed to fail...
-        sudo apt-get -y install qt5-default
+        sudo apt-get -y install qtbase5-dev qtchooser
     - run: qmake && make
 
  j10:

@@ -55,19 +55,23 @@ _ Mac OS : __APPLE__
 
 _ Windows CE : WINCE
 
+See also https://sourceforge.net/p/predef/wiki/Architectures/.
+
 */
 
 #ifdef _WIN32
-// Set the default target Windows version to Windows XP, unless we use Borland C++ Builder 5
-// for which it is set to Windows 2000.
+// Set the default target Windows version to at least Windows XP, unless we use
+// Borland C++ Builder 5 for which it is set to Windows 2000.
 #	ifdef __BORLANDC__
-#		ifndef _WIN32_WINNT
+#		if !defined(_WIN32_WINNT) || (_WIN32_WINNT < 0x0500)
+#			undef _WIN32_WINNT
 #			define _WIN32_WINNT 0x0500
-#		endif // _WIN32_WINNT
+#		endif // !defined(_WIN32_WINNT) || (_WIN32_WINNT < 0x0500)
 #	else
-#		ifndef _WIN32_WINNT
+#		if !defined(_WIN32_WINNT) || (_WIN32_WINNT < 0x0501)
+#			undef _WIN32_WINNT
 #			define _WIN32_WINNT 0x0501
-#		endif // _WIN32_WINNT
+#		endif // !defined(_WIN32_WINNT) || (_WIN32_WINNT < 0x0501)
 #	endif // __BORLANDC__
 #endif // _WIN32
 
@@ -147,6 +151,7 @@ _ Windows CE : WINCE
 // To fix...
 
 #pragma GCC diagnostic ignored "-Wwrite-strings"
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
 //#if (((__GNUC__ == 4) && (__GNUC_MINOR__ >= 6)) || (__GNUC__ > 4))
 //#pragma GCC diagnostic push
 //#endif // (((__GNUC__ == 4) && (__GNUC_MINOR__ >= 6)) || (__GNUC__ > 4))
