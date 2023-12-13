@@ -93,8 +93,8 @@ int main(int argc, char* argv[])
 	int receivedbytes = 0;
 	unsigned char buf[256];
 	HOKUYO hokuyo;
-	double angles[MAX_SLITDIVISION_HOKUYO];
-	double distances[MAX_SLITDIVISION_HOKUYO];
+	double angles[max(MAX_SLITDIVISION_HOKUYO,NB_MEASUREMENTS_EXPRESS_SCAN_DATA_RESPONSE_RPLIDAR)];
+	double distances[max(MAX_SLITDIVISION_HOKUYO,NB_MEASUREMENTS_EXPRESS_SCAN_DATA_RESPONSE_RPLIDAR)];
 	RPLIDAR rplidar;
 	BOOL bNewScan = FALSE;
 	int quality = 0;
