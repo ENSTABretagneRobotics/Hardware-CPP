@@ -14,7 +14,7 @@ jobs:
       shell: cmd
 
  j2:
-    name: Windows MinGW 11.2.0 x64
+    name: Windows MinGW x64
     runs-on: windows-2022
     steps: 
     - uses: actions/checkout@v3
