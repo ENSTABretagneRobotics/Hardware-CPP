@@ -15,6 +15,7 @@
 #include "MES.h"
 #include "Hokuyo.h"
 #include "RPLIDAR.h"
+#include "Velodyne.h"
 #include "Seanet.h"
 #include "PathfinderDVL.h"
 
