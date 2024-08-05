@@ -122,6 +122,9 @@
     <ClInclude Include="Roboteq.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Velodyne.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Text Include="Hokuyo0.txt">
@@ -179,6 +182,9 @@
       <Filter>Input Files</Filter>
     </Text>
     <Text Include="ublox0.txt">
+      <Filter>Input Files</Filter>
+    </Text>
+    <Text Include="Velodyne0.txt">
       <Filter>Input Files</Filter>
     </Text>
   </ItemGroup>
