@@ -359,6 +359,12 @@ inline double fmod_2PI_deg2rad(double theta)
 	return fmod(fmod(theta*M_PI/180.0, 2*M_PI)+3*M_PI, 2*M_PI)-M_PI;
 }
 
+// From https://www.ensta-bretagne.fr/jaulin/robmooc.pdf.
+inline double sawtooth(double theta)
+{
+	return 2*atan(tan(theta/2));
+}
+
 #ifndef MEAN_DEFINED
 #define MEAN_DEFINED
 #ifndef mean
@@ -548,6 +554,34 @@ inline double exp_mv_avg(double newvalue, double prevaverage, double alpha)
 }
 
 // See also https://gist.github.com/mrfaptastic/3fd6394c5d6294c993d8b42b026578da?
+
+inline int comm_write_val(char* filename, double val)
+{
+	FILE* file = fopen(filename, "w");
+	if (file != NULL)
+	{
+		fprintf(file, "%f\n", val);
+		fclose(file);
+		return EXIT_SUCCESS;
+	}
+	return EXIT_FAILURE;
+}
+
+inline int comm_read_val(char* filename, double* pVal)
+{
+	int ret = EXIT_FAILURE;
+	int nb = 0;
+	double val = 0;
+	char c = 0;
+	FILE* file = fopen(filename, "r");
+	if (file != NULL)
+	{
+		nb = fscanf(file, "%lf%c\n", &val, &c);
+		if ((nb == 2)&&((c=='\n')||(c=='\r'))) { *pVal = val; ret = EXIT_SUCCESS; }
+		fclose(file);
+	}
+	return ret;
+}
 
 #ifndef FGETS2_DEFINED
 #define FGETS2_DEFINED
