@@ -70,6 +70,8 @@ add_executable(Test_devices Main.cpp OSTime.c OSNet.c OSMisc.c OSCore.c)
 
 if(WIN32)
 	if(MSVC)
+		set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /W4")
+		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /W4")
 		target_link_libraries(Test_devices WS2_32)
 	else()
 		set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -Wno-unknown-pragmas -Wextra")
