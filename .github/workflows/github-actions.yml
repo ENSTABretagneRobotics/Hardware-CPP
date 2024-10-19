@@ -9,7 +9,7 @@ jobs:
     name: Windows
     runs-on: windows-latest
     steps: 
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     - run: cmake . && cmake --build . --config Release --target Test_devices --parallel
       shell: cmd
 
@@ -17,7 +17,7 @@ jobs:
     name: Windows MinGW x64
     runs-on: windows-2022
     steps: 
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     - run: cmake -G "MSYS Makefiles" -D CMAKE_BUILD_TYPE=Release . && cmake --build . --parallel
       shell: bash
 
@@ -25,7 +25,7 @@ jobs:
     name: Windows MinGW 11.2.0 x86
     runs-on: windows-2022
     steps: 
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     - run: |
         choco install -y -r --no-progress mingw --version=11.2.0.07112021 --force --x86
         choco install -y -r --no-progress make --force --x86
@@ -35,47 +35,47 @@ jobs:
       shell: cmd
 
  j4:
-    name: Ubuntu 20.04
-    runs-on: ubuntu-20.04
+    name: Ubuntu 24.04
+    runs-on: ubuntu-24.04
     steps: 
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     - run: cmake  . && cmake --build .
-#    - run: cmake -D CMAKE_BUILD_TYPE=Release . && cmake --build . --parallel
 
  j5:
     name: Ubuntu 22.04
     runs-on: ubuntu-22.04
     steps: 
-    - uses: actions/checkout@v3
-    - run: cmake  . && cmake --build .
-
- j6:
-    name: macOS Monterey
-    runs-on: macos-12
-    steps: 
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     - run: cmake  . && cmake --build .
 #    - run: cmake -D CMAKE_BUILD_TYPE=Release . && cmake --build . --parallel
 
- j7:
-    name: macOS Big Sur
-    runs-on: macos-11
+ j6:
+    name: macOS Sequoia
+    runs-on: macos-15
     steps: 
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     - run: cmake  . && cmake --build .
+
+ j7:
+    name: macOS Ventura
+    runs-on: macos-13
+    steps: 
+    - uses: actions/checkout@v4
+    - run: cmake  . && cmake --build .
+#    - run: cmake -D CMAKE_BUILD_TYPE=Release . && cmake --build . --parallel
 
  j8:
     name: Ubuntu (other tests)
     runs-on: ubuntu-latest
     steps: 
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     - run: make && make clean && cmake -D CMAKE_BUILD_TYPE=Release . && cmake --build .
 
  j9:
     name: Ubuntu 22.04 Qt
     runs-on: ubuntu-22.04
     steps: 
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     - run: |
         sudo apt-get -q update || true # Allowed to fail...
         sudo apt-get -y install qtbase5-dev qtchooser
@@ -85,7 +85,7 @@ jobs:
     name: Windows Qt MinGW
     runs-on: windows-latest
     steps: 
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     - run: |
         choco install -y -r --no-progress qt5-default make
         echo C:\Qt\5.15.2\mingw81_64\bin>>%GITHUB_PATH%
