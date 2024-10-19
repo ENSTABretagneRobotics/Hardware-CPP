@@ -10,6 +10,16 @@ udp:2368
 1
 % DefaultLaserID
 1
+% bDistanceProjectionWithElevation
+0
+% maxhist (0 : try to automatically remove old data, require associated thread, not implemented)
+2000
+% step_elevation (in deg)
+2
+% min_elevation (in deg)
+-15
+% max_elevation (in deg)
+15
 % alpha_max_err (in rad)
 0.01
 % d_max_err (in m)

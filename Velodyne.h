@@ -47,12 +47,17 @@ struct VELODYNE
 	int threadperiod;
 	BOOL bSaveRawData;
 	int DefaultLaserID;
+	BOOL bDistanceProjectionWithElevation;
+	int maxhist;
+	double step_elevation;
+	double min_elevation;
+	double max_elevation;
 	double alpha_max_err;
 	double d_max_err;
 };
 typedef struct VELODYNE VELODYNE;
 
-int ProcessRawDataVelodyne(VELODYNE* pVelodyne, const u_char* data, uint32_t data_len, double* pDistances, double* pAngles)
+int ProcessRawDataVelodyne(VELODYNE* pVelodyne, const u_char* data, uint32_t data_len, double* pDistances, double* pAngles, double* pElevation)
 {
 	int k = 0;
 
@@ -89,6 +94,10 @@ int ProcessRawDataVelodyne(VELODYNE* pVelodyne, const u_char* data, uint32_t dat
 		for (int j = 0; j < 32; j++) { // Each block contains 32 data points.
 			int dataBlockIndex = (dual_mode)? (i - (i % 2)) + (j / 16): (i * 2) + (j / 16); // From documentation.
 			int laserID = j % 16; // There are 16 lasers
+
+			// Assuming firing alternance, symetry...
+			double elevation = pVelodyne->min_elevation+(laserID*pVelodyne->step_elevation);
+
 			unsigned short rawDistance = (dataPacket[i*100 + 5 + j*3] << 8) | dataPacket[i*100 + 4 + j*3]; // Distance data.
 			//if (rawDistance == 0) // Invalid data.
 			//	continue;
@@ -98,12 +107,24 @@ int ProcessRawDataVelodyne(VELODYNE* pVelodyne, const u_char* data, uint32_t dat
 
 			double timeOffset = (55.296 * dataBlockIndex) + (2.304 * laserID); // From documentation.
 
-			//std::cout << "Laser ID: " << laserID << ", Azimuth: " << azimuth << ", Distance: " << distance << ", Intensity: " << int(intensity) << ", TimeStamp: " << std::fixed << timeStamp+timeOffset << std::endl;
+			//std::cout << "Laser ID: " << laserID << "Elevation: " << elevation << ", Azimuth: " << azimuth << ", Distance: " << distance << ", Intensity: " << int(intensity) << ", TimeStamp: " << std::fixed << timeStamp+timeOffset << std::endl;
 			
+
+			// TODO: there is a concept of "Vertical Correction" that should be applied...
+
+
 			if (laserID == pVelodyne->DefaultLaserID)
 			{
-				pAngles[k] = fmod_2PI_deg2rad(azimuth); // Convert in rad.		
-				pDistances[k] = distance; // Convert in m.
+				*pElevation = fmod_2PI_deg2rad(elevation); // Convert in rad.
+				pAngles[k] = fmod_2PI_pos_deg2rad(azimuth); // Convert in rad.
+				if (pVelodyne->bDistanceProjectionWithElevation)
+				{
+					pDistances[k] = distance*cos(*pElevation); // Convert in m.
+				}
+				else 
+				{
+					pDistances[k] = distance; // Convert in m.
+				}
 				k++;
 			}
 			UNREFERENCED_PARAMETER(intensity);
@@ -118,19 +139,24 @@ int ProcessRawDataVelodyne(VELODYNE* pVelodyne, const u_char* data, uint32_t dat
 }
 
 // NB_MEASUREMENTS_VELODYNE distances, angles...
-inline int GetDataVelodyne(VELODYNE* pVelodyne, double* pDistances, double* pAngles)
+inline int GetDataVelodyne(VELODYNE* pVelodyne, double* pDistances, double* pAngles, double* pElevation)
 {
-	unsigned char databuf[UDP_PACKET_SIZE_VELODYNE];
+	unsigned char recvbuf[UDP_PACKET_SIZE_VELODYNE];
 
 	// Receive the data response.
-	//memset(databuf, 0, sizeof(databuf));
-	if (ReadAllRS232Port(&pVelodyne->RS232Port, databuf, UDP_PACKET_SIZE_VELODYNE) != EXIT_SUCCESS)
+	//memset(recvbuf, 0, sizeof(recvbuf));
+	if (ReadAllRS232Port(&pVelodyne->RS232Port, recvbuf, UDP_PACKET_SIZE_VELODYNE) != EXIT_SUCCESS)
 	{
 		printf("Error reading data from a Velodyne. \n");
 		return EXIT_FAILURE;
 	}
+	if ((pVelodyne->bSaveRawData)&&(pVelodyne->pfSaveFile))
+	{
+		fwrite(recvbuf, UDP_PACKET_SIZE_VELODYNE, 1, pVelodyne->pfSaveFile);
+		fflush(pVelodyne->pfSaveFile);
+	}
 
-	if (ProcessRawDataVelodyne(pVelodyne, databuf, UDP_PACKET_SIZE_VELODYNE, pDistances, pAngles) != EXIT_SUCCESS)
+	if (ProcessRawDataVelodyne(pVelodyne, recvbuf, UDP_PACKET_SIZE_VELODYNE, pDistances, pAngles, pElevation) != EXIT_SUCCESS)
 	{ 
 		return EXIT_FAILURE;
 	}
@@ -161,6 +187,11 @@ inline int ConnectVelodyne(VELODYNE* pVelodyne, char* szCfgFilePath)
 		pVelodyne->threadperiod = 50;
 		pVelodyne->bSaveRawData = 1;
 		pVelodyne->DefaultLaserID = 1;
+		pVelodyne->bDistanceProjectionWithElevation = 0;
+		pVelodyne->maxhist = 0;
+		pVelodyne->step_elevation = 2;
+		pVelodyne->min_elevation = -15;
+		pVelodyne->max_elevation = 15;
 		pVelodyne->alpha_max_err = 0.01;
 		pVelodyne->d_max_err = 0.1;
 
@@ -180,6 +211,16 @@ inline int ConnectVelodyne(VELODYNE* pVelodyne, char* szCfgFilePath)
 			if (sscanf(line, "%d", &pVelodyne->bSaveRawData) != 1) printf("Invalid configuration file.\n");
 			if (fgets3(file, line, sizeof(line)) == NULL) printf("Invalid configuration file.\n");
 			if (sscanf(line, "%d", &pVelodyne->DefaultLaserID) != 1) printf("Invalid configuration file.\n");
+			if (fgets3(file, line, sizeof(line)) == NULL) printf("Invalid configuration file.\n");
+			if (sscanf(line, "%d", &pVelodyne->bDistanceProjectionWithElevation) != 1) printf("Invalid configuration file.\n");
+			if (fgets3(file, line, sizeof(line)) == NULL) printf("Invalid configuration file.\n");
+			if (sscanf(line, "%d", &pVelodyne->maxhist) != 1) printf("Invalid configuration file.\n");
+			if (fgets3(file, line, sizeof(line)) == NULL) printf("Invalid configuration file.\n");
+			if (sscanf(line, "%lf", &pVelodyne->step_elevation) != 1) printf("Invalid configuration file.\n");
+			if (fgets3(file, line, sizeof(line)) == NULL) printf("Invalid configuration file.\n");
+			if (sscanf(line, "%lf", &pVelodyne->min_elevation) != 1) printf("Invalid configuration file.\n");
+			if (fgets3(file, line, sizeof(line)) == NULL) printf("Invalid configuration file.\n");
+			if (sscanf(line, "%lf", &pVelodyne->max_elevation) != 1) printf("Invalid configuration file.\n");
 			if (fgets3(file, line, sizeof(line)) == NULL) printf("Invalid configuration file.\n");
 			if (sscanf(line, "%lf", &pVelodyne->alpha_max_err) != 1) printf("Invalid configuration file.\n");
 			if (fgets3(file, line, sizeof(line)) == NULL) printf("Invalid configuration file.\n");
