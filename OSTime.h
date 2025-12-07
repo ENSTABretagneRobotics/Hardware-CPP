@@ -456,6 +456,8 @@ Return : This string.
 EXTERN_C char* strtimeex_fns(void);
 #endif // (defined(_WIN32) && (defined(ENABLE_GETTIMEOFDAY_WIN32) || defined(ENABLE_SYS_TIME_H_WIN32))) || (!defined(_WIN32))
 
+#ifndef MSLEEP_DEFINED
+#define MSLEEP_DEFINED
 /*
 Wait some time...
 
@@ -477,7 +479,10 @@ inline void mSleep(long Milliseconds)
 	nanosleep(&req, NULL);
 #endif // _WIN32
 }
+#endif // MSLEEP_DEFINED
 
+#ifndef USLEEP_DEFINED
+#define USLEEP_DEFINED
 /*
 Wait some time...
 
@@ -509,6 +514,7 @@ inline void uSleep(long Microseconds)
 	nanosleep(&req, NULL);
 #endif // _WIN32
 }
+#endif // USLEEP_DEFINED
 
 inline void DecSec2DaysHoursMinSec(double decsec, int* pDays, int* pHours, int* pMin, int* pSec, double* pDeccsec)
 {

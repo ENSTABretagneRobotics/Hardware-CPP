@@ -2723,4 +2723,176 @@ inline int GetAddrPortTypeFromDevPath(char* szDevPath, char* address, size_t add
 	return EXIT_SUCCESS;
 }
 
+/*
+Check if ip_address is a valid IPv4 or IPv6 address.
+
+char* ip_address : (IN) String to check.
+int ip_version : (IN) 4 or 6.
+
+Return : EXIT_SUCCESS or EXIT_FAILURE if there is an error.
+*/
+#if (_WIN32_WINNT >= 0x0600)
+inline int is_valid_ip_address(char* ip_address, int ip_version) {
+	if ((ip_address == NULL)||(strlen(ip_address)) == 0) {
+		return EXIT_FAILURE;
+	}
+	// inet_pton() returns 1 on success, 0 on invalid, and -1 on error.
+	if (ip_version == 4) {
+		struct in_addr addr4;
+		if (inet_pton(AF_INET, ip_address, &addr4) == 1) return EXIT_SUCCESS;
+	}
+	else if (ip_version == 6) {
+		struct in6_addr addr6;
+		if (inet_pton(AF_INET6, ip_address, &addr6) == 1) return EXIT_SUCCESS;
+	}
+	return EXIT_FAILURE;
+}
+#else
+// From Copilot.
+inline int is_valid_ip_address(const char *ip_address, int ip_version) {
+	// Check for NULL or empty string
+	if ((ip_address == NULL) || (strlen(ip_address) == 0)) {
+		return EXIT_FAILURE;
+	}
+
+	if (ip_version == 4) {
+		// IPv4 validation
+		int num, dots = 0;
+		char *ptr;
+		char ip_copy[16];  // Max length for IPv4 address string
+
+		strncpy(ip_copy, ip_address, sizeof(ip_copy));
+		ip_copy[sizeof(ip_copy) - 1] = '\0';  // Ensure null termination
+
+		ptr = strtok(ip_copy, ".");
+		if (ptr == NULL) {
+			return EXIT_FAILURE;
+		}
+
+		while (ptr) {
+			// Check if the token is a valid number
+			for (int i = 0; ptr[i] != '\0'; i++) {
+				if (!isdigit((unsigned char)ptr[i])) {
+					return EXIT_FAILURE;
+				}
+			}
+
+			num = atoi(ptr);
+			if (num < 0 || num > 255) {
+				return EXIT_FAILURE;
+			}
+
+			dots++;
+			ptr = strtok(NULL, ".");
+		}
+
+		// Valid IPv4 address must have exactly 4 parts
+		if (dots != 4) {
+			return EXIT_FAILURE;
+		}
+
+		return EXIT_SUCCESS;
+	}
+	else if (ip_version == 6) {
+		// IPv6 validation (improved)
+		int hextet_count = 0;
+		int double_colon = 0;
+		int colons = 0;
+		const char *ptr = ip_address;
+		char hextet[5];  // Each hextet can be at most 4 hex digits
+		int idx = 0;
+
+		// Check for consecutive colons and count total colons
+		while (*ptr) {
+			if (*ptr == ':') {
+				colons++;
+				if (*(ptr + 1) == ':') {
+					if (double_colon) {
+						// More than one '::' is invalid
+						return EXIT_FAILURE;
+					}
+					double_colon = 1;
+					ptr++;  // Skip the second colon
+				}
+			}
+			ptr++;
+		}
+
+		// Max number of colons in IPv6 address is 7
+		if (colons > 7 && !double_colon) {
+			return EXIT_FAILURE;
+		}
+
+		// Reset pointer for parsing hextets
+		ptr = ip_address;
+		memset(hextet, 0, sizeof(hextet));
+
+		// Iterate through each character
+		while (*ptr) {
+			if (*ptr == ':') {
+				if (idx > 0) {
+					hextet[idx] = '\0';
+					// Validate hextet
+					for (int i = 0; i < idx; i++) {
+						if (!isxdigit((unsigned char)hextet[i])) {
+							return EXIT_FAILURE;
+						}
+					}
+					hextet_count++;
+					idx = 0;
+				}
+				else if (*(ptr + 1) == ':') {
+					ptr++;  // Skip the second colon in '::'
+				}
+				else {
+					// Empty hextet (single ':') is invalid unless part of '::'
+					if (!double_colon) {
+						return EXIT_FAILURE;
+					}
+				}
+			}
+			else {
+				if (idx >= 4) {
+					// Hextet too long
+					return EXIT_FAILURE;
+				}
+				hextet[idx++] = *ptr;
+			}
+			ptr++;
+		}
+
+		// Validate the last hextet if any
+		if (idx > 0) {
+			hextet[idx] = '\0';
+			for (int i = 0; i < idx; i++) {
+				if (!isxdigit((unsigned char)hextet[i])) {
+					return EXIT_FAILURE;
+				}
+			}
+			hextet_count++;
+		}
+
+		// Calculate the total hextets considering '::'
+		if (double_colon) {
+			// If '::' was used, the total hextets should be less than or equal to 7
+			if (hextet_count > 7) {
+				return EXIT_FAILURE;
+			}
+		}
+		else {
+			// Without '::', there must be exactly 8 hextets
+			if (hextet_count != 8) {
+				return EXIT_FAILURE;
+			}
+		}
+
+		return EXIT_SUCCESS;
+	}
+	else {
+		// Invalid IP version specified
+		return EXIT_FAILURE;
+	}
+}
+#endif // (_WIN32_WINNT >= 0x0600)
+
 #endif // !OSNET_H
