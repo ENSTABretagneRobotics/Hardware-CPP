@@ -1,7 +1,7 @@
 on:
     push:
-        branches: '**'
-        tags: '' # Restrict to blank tags
+        branches: ['**']
+        tags-ignore: ['**']  # Ignore all tag pushes
     pull_request:
 
 jobs:
@@ -9,7 +9,7 @@ jobs:
     name: Windows
     runs-on: windows-latest
     steps: 
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v5
     - run: cmake . && cmake --build . --config Release --target Test_devices --parallel
       shell: cmd
 
@@ -17,7 +17,7 @@ jobs:
     name: Windows MinGW x64
     runs-on: windows-2022
     steps: 
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v5
     - run: cmake -G "MSYS Makefiles" -D CMAKE_BUILD_TYPE=Release . && cmake --build . --parallel
       shell: bash
 
@@ -25,7 +25,7 @@ jobs:
     name: Windows MinGW 13.2.0 x86
     runs-on: windows-2022
     steps: 
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v5
     - run: |
         choco install -y -r --no-progress mingw --version=13.2.0 --force --x86
         choco install -y -r --no-progress make --force --x86
@@ -38,14 +38,14 @@ jobs:
     name: Ubuntu 24.04
     runs-on: ubuntu-24.04
     steps: 
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v5
     - run: cmake  . && cmake --build .
 
  j5:
     name: Ubuntu 22.04
     runs-on: ubuntu-22.04
     steps: 
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v5
     - run: cmake  . && cmake --build .
 #    - run: cmake -D CMAKE_BUILD_TYPE=Release . && cmake --build . --parallel
 
@@ -53,14 +53,14 @@ jobs:
     name: macOS Sequoia
     runs-on: macos-15
     steps: 
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v5
     - run: cmake  . && cmake --build .
 
  j7:
-    name: macOS Ventura
-    runs-on: macos-13
+    name: macOS Sonoma x86_64 # Not clear whether macos-15-intel is more Sequoia or Sonoma, see https://github.com/actions/runner-images/issues/13045...
+    runs-on: macos-15-intel
     steps: 
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v5
     - run: cmake  . && cmake --build .
 #    - run: cmake -D CMAKE_BUILD_TYPE=Release . && cmake --build . --parallel
 
@@ -68,14 +68,14 @@ jobs:
     name: Ubuntu (other tests)
     runs-on: ubuntu-latest
     steps: 
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v5
     - run: make && make clean && cmake -D CMAKE_BUILD_TYPE=Release . && cmake --build .
 
  j9:
     name: Ubuntu 24.04 Qt
     runs-on: ubuntu-24.04
     steps: 
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v5
     - run: |
         sudo apt-get -q update || true # Allowed to fail...
         sudo apt-get -y install qt6-base-dev
@@ -85,9 +85,10 @@ jobs:
     name: Windows Qt MinGW
     runs-on: windows-latest
     steps: 
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v5
     - run: |
         choco install -y -r --no-progress qt6-base-dev make
+        echo C:\ProgramData\mingw64\mingw64\bin>>%GITHUB_PATH%
         echo C:\Qt\6.4.2\mingw_64\bin>>%GITHUB_PATH%
       shell: cmd
     - run: qmake6 && make
